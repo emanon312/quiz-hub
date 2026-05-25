@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据可视化期末复习 100 题</title>
 <style>
-:root{--primary:#4ecdc4;--primary-dark:var(--primary-dark);--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
+:root{--primary:#4ecdc4;--primary-dark:#3bb5ac;--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg-page);color:var(--text);display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--bg-dark);color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
@@ -664,17 +664,6 @@ function renderSidebar() {
   if (filter==='wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
   document.getElementById('filterStar').classList.toggle('active', filter==='star');
 
-  // 显示填空题逐词反馈
-  if (s._fillFeedback && (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted')) {
-    const fb = s._fillFeedback;
-    const rm = document.getElementById('resultMsg');
-    if (!rm.classList.contains('show')) {
-      rm.textContent = '关键词：'+fb.map(h=>(h.ok?'✓':'✗')+' '+h.kw).join('  ');
-      rm.className = 'result-msg show';
-      rm.style.background = fb.every(h=>h.ok) ? '#e8f5e9' : '#fff3e0';
-      rm.style.color = fb.every(h=>h.ok) ? '#2e7d32' : '#e65100';
-    }
-  }
   updateStats();
 }
 
@@ -707,7 +696,7 @@ function updateStats() {
   saveData();
 }
 
-<!-- ═══════════ SECTION: 用户交互 ═══════════ -->
+// ═══════════ SECTION: 用户交互 ═══════════
 function toggleTypeExpand(type, btn) {
   const s = activeSetData();
   const grid = btn.nextElementSibling;
@@ -742,7 +731,7 @@ function jumpToQ(qid) {
   }
 }
 
-<!-- ═══════════ SECTION: 特殊功能 ═══════════ -->
+// ═══════════ SECTION: 特殊功能 ═══════════
 // ========== 随机模式 ==========
 let randomMode = false;
 function toggleRandom() {
@@ -966,11 +955,11 @@ function exportShortAnswers() {
     });
   });
   const entries = Object.values(all);
-  if (entries.length === 0) { alert('还没有转为简答题的题目。\\n\\n在做题时点击题目旁的"转简答"按钮来收集。'); return; }
-  let md = '# 数据可视化简答题大全\\n\\n> 共 ' + entries.length + ' 道简答题，从选择题/填空题转换而来\\n\\n---\\n\\n';
+  if (entries.length === 0) { alert('还没有转为简答题的题目。\n\n在做题时点击题目旁的"转简答"按钮来收集。'); return; }
+  let md = '# 数据可视化简答题大全\n\n> 共 ' + entries.length + ' 道简答题，从选择题/填空题转换而来\n\n---\n\n';
   entries.forEach((sa, i) => {
-    md += '## ' + (i+1) + '. ' + sa.q + '\\n\\n';
-    md += '**答案：**\\n\\n' + sa.a.replace(/\\n/g, '\\n\\n') + '\\n\\n---\\n\\n';
+    md += '## ' + (i+1) + '. ' + sa.q + '\n\n';
+    md += '**答案：**\n\n' + sa.a.replace(/\n/g, '\n\n') + '\n\n---\n\n';
   });
   const blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
   const url = URL.createObjectURL(blob);
@@ -1165,7 +1154,6 @@ function renderQuestion() {
 
     const done = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted');
   document.getElementById('btnCheck').disabled = done;
-  document.getElementById('btnRetry').style.display = done ? '' : 'none';
 
   // Exam mode: hide answer button
   if (examMode) {
@@ -1184,18 +1172,6 @@ function renderQuestion() {
     }
   }
   updateStats();
-}
-
-function retryQuestion() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  delete s.userAnswers[q.id];
-  delete s.revealedIds[q.id];
-  delete s._fillFeedback;
-  saveData();
-  renderQuestion();
 }
 
 function checkAnswer() {
@@ -1311,7 +1287,7 @@ function nextQuestion() {
   if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
 }
 
-<!-- ═══════════ SECTION: 键盘快捷键 ═══════════ -->
+// ═══════════ SECTION: 键盘快捷键 ═══════════
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'ArrowLeft') { prevQuestion(); return; }
@@ -1383,7 +1359,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-<!-- ═══════════ SECTION: 初始化 ═══════════ -->
+// ═══════════ SECTION: 初始化 ═══════════
 renderSidebar();
 renderQuestion();
 </script>

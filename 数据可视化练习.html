@@ -551,6 +551,12 @@ let data = loadData();
 let activeSet = data.activeSet || 0;
 let filter = data.filter || 'all';  // 'all', 'wrong', 'star'
 let sets = data.sets || [defaultSetData(), defaultSetData()];
+// 兼容旧数据：补充缺失字段
+sets.forEach(s => {
+  if (!s.expandedTypes) s.expandedTypes = {};
+  if (!s.stars) s.stars = {};
+  if (!s.typeFilter) s.typeFilter = 'all';
+});
 let examMode = false;
 let examTimer = null;
 let examTimeLeft = EXAM_TIME;

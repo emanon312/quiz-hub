@@ -435,21 +435,31 @@ function defaultSetData() {
 }
 
 function loadData() {
-  // 优先读当前 key；否则尝试旧 key 做迁移
-  let raw = null;
-  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
-  if (!raw) {
-    for (const oldKey of (CONFIG.legacyStorageKeys || [])) {
-      try {
-        const old = localStorage.getItem(oldKey);
-        if (old) { raw = old; console.info('[迁移] 从', oldKey, '迁移数据到', STORAGE_KEY); break; }
-      } catch(e) {}
-    }
+  // 收集当前 key 和所有旧 key 中的数据，挑"已答题最多"的那份
+  const candidates = [];
+  function tryParse(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) candidates.push({ key, data: JSON.parse(raw) });
+    } catch(e) { console.error('[loadData] 解析失败', key, e); }
   }
-  if (raw) {
-    try { return JSON.parse(raw); } catch(e) { console.error('[loadData] JSON 解析失败', e); }
+  tryParse(STORAGE_KEY);
+  for (const oldKey of (CONFIG.legacyStorageKeys || [])) tryParse(oldKey);
+
+  if (candidates.length === 0) {
+    return { activeSet:0, filter:'all', sets: Array.from({length: SET_COUNT}, defaultSetData) };
   }
-  return { activeSet:0, filter:'all', sets: Array.from({length: SET_COUNT}, defaultSetData) };
+
+  function countAnswered(d) {
+    if (!d || !Array.isArray(d.sets)) return 0;
+    return d.sets.reduce((sum, s) => sum + (s && s.userAnswers ? Object.keys(s.userAnswers).length : 0), 0);
+  }
+  candidates.sort((a, b) => countAnswered(b.data) - countAnswered(a.data));
+  const best = candidates[0];
+  if (best.key !== STORAGE_KEY) {
+    console.info('[迁移] 从', best.key, '加载数据（已答', countAnswered(best.data), '题）到', STORAGE_KEY);
+  }
+  return best.data;
 }
 
 // saveData 防抖：高频调用时合并写入

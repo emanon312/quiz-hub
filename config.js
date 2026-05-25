@@ -11,7 +11,7 @@ window.QUIZ_CONFIG = {
   // —— 套题设置 ——
   // setNames 长度 = 套题数；setSize 决定每套题数（题库总题数应 ≥ setNames.length * setSize）
   setSize: 100,
-  setNames: ['题组一', '题组二', '模拟题1'],
+  setNames: ['练习1', '练习2', '模拟题1'],
 
   // —— 题型定义 ——
   // type: 内部标识；label: 完整名；short: 短名；shortLike: 是否走"简答类"渲染（提交即显示答案不判对错）

@@ -828,7 +828,15 @@ let autoReveal = false;
 function toggleAutoReveal() {
   autoReveal = !autoReveal;
   $('autoRevealChip').classList.toggle('active', autoReveal);
-  if (autoReveal) renderQuestion();
+  if (!autoReveal) {
+    const s = activeSetData();
+    // 清除未做题目被自动展开的答案
+    Object.keys(s.revealedIds).forEach(id => {
+      if (s.userAnswers[id] !== true && s.userAnswers[id] !== false && s.userAnswers[id] !== 'submitted')
+        delete s.revealedIds[id];
+    });
+  }
+  renderQuestion();
 }
 
 // ========== 移动端侧边栏 ==========
@@ -1170,13 +1178,22 @@ function renderQuestion() {
   const list = filteredQuestions();
   if (list.length === 0) {
     const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
-    $('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
-    updateStats();
+    $('qOptions').style.display = 'none';
+    $('fillArea').style.display = 'none';
+    $('shortArea').style.display = 'none';
+    $('btnCheck').style.display = 'none';
+    $('btnReveal').style.display = 'none';
+    $('answerBox').classList.remove('show');
+    $('resultMsg').classList.remove('show','right','wrong');
+    $('qNum').textContent = '';
+    $('qType').textContent = '';
+    $('qText').innerHTML = '<div class="empty-state" style="padding:60px 0;text-align:center"><h3>'+msg+'</h3></div>';
+    $('navInfo').textContent = '0 / 0';
+    renderSidebar();
     return;
   }
   if (s.currentIdx >= list.length) s.currentIdx = 0;
   const q = list[s.currentIdx];
-  if (!q) { $('questionCard').innerHTML = '<div class="empty-state"><h3>暂无题目</h3></div>'; return; }
 
     // Keep focusedOptIdx at last selected option, or first option
   if (q.type === 'single' || q.type === 'multi') {

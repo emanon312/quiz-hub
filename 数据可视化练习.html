@@ -539,6 +539,9 @@ const questions = [
 ];
 
 
+// ========== DOM helper ==========
+const $ = id => document.getElementById(id);
+
 // ========== localStorage 持久化 ==========
 const STORAGE_KEY = 'dataviz_quiz_v3'; // v3: typeFilter+expand
 const EXAM_TIME = 45 * 60; // 45分钟
@@ -592,12 +595,15 @@ let practiceSec = data.practiceSec || 0;
 let practiceTimer = setInterval(function(){
   practiceSec++;
   const m = Math.floor(practiceSec/60), s = practiceSec%60;
-  const el = document.getElementById('rpTimer');
+  const el = $('rpTimer');
   if (el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }, 1000);
 let focusedOptIdx = -1; // ↑↓ navigation
 
 function activeSetData() { return sets[activeSet]; }
+
+// 判定一道题是否已"做完"（选择题判对/错、简答题已提交）
+function isAnswered(s, q) { const v = s.userAnswers[q.id]; return v === true || v === false || v === 'submitted'; }
 
 const TYPE_ORDER = {single:0, multi:1, fill:2, short:3};
 function getQuestionPool() {
@@ -626,7 +632,7 @@ function filteredQuestions() {
 function renderSidebar() {
   const s = activeSetData();
   const pool = getQuestionPool();
-  const nav = document.getElementById('moduleNav');
+  const nav = $('moduleNav');
   const eid = 'qt_'; // unique id for current render
   let html = '<button class="module-btn'+(s.typeFilter==='all'?' active':'')+'" onclick="setTypeFilter(&apos;all&apos;)">全部</button>';
   questionTypes.forEach(tt => {
@@ -658,11 +664,11 @@ function renderSidebar() {
   });
 
   // 筛选按钮状态
-  document.getElementById('filterAll').classList.toggle('active', filter==='all');
-  const fw = document.getElementById('filterWrong');
+  $('filterAll').classList.toggle('active', filter==='all');
+  const fw = $('filterWrong');
   fw.classList.toggle('active', filter==='wrong');
   if (filter==='wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
-  document.getElementById('filterStar').classList.toggle('active', filter==='star');
+  $('filterStar').classList.toggle('active', filter==='star');
 
   updateStats();
 }
@@ -672,19 +678,19 @@ function updateStats() {
   const pool = getQuestionPool();
   const allDone = pool.filter(q => s.userAnswers[q.id] !== undefined);
   const right = allDone.filter(q => s.userAnswers[q.id] === true).length;
-    document.getElementById('rpDone').textContent = allDone.length;
-  document.getElementById('rpAcc').textContent = allDone.length > 0 ? Math.round(right/allDone.length*100)+'%' : '-';
+    $('rpDone').textContent = allDone.length;
+  $('rpAcc').textContent = allDone.length > 0 ? Math.round(right/allDone.length*100)+'%' : '-';
   const gDone0 = Object.keys(sets[0].userAnswers).length;
   const gDone1 = Object.keys(sets[1].userAnswers).length;
   const gTotal = gDone0 + gDone1;
-  document.getElementById('rpGlobal').textContent = gTotal;
+  $('rpGlobal').textContent = gTotal;
   const gRight0 = Object.values(sets[0].userAnswers).filter(v=>v===true).length;
   const gRight1 = Object.values(sets[1].userAnswers).filter(v=>v===true).length;
-  document.getElementById('rpGlobalPct').textContent = gTotal > 0 ? '正确率 '+Math.round((gRight0+gRight1)/gTotal*100)+'%' : '-';
+  $('rpGlobalPct').textContent = gTotal > 0 ? '正确率 '+Math.round((gRight0+gRight1)/gTotal*100)+'%' : '-';
   const list = filteredQuestions();
   const fDone = list.filter(q => s.userAnswers[q.id] !== undefined).length;
-  document.getElementById('rpBarFill').style.width = list.length > 0 ? (fDone/list.length*100)+'%' : '0%';
-  document.getElementById('rpLabel').textContent = fDone + ' / ' + list.length;
+  $('rpBarFill').style.width = list.length > 0 ? (fDone/list.length*100)+'%' : '0%';
+  $('rpLabel').textContent = fDone + ' / ' + list.length;
   let modHtml = '';
   questionTypes.forEach(tt => {
     const qs = pool.filter(q => q.type === tt.type);
@@ -692,7 +698,7 @@ function updateStats() {
     const pct = qs.length > 0 ? Math.round(done/qs.length*100) : 0;
     modHtml += '<div class="m-row"><div class="m-name">'+tt.short+' <span>'+done+'/'+qs.length+'</span></div><div class="m-bar"><div class="fill" style="width:'+pct+'%"></div></div></div>';
   });
-  document.getElementById('rpModules').innerHTML = modHtml;
+  $('rpModules').innerHTML = modHtml;
   saveData();
 }
 
@@ -716,7 +722,6 @@ function jumpToQ(qid) {
   if (!q) return;
   // Switch to all filter and all types
   filter = 'all';
-  data.filter = 'all';
   s.typeFilter = 'all';
   // Find index in full pool
   const list = filteredQuestions();
@@ -736,10 +741,10 @@ function jumpToQ(qid) {
 let randomMode = false;
 function toggleRandom() {
   randomMode = !randomMode;
-  document.getElementById('randomChip').classList.toggle('random-on', randomMode);
-  document.getElementById('randomChip').style.background = randomMode ? '#fff3e0' : '';
-  document.getElementById('randomChip').style.color = randomMode ? '#e65100' : '';
-  document.getElementById('randomChip').style.borderColor = randomMode ? '#ffcc02' : '';
+  $('randomChip').classList.toggle('random-on', randomMode);
+  $('randomChip').style.background = randomMode ? '#fff3e0' : '';
+  $('randomChip').style.color = randomMode ? '#e65100' : '';
+  $('randomChip').style.borderColor = randomMode ? '#ffcc02' : '';
   activeSetData().currentIdx = 0;
   renderSidebar();
   renderQuestion();
@@ -765,8 +770,8 @@ function showWrongAnalysis() {
     });
     waHtml += '</div></div>';
   }
-  document.getElementById('wrongAnalysis').innerHTML = waHtml;
-  document.getElementById('wrongModal').classList.add('show');
+  $('wrongAnalysis').innerHTML = waHtml;
+  $('wrongModal').classList.add('show');
 }
 
 function resetProgress() {
@@ -780,9 +785,8 @@ function resetProgress() {
   s.stars = {};
   s.expandedTypes = {};
   s.wrongBank = bank;
-  s.streak = 0; document.getElementById('streakNum').textContent = 0;
+  s.streak = 0; $('streakNum').textContent = 0;
   filter = 'all';
-  data.filter = 'all';
   saveData();
   renderSidebar();
   renderQuestion();
@@ -791,7 +795,6 @@ function resetProgress() {
 // ========== 套题/筛选切换 ==========
 function switchSetTab(idx) {
   activeSet = idx;
-  data.activeSet = idx;
   filter = 'all';
   saveData();
   renderSidebar();
@@ -800,14 +803,7 @@ function switchSetTab(idx) {
 
 function setFilter(f) {
   filter = f;
-  data.filter = f;
   activeSetData().currentIdx = 0;
-  // Ensure filter chip states update immediately
-  document.getElementById('filterAll').classList.toggle('active', f==='all');
-  document.getElementById('filterWrong').classList.toggle('active', f==='wrong');
-  document.getElementById('filterStar').classList.toggle('active', f==='star');
-  const fw = document.getElementById('filterWrong');
-  if (f==='wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
   saveData();
   renderSidebar();
   renderQuestion();
@@ -896,8 +892,17 @@ const BREAK_MSGS = [
   '小小挫折而已！你可是 #BEST# 连对的纪录保持者！爬起来继续冲！！'
 ];
 
+// 连对徽章三态切换：streak 数字 + 火焰图标（🔥=活跃，🧯=熄灭）
+function setStreakBadge(streak, fire) {
+  const b = $('streakBadge'); if (!b) return;
+  $('streakNum').textContent = streak;
+  b.style.display = 'inline-flex';
+  b.classList.toggle('dormant', fire === '🧯');
+  b.querySelector('.fire').textContent = fire;
+}
+
 function showBanner(emoji,txt,bg){
-  const b=document.getElementById('milestoneBanner');
+  const b=$('milestoneBanner');
   if(!b)return;
   b.textContent=emoji+' '+txt;b.style.background=bg;
   b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
@@ -987,12 +992,12 @@ function toggleExamMode() {
   if (!confirm('开始模拟考试？\n\n规则：\n• 45分钟倒计时\n• 答案按钮被禁用\n• 时间到或点击交卷后显示成绩\n\n当前进度将被保留。')) return;
   examMode = true;
   examTimeLeft = EXAM_TIME;
-  document.getElementById('examBanner').classList.add('show');
-  document.getElementById('btnReveal').style.display = 'none';
-  document.getElementById('examNotice').style.display = 'inline';
-  document.getElementById('btnExam').textContent = '交卷';
-  document.getElementById('btnExam').style.background = '#f44336';
-  document.getElementById('btnExam').style.color = '#fff';
+  $('examBanner').classList.add('show');
+  $('btnReveal').style.display = 'none';
+  $('examNotice').style.display = 'inline';
+  $('btnExam').textContent = '交卷';
+  $('btnExam').style.background = '#f44336';
+  $('btnExam').style.color = '#fff';
   updateExamTimer();
   examTimer = setInterval(tickExam, 1000);
 }
@@ -1006,7 +1011,7 @@ function tickExam() {
 function updateExamTimer() {
   const m = Math.floor(examTimeLeft / 60);
   const s = examTimeLeft % 60;
-  const timer = document.getElementById('examTimer');
+  const timer = $('examTimer');
   timer.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   timer.className = 'timer' + (examTimeLeft < 300 ? ' danger' : examTimeLeft < 600 ? ' warning' : '');
 }
@@ -1014,12 +1019,12 @@ function updateExamTimer() {
 function submitExam() {
   examMode = false;
   if (examTimer) { clearInterval(examTimer); examTimer = null; }
-  document.getElementById('examBanner').classList.remove('show');
-  document.getElementById('btnReveal').style.display = '';
-  document.getElementById('examNotice').style.display = 'none';
-  document.getElementById('btnExam').textContent = '模拟考试';
-  document.getElementById('btnExam').style.background = '';
-  document.getElementById('btnExam').style.color = '';
+  $('examBanner').classList.remove('show');
+  $('btnReveal').style.display = '';
+  $('examNotice').style.display = 'none';
+  $('btnExam').textContent = '模拟考试';
+  $('btnExam').style.background = '';
+  $('btnExam').style.color = '';
   const s = activeSetData();
   const pool = getQuestionPool();
   const done = pool.filter(q => s.userAnswers[q.id] !== undefined);
@@ -1039,13 +1044,13 @@ function renderQuestion() {
   const list = filteredQuestions();
   if (list.length === 0) {
     const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
-    document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
+    $('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
     updateStats();
     return;
   }
   if (s.currentIdx >= list.length) s.currentIdx = 0;
   const q = list[s.currentIdx];
-  if (!q) { document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>暂无题目</h3></div>'; return; }
+  if (!q) { $('questionCard').innerHTML = '<div class="empty-state"><h3>暂无题目</h3></div>'; return; }
 
     // Keep focusedOptIdx at last selected option, or first option
   if (q.type === 'single' || q.type === 'multi') {
@@ -1058,26 +1063,27 @@ function renderQuestion() {
   }
   const typeLabels = {single:'单选题', multi:'多选题', fill:'填空题', short:'简答题'};
   const typeClass = {single:'single', multi:'multi', fill:'fill', short:'short'};
-  document.getElementById('qNum').textContent = '第 '+(list.indexOf(q)+1)+' 题';
-  document.getElementById('qType').textContent = typeLabels[q.type];
-  document.getElementById('qType').className = 'q-type '+typeClass[q.type];
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('navInfo').textContent = (s.currentIdx+1)+' / '+list.length;
-  document.getElementById('moduleLabel').textContent = s.typeFilter==='all'?'全部题目':(questionTypes.find(t=>t.type===s.typeFilter)?.label||'');
-  var sb=document.getElementById('streakBadge');var st=s.streak||0;
-  if(sb){document.getElementById('streakNum').textContent=st;if(st>0){sb.style.display='inline-flex';sb.classList.remove('dormant');sb.querySelector('.fire').textContent='🔥';}}
+  $('qNum').textContent = '第 '+(list.indexOf(q)+1)+' 题';
+  $('qType').textContent = typeLabels[q.type];
+  $('qType').className = 'q-type '+typeClass[q.type];
+  $('qText').textContent = q.q;
+  $('navInfo').textContent = (s.currentIdx+1)+' / '+list.length;
+  $('moduleLabel').textContent = s.typeFilter==='all'?'全部题目':(questionTypes.find(t=>t.type===s.typeFilter)?.label||'');
+  const st=s.streak||0;
+  $('streakNum').textContent=st;
+  if(st>0)setStreakBadge(st,'🔥');
 
   // Star button
-  const starBtn = document.getElementById('starBtn');
+  const starBtn = $('starBtn');
   starBtn.textContent = s.stars[q.id] ? '★' : '☆';
-  const saBtn = document.getElementById('saBtn');
+  const saBtn = $('saBtn');
   saBtn.textContent = s.shortAnswerBank[q.id] ? '✅ 已转简答' : '📝 转简答';
   saBtn.className = 'sa-btn' + (s.shortAnswerBank[q.id] ? ' saved' : '');
   starBtn.className = 'star-btn' + (s.stars[q.id] ? ' starred' : '');
 
-  const optDiv = document.getElementById('qOptions');
-  const fillDiv = document.getElementById('fillArea');
-  const shortDiv = document.getElementById('shortArea');
+  const optDiv = $('qOptions');
+  const fillDiv = $('fillArea');
+  const shortDiv = $('shortArea');
   optDiv.innerHTML = '';
   optDiv.style.display = 'none';
   fillDiv.style.display = 'none';
@@ -1122,48 +1128,48 @@ function renderQuestion() {
     });
   } else if (q.type === 'fill') {
     fillDiv.style.display = 'block';
-    const fi = document.getElementById('fillInput');
+    const fi = $('fillInput');
     fi.value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
   } else if (q.type === 'short') {
     shortDiv.style.display = 'block';
-    const si = document.getElementById('shortInput');
+    const si = $('shortInput');
     si.value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
   }
 
-  document.getElementById('answerBox').classList.remove('show');
-  document.getElementById('resultMsg').classList.remove('show','right','wrong');
-  document.getElementById('resultMsg').style.background = '';
-  document.getElementById('resultMsg').style.color = '';
+  $('answerBox').classList.remove('show');
+  $('resultMsg').classList.remove('show','right','wrong');
+  $('resultMsg').style.background = '';
+  $('resultMsg').style.color = '';
 
   if (s.revealedIds[q.id]) showAnswerBox(q);
   if (s.userAnswers[q.id] === true) {
-    const rm = document.getElementById('resultMsg');
+    const rm = $('resultMsg');
     rm.textContent = '✓ 回答正确！';
     rm.className = 'result-msg right show';
   } else if (s.userAnswers[q.id] === false) {
-    const rm = document.getElementById('resultMsg');
+    const rm = $('resultMsg');
     rm.textContent = '✗ 回答错误';
     rm.className = 'result-msg wrong show';
   } else if (s.userAnswers[q.id] === 'submitted') {
-    const rm = document.getElementById('resultMsg');
+    const rm = $('resultMsg');
     rm.textContent = '已提交。请对照参考答案自行评判。';
     rm.className = 'result-msg show';
     rm.style.background = '#fff3e0';
     rm.style.color = '#e65100';
   }
 
-    const done = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted');
-  document.getElementById('btnCheck').disabled = done;
+    const done = isAnswered(s, q);
+  $('btnCheck').disabled = done;
 
   // Exam mode: hide answer button
   if (examMode) {
-    document.getElementById('btnReveal').style.display = 'none';
-    document.getElementById('examNotice').style.display = 'inline';
+    $('btnReveal').style.display = 'none';
+    $('examNotice').style.display = 'inline';
   }
   // 显示填空题逐词反馈
-  if (s._fillFeedback && (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted')) {
+  if (s._fillFeedback && isAnswered(s, q)) {
     const fb = s._fillFeedback;
-    const rm = document.getElementById('resultMsg');
+    const rm = $('resultMsg');
     if (!rm.classList.contains('show')) {
       rm.textContent = '关键词：'+fb.map(h=>(h.ok?'✓':'✗')+' '+h.kw).join('  ');
       rm.className = 'result-msg show';
@@ -1179,7 +1185,7 @@ function checkAnswer() {
   const list = filteredQuestions();
   const q = list[s.currentIdx];
   if (!q) return;
-  if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted') return;
+  if (isAnswered(s, q)) return;
 
   let isCorrect = null;
   let fillFeedback = null; // 填空题逐词反馈
@@ -1189,7 +1195,7 @@ function checkAnswer() {
     const corr = new Set(q.ans), sel = new Set(selected);
     isCorrect = corr.size === sel.size && [...corr].every(v => sel.has(v));
   } else if (q.type === 'fill') {
-    const input = document.getElementById('fillInput').value.trim();
+    const input = $('fillInput').value.trim();
     if (!input) { alert('请输入你的答案'); return; }
     s.userAnswers[q.id] = input;
     // 逐词检查并生成反馈
@@ -1202,7 +1208,7 @@ function checkAnswer() {
     isCorrect = hits.every(h => h.ok);
     fillFeedback = hits;
   } else if (q.type === 'short') {
-    const input = document.getElementById('shortInput').value.trim();
+    const input = $('shortInput').value.trim();
     if (!input) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
     s.userAnswers[q.id] = 'submitted';
     if (!examMode) showAnswerBox(q);
@@ -1215,24 +1221,22 @@ function checkAnswer() {
   // 连对逻辑 + 连续错2次自动显示答案
   if (isCorrect && q.type !== 'short') {
     s.streak=(s.streak||0)+1;if(s.streak>(s.bestStreak||0))s.bestStreak=s.streak;
-    var b=document.getElementById('streakBadge');if(b){b.style.display='inline-flex';b.classList.remove('dormant');b.querySelector('.fire').textContent='🔥';}
-    document.getElementById('streakNum').textContent=s.streak;
+    setStreakBadge(s.streak,'🔥');
     checkMilestone(s.streak);
   } else if (!isCorrect && q.type !== 'short') {
     s.wrongBank[q.id]=true;
     if(s.streak>0)showStreakBreak(s.streak,s.bestStreak||s.streak);
     s.streak=0;
-    var b=document.getElementById('streakBadge');if(b){b.style.display='inline-flex';b.classList.add('dormant');b.querySelector('.fire').textContent='🧯';}
-    document.getElementById('streakNum').textContent=0;
+    setStreakBadge(0,'🧯');
     s._wrongRetry=(s._wrongRetry||{});s._wrongRetry[q.id]=(s._wrongRetry[q.id]||0)+1;
     if(s._wrongRetry[q.id]>=2)showAnswerBox(q);
   } else { if(s._wrongRetry)s._wrongRetry[q.id]=0; }
   if (isCorrect && !examMode) showAnswerBox(q);
   // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
   if (!isCorrect && q.type === 'fill' && fillFeedback) {
-    const ab = document.getElementById('answerBox');
-    document.getElementById('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
-    document.getElementById('ansExplanation').textContent = '';
+    const ab = $('answerBox');
+    $('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
+    $('ansExplanation').textContent = '';
     ab.classList.add('show');
     activeSetData().revealedIds[q.id] = true;
   }
@@ -1248,8 +1252,8 @@ function toggleAnswer() {
   const list = filteredQuestions();
   const q = list[s.currentIdx];
   if (!q) return;
-  if (document.getElementById('answerBox').classList.contains('show')) {
-    document.getElementById('answerBox').classList.remove('show');
+  if ($('answerBox').classList.contains('show')) {
+    $('answerBox').classList.remove('show');
     s.revealedIds[q.id] = false;
   } else {
     showAnswerBox(q);
@@ -1259,21 +1263,21 @@ function toggleAnswer() {
 
 function showAnswerBox(q) {
   activeSetData().revealedIds[q.id] = true;
-  const ab = document.getElementById('answerBox');
+  const ab = $('answerBox');
   ab.classList.add('show');
   if (q.type === 'single' || q.type === 'multi') {
     const letters = q.ans.map(i => String.fromCharCode(65+i));
-    document.getElementById('ansContent').textContent = '正确答案：'+letters.join(' + ')+' — '+q.ans.map(i => q.opts[i].substring(3)).join('；');
+    $('ansContent').textContent = '正确答案：'+letters.join(' + ')+' — '+q.ans.map(i => q.opts[i].substring(3)).join('；');
   } else if (q.type === 'fill') {
-    document.getElementById('ansContent').textContent = '参考答案：'+q.ansText.replace(/\|/g, '、');
+    $('ansContent').textContent = '参考答案：'+q.ansText.replace(/\|/g, '、');
   } else {
-    document.getElementById('ansContent').textContent = q.ansText;
+    $('ansContent').textContent = q.ansText;
   }
-    document.getElementById('ansExplanation').textContent = q.exp ? '解析：'+q.exp : '';
+    $('ansExplanation').textContent = q.exp ? '解析：'+q.exp : '';
   // 填空反馈也显示在答案区
   if (q.type === 'fill' && activeSetData()._fillFeedback) {
     const fb = activeSetData()._fillFeedback;
-    document.getElementById('ansContent').textContent += ' | 你的匹配：'+fb.map(h=>(h.ok?'✓':'✗')+h.kw).join(' ');
+    $('ansContent').textContent += ' | 你的匹配：'+fb.map(h=>(h.ok?'✓':'✗')+h.kw).join(' ');
   }
 }
 
@@ -1323,7 +1327,7 @@ document.addEventListener('keydown', function(e) {
   }
   if (e.key === ' ') { e.preventDefault(); toggleAnswer(); return; }
   // ↑↓ 选项导航
-  if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && document.getElementById('qOptions').style.display !== 'none') {
+  if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && $('qOptions').style.display !== 'none') {
     e.preventDefault();
     const opts = document.querySelectorAll('#qOptions .opt');
     if (opts.length === 0) return;

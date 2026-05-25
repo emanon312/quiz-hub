@@ -931,7 +931,8 @@ function renderQuestion() {
       const isSelected = saved.includes(i);
       if (isSelected) div.classList.add('selected');
       if (checked) {
-        if (q.ans.includes(i)) div.classList.add('correct');
+        // 只有答对了才显示绿色正确选项，答错只标红
+        if (s.userAnswers[q.id] === true && q.ans.includes(i)) div.classList.add('correct');
         if (!q.ans.includes(i) && isSelected) div.classList.add('wrong');
       }
       const letter = String.fromCharCode(65+i);

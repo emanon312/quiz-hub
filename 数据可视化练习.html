@@ -863,7 +863,7 @@ function renderSidebar() {
     btn.classList.toggle('active', i === activeSet);
     const sData = sets[i];
     const done = Object.keys(sData.userAnswers).length;
-    btn.textContent = '题组'+(i===0?'一':'二')+' ('+done+'/100)';
+    btn.textContent = ['题组一','题组二','模拟题1'][i] + ' ('+done+'/100)';
   });
 
   // 筛选按钮状态

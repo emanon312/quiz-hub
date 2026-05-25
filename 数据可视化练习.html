@@ -696,7 +696,7 @@ function updateStats() {
   saveData();
 }
 
-// ========== 题型展开/折叠 + 跳转 ==========
+<!-- ═══════════ SECTION: 用户交互 ═══════════ -->
 function toggleTypeExpand(type, btn) {
   const s = activeSetData();
   const grid = btn.nextElementSibling;
@@ -731,6 +731,7 @@ function jumpToQ(qid) {
   }
 }
 
+<!-- ═══════════ SECTION: 特殊功能 ═══════════ -->
 // ========== 随机模式 ==========
 let randomMode = false;
 function toggleRandom() {
@@ -941,7 +942,8 @@ function submitExam() {
   renderQuestion();
 }
 
-// ========== 渲染题目 ==========
+// ===== renderQuestion — 渲染当前题目到主区域 =====
+// 流程: 获取筛选列表 → 检查空状态 → 构建选项DOM → 设置正确/错误/提交状态 → 显示答案区/结果消息 → 填空逐词反馈 → 考试模式 → 更新统计
 function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
@@ -1131,10 +1133,13 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
-  // 答错记录到 wrongBank，永久保存
-  if (!isCorrect && q.type !== 'short') s.wrongBank[q.id] = true;
-  // 答对才显示答案；答错只标红，不泄露正确选项，用户可手动点"显示答案"
-  // 答对才显示完整答案；答错只标红，用户可手动点"显示答案"
+  // 连续错2次自动显示答案
+  if (!isCorrect && q.type !== 'short') {
+    s.wrongBank[q.id] = true;
+    s._wrongRetry = (s._wrongRetry || {});
+    s._wrongRetry[q.id] = (s._wrongRetry[q.id] || 0) + 1;
+    if (s._wrongRetry[q.id] >= 2) showAnswerBox(q);
+  } else { if (s._wrongRetry) s._wrongRetry[q.id] = 0; }
   if (isCorrect && !examMode) showAnswerBox(q);
   // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
   if (!isCorrect && q.type === 'fill' && fillFeedback) {
@@ -1195,7 +1200,7 @@ function nextQuestion() {
   if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
 }
 
-// ========== 键盘快捷键 ==========
+<!-- ═══════════ SECTION: 键盘快捷键 ═══════════ -->
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'ArrowLeft') { prevQuestion(); return; }
@@ -1267,7 +1272,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// ========== 初始化 ==========
+<!-- ═══════════ SECTION: 初始化 ═══════════ -->
 renderSidebar();
 renderQuestion();
 </script>

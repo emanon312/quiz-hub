@@ -566,9 +566,10 @@ let focusedOptIdx = -1; // ↑↓ navigation
 
 function activeSetData() { return sets[activeSet]; }
 
+const TYPE_ORDER = {single:0, multi:1, fill:2, short:3};
 function getQuestionPool() {
   const indices = activeSet === 0 ? SET_0 : SET_1;
-  return indices.map(i => questions[i]);
+  return indices.map(i => questions[i]).sort((a,b) => (TYPE_ORDER[a.type]||0) - (TYPE_ORDER[b.type]||0));
 }
 
 function filteredQuestions() {
@@ -766,9 +767,9 @@ function setFilter(f) {
 
 function setTypeFilter(t) {
   const s = activeSetData();
-  // Toggle: if clicking same type, go back to all
-  s.typeFilter = (s.typeFilter === t) ? 'all' : t;
-  s.currentIdx = 0;
+  // Toggle: if clicking same type, go back to all; don't reset index for 'all'
+  if (s.typeFilter === t) { s.typeFilter = 'all'; }
+  else { s.typeFilter = t; s.currentIdx = 0; }
   saveData();
   renderSidebar();
   renderQuestion();
@@ -925,7 +926,7 @@ function renderQuestion() {
       }
       const letter = String.fromCharCode(65+i);
       const chk = isSelected ? ' checked' : '';
-      div.innerHTML = '<input type="'+inputType+'" name="'+groupName+'" value="'+i+'"'+chk+'><span class="letter">'+letter+'. <span style="font-size:9px;color:var(--text-muted)">['+(i+1)+']</span></span><span class="text">'+opt.substring(3)+'</span>';
+      div.innerHTML = '<input type="'+inputType+'" name="'+groupName+'" value="'+i+'"'+chk+'><span class="letter">'+letter+'.</span><span class="text">'+opt.substring(3)+'</span>';
       div.setAttribute('data-opt-idx', i);
       div.addEventListener('click', function(e) {
         if (e.target.tagName === 'INPUT') return;

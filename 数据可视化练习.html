@@ -132,7 +132,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .btn-reveal:hover{background:#f5f5f5}
 .btn-nav{background:var(--card-bg);color:var(--text);border:1px solid #ddd}
 .btn-nav:hover{background:#f5f5f5}
-.answer-box{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px;display:none}
+.answer-box{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:0 20px;margin-top:12px}
 .answer-box.show{max-height:600px;padding:16px 20px}
 .answer-box .ans-label{font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px}
 .answer-box .ans-content{font-size:15px;line-height:1.7;color:#333}
@@ -1059,10 +1059,11 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
-  // 考试模式下不泄露答案
-  if (!examMode) showAnswerBox(q);
-  else if (q.type === 'fill' && fillFeedback) {
-    // 考试模式下填空题也显示逐词反馈(不暴露完整答案)
+  // 答对才显示答案；答错只标红，不泄露正确选项，用户可手动点"显示答案"
+  // 答对才显示完整答案；答错只标红，用户可手动点"显示答案"
+  if (isCorrect && !examMode) showAnswerBox(q);
+  // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
+  if (!isCorrect && q.type === 'fill' && fillFeedback) {
     const ab = document.getElementById('answerBox');
     document.getElementById('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
     document.getElementById('ansExplanation').textContent = '';

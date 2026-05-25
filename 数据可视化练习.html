@@ -169,7 +169,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
       <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
       <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
     </div>
-    <button class="filter-chip" style="margin-top:8px;background:#ffebee;color:#c62828;border-color:#ef9a9a" onclick="resetProgress()">重新开始</button>
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
     <div class="shortcuts-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
@@ -189,6 +188,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
     <span style="flex:1"></span>
+    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="resetProgress()">重新开始</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
@@ -868,7 +868,7 @@ function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (list.length === 0) {
-    const msg = filter==='wrong' ? '没有错题，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
+    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
     document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
     updateStats();
     return;

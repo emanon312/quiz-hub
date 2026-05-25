@@ -6,7 +6,7 @@
 <title>数据可视化期末复习 100 题</title>
 <style>
 :root{--primary:#4ecdc4;--primary-dark:#3bb5ac;--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
-[data-theme="dark"]{--bg-page:#121212;--card-bg:#1e1e2e;--text:#e0e0e0;--text-muted:#999;--border:#333;--shadow:0 1px 4px rgba(0,0,0,.3)}
+[data-theme="dark"]{--bg-page:#121212;--card-bg:#1e1e2e;--text:#f5f5f5;--text-muted:#bbb;--border:#444;--shadow:0 1px 4px rgba(0,0,0,.3)}
 [data-theme="dark"] .sidebar{background:#0d0d1a}
 [data-theme="dark"] .topbar .module-title{background:#333;color:#ccc}
 [data-theme="dark"] .card{background:var(--card-bg)}
@@ -15,16 +15,21 @@
 [data-theme="dark"] .btn-nav:hover{background:#3a3a4e}
 [data-theme="dark"] .btn-reveal{background:#2a2a3e;color:#ccc;border-color:#444}
 [data-theme="dark"] .btn-reveal:hover{background:#3a3a4e}
-[data-theme="dark"] .fill-input{background:#2a2a3e;color:#e0e0e0;border-color:#444}
+[data-theme="dark"] .fill-input{background:#2a2a3e;color:#f5f5f5;border-color:#444}
 [data-theme="dark"] .answer-box{background:#1b3a1b;border-color:#2e5a2e}
-[data-theme="dark"] .answer-box .ans-content{color:#e0e0e0}
+[data-theme="dark"] .answer-box .ans-content{color:#f5f5f5}
 [data-theme="dark"] .answer-box .ans-explanation{color:#aaa;border-top-color:#333}
 [data-theme="dark"] .result-msg.right{background:#1b3a1b;color:#81c784}
 [data-theme="dark"] .result-msg.wrong{background:#3a1b1b;color:#ef9a9a}
-[data-theme="dark"] .modal-box{background:#1e1e2e;color:#e0e0e0}
+[data-theme="dark"] .modal-box{background:#1e1e2e;color:#f5f5f5}
 [data-theme="dark"] .right-panel{background:#1a1a2a}
 [data-theme="dark"] .rp-divider{background:#333}
 [data-theme="dark"] .filter-chip{background:#2a2a3e;color:#ccc;border-color:#444}
+[data-theme="dark"] .opt .letter{color:#bbb}
+[data-theme="dark"] .q-num{color:#bbb;background:#333}
+[data-theme="dark"] .empty-state{color:#bbb}
+[data-theme="dark"] .result-msg{color:#f5f5f5}
+[data-theme="dark"] .modal-box .close-btn{color:#bbb}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg-page);color:var(--text);display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--bg-dark);color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
@@ -77,7 +82,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
-.tools-dropdown.open .tools-menu{display:block}
+.tools-dropdown.open .tools-menu{display:block!important}
 .tools-item{display:block;width:100%;text-align:left;padding:6px 14px;border:none;background:none;color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .tools-item:hover{background:var(--bg-page)}
 .tools-item.danger{color:#f44336}
@@ -714,7 +719,7 @@ function renderSidebar() {
       if (s.userAnswers[q.id] === true) cls += ' done-right';
       else if (s.userAnswers[q.id] === false) cls += ' done-wrong';
       if (s.stars[q.id]) cls += ' starred';
-      html += '<div class="'+cls+'" data-qid="'+q.id+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+(cls.includes('done-right')?'✓':cls.includes('done-wrong')?'✗':localNum)+'</div>';
+      html += '<div class="'+cls+'" data-qid="'+q.id+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+localNum+'</div>';
     });
     html += '</div>';
   });

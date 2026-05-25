@@ -128,6 +128,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 @keyframes slideDown{0%{transform:translateX(-50%) translateY(-100%);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
 @keyframes fadeUp{0%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
 @keyframes streakPulse{0%{transform:scale(.7);opacity:.5}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}
+.streak-progress{display:inline-flex;align-items:center;gap:4px;margin-left:2px}
+.streak-progress-bar{width:60px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.streak-progress-fill{height:100%;background:#f9a825;border-radius:2px;transition:width .3s;display:block}
+.streak-progress-label{font-size:10px;color:#f9a825;white-space:nowrap}
 
 .card{background:var(--card-bg);border-radius:12px;padding:36px 40px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
 .q-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -235,7 +239,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
     <input type="text" id="searchInput" placeholder="搜索题干或选项..." style="padding:5px 12px;border:1px solid var(--border);border-radius:16px;font-size:12px;width:180px;outline:none;background:var(--card-bg);color:var(--text)" oninput="onSearch(this.value)">
-    <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span>
+    <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
     <span style="flex:1"></span>
     <div class="tools-dropdown" style="position:relative;display:inline-block">
       <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" id="btnTools" onclick="this.parentElement.classList.toggle('open')">⚙ 工具</button>
@@ -988,6 +992,10 @@ const BREAK_MSGS = [
   '小小挫折而已！你可是 #BEST# 连对的纪录保持者！爬起来继续冲！！'
 ];
 
+// 连击里程碑进度条
+const STREAK_MILESTONES = [1, 3, 5, 10, 20, 30, 40, 50, 100];
+const STREAK_MILESTONE_EMOJI = {1:'💨', 3:'❤️‍🔥', 5:'🤯', 10:'🔥', 20:'🧨', 30:'🌋', 40:'💥', 50:'⚡', 100:'🌌'};
+
 // 分层连对图标：不同里程碑返回不同 emoji
 function getStreakIcon(st) {
   if (st >= 30) return '👑';
@@ -1012,6 +1020,7 @@ function setStreakBadge(streak, fire) {
     b.classList.add('dormant');
     b.querySelector('.fire').textContent = '🧯';
   }
+  updateStreakProgress(streak);
 }
 
 function showBanner(emoji,txt,bg){
@@ -1028,6 +1037,29 @@ function checkMilestone(s){
 function showStreakBreak(s,best){
   var msg=pick(BREAK_MSGS).replace('#BEST#',best);
   showBanner('💔',msg,'linear-gradient(135deg,#6b7280,#4b5563)');
+}
+
+function updateStreakProgress(streak) {
+  const el = $('streakProgress');
+  if (!el) return;
+  if (streak <= 0) { el.style.display = 'none'; return; }
+  const next = STREAK_MILESTONES.find(function(m) { return m > streak; });
+  if (!next) {
+    // 全部里程碑达成
+    el.style.display = 'inline-flex';
+    $('streakProgressFill').style.width = '100%';
+    $('streakProgressLabel').textContent = '全部达成';
+    el.title = '所有里程碑已解锁！';
+    return;
+  }
+  const filtered = STREAK_MILESTONES.filter(function(m) { return m <= streak; });
+  const prev = filtered.length > 0 ? filtered[filtered.length - 1] : 0;
+  const pct = ((streak - prev) / (next - prev)) * 100;
+  const remain = next - streak;
+  el.style.display = 'inline-flex';
+  $('streakProgressFill').style.width = pct + '%';
+  $('streakProgressLabel').textContent = '差' + remain + '题';
+  el.title = '还差 ' + remain + ' 题解锁 ' + (STREAK_MILESTONE_EMOJI[next] || '') + ' ' + next + '连对';
 }
 
 // ========== 转为简答题 ==========

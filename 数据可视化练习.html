@@ -14,16 +14,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .module-btn:hover,.module-btn.active{background:rgba(255,255,255,.08);color:#fff}
 .module-btn .badge{float:right;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
 .module-btn .done-badge{float:right;font-size:11px;color:var(--primary)}
-.sidebar-toggle{position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:.2s}
-.sidebar-toggle:hover{color:#fff;background:rgba(255,255,255,.1)}
-.sidebar.collapsed{width:50px;padding:20px 0}
-.sidebar.collapsed h2,.sidebar.collapsed .module-btn,.sidebar.collapsed .shortcuts{display:none}
-.sidebar.collapsed .sidebar-toggle{right:auto;left:50%;transform:translateX(-50%)}
-body.sb-collapsed .main{margin-left:50px}
+/* 侧边栏滚动条美化 */
+.sidebar::-webkit-scrollbar{width:5px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.22)}
+.sidebar{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
 .shortcuts{margin-top:16px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#888;line-height:1.8}
 .shortcuts .kbd{display:inline-block;background:rgba(255,255,255,.12);color:#ccc;padding:1px 7px;border-radius:4px;font-family:monospace;font-size:11px;margin:0 2px;min-width:18px;text-align:center}
 .shortcuts .row{margin-bottom:4px;display:flex;align-items:center}
-.main{margin-left:260px;margin-right:220px;flex:1;padding:24px 32px;max-width:860px;transition:margin-left .25s}
+.main{margin-left:260px;margin-right:220px;flex:1;padding:24px 32px;max-width:860px}
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .topbar .module-title{font-size:13px;color:#888;background:#e8e8e8;padding:4px 12px;border-radius:12px}
 /* 右侧进度面板 */
@@ -157,7 +157,6 @@ body.sb-collapsed .main{margin-left:50px}
 <body>
 
 <nav class="sidebar" id="sidebar">
-  <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开侧边栏">☰</button>
   <h2>数据可视化 100 题</h2>
   <div id="moduleNav"></div>
   <div class="shortcuts" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.1)">
@@ -189,7 +188,6 @@ body.sb-collapsed .main{margin-left:50px}
 
 <div class="main">
   <div class="topbar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()" style="position:static;color:#888;font-size:16px;background:var(--bg-page);border:none;cursor:pointer;padding:4px 10px;border-radius:6px" title="折叠/展开侧边栏">☰</button>
     <span class="module-title" id="moduleLabel">全部题目</span>
     <span style="flex:1"></span>
     <span style="font-size:12px;color:#888">跳转</span>
@@ -1120,11 +1118,6 @@ function nextQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
-}
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-  document.body.classList.toggle('sb-collapsed');
 }
 
 // ========== 键盘快捷键 ==========

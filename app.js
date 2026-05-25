@@ -6,7 +6,7 @@ const SET_0 = questions.slice(0, 100).map((_,i) => i);
 const SET_1 = questions.slice(100, 200).map((_,i) => i + 100);
 
 function defaultSetData() {
-  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{} };
+  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{}, wrongBank:{} };
 }
 
 function loadData() {
@@ -20,7 +20,7 @@ function loadData() {
 function saveData() {
   const compact = {
     activeSet, filter,
-    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes })),
+    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes, wrongBank:s.wrongBank })),
     examDone,
     practiceSec
   };
@@ -37,6 +37,7 @@ sets.forEach(s => {
   if (!s.expandedTypes) s.expandedTypes = {};
   if (!s.stars) s.stars = {};
   if (!s.typeFilter) s.typeFilter = 'all';
+  if (!s.wrongBank) s.wrongBank = {};
 });
 let examMode = false;
 let examTimer = null;
@@ -65,7 +66,7 @@ function filteredQuestions() {
   // Type filter
   if (s.typeFilter !== 'all') pool = pool.filter(q => q.type === s.typeFilter);
   // Wrong/star filter
-  if (filter === 'wrong') pool = pool.filter(q => s.userAnswers[q.id] === false);
+  if (filter === 'wrong') pool = pool.filter(q => s.wrongBank[q.id]);
   if (filter === 'star') pool = pool.filter(q => s.stars[q.id]);
   if (randomMode && pool.length > 1) {
     const curQ = pool[activeSetData().currentIdx];
@@ -233,6 +234,24 @@ function showWrongAnalysis() {
   document.getElementById('wrongModal').classList.add('show');
 }
 
+function resetProgress() {
+  if (!confirm('确定重新开始吗？\n\n当前题组的做题记录将被清除，但错题记录会永久保留。')) return;
+  const s = activeSetData();
+  const bank = s.wrongBank; // 保留错题库
+  s.userAnswers = {};
+  s.revealedIds = {};
+  s.currentIdx = 0;
+  s.typeFilter = 'all';
+  s.stars = {};
+  s.expandedTypes = {};
+  s.wrongBank = bank;
+  filter = 'all';
+  data.filter = 'all';
+  saveData();
+  renderSidebar();
+  renderQuestion();
+}
+
 // ========== 套题/筛选切换 ==========
 function switchSetTab(idx) {
   activeSet = idx;
@@ -265,32 +284,6 @@ function setTypeFilter(t) {
   else { s.typeFilter = t; s.currentIdx = 0; }
   saveData();
   renderSidebar();
-  renderQuestion();
-}
-
-function jumpToQuestion() {
-  const input = document.getElementById('jumpInput');
-  const num = parseInt(input.value);
-  if (isNaN(num)) return;
-  const pool = getQuestionPool();
-  const q = pool.find(q => q.id === num);
-  if (!q) { alert('题号不存在于当前题组'); return; }
-  const list = filteredQuestions();
-  const idx = list.findIndex(x => x.id === num);
-  if (idx < 0) {
-    // 该题在当前筛选中不可见
-    if (!confirm('题号 #'+num+' 不在当前筛选中，是否切换至\"全部题目\"？')) { input.value = ''; return; }
-    filter = 'all';
-    data.filter = 'all';
-    activeSetData().currentIdx = 0;
-    const newList = filteredQuestions();
-    const newIdx = newList.findIndex(x => x.id === num);
-    if (newIdx >= 0) activeSetData().currentIdx = newIdx;
-  } else {
-    activeSetData().currentIdx = idx;
-  }
-  input.value = '';
-  saveData();
   renderQuestion();
 }
 
@@ -361,7 +354,7 @@ function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (list.length === 0) {
-    const msg = filter==='wrong' ? '没有错题，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
+    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
     document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
     updateStats();
     return;
@@ -414,7 +407,8 @@ function renderQuestion() {
       const isSelected = saved.includes(i);
       if (isSelected) div.classList.add('selected');
       if (checked) {
-        if (q.ans.includes(i)) div.classList.add('correct');
+        // 只有答对了才显示绿色正确选项，答错只标红
+        if (s.userAnswers[q.id] === true && q.ans.includes(i)) div.classList.add('correct');
         if (!q.ans.includes(i) && isSelected) div.classList.add('wrong');
       }
       const letter = String.fromCharCode(65+i);
@@ -542,6 +536,8 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
+  // 答错记录到 wrongBank，永久保存
+  if (!isCorrect && q.type !== 'short') s.wrongBank[q.id] = true;
   // 答对才显示答案；答错只标红，不泄露正确选项，用户可手动点"显示答案"
   // 答对才显示完整答案；答错只标红，用户可手动点"显示答案"
   if (isCorrect && !examMode) showAnswerBox(q);
@@ -678,4 +674,4 @@ document.addEventListener('keydown', function(e) {
 
 // ========== 初始化 ==========
 renderSidebar();
-renderQuestion();
+renderQuestion();

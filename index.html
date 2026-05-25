@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
 <nav class="sidebar" id="sidebar">
   <h2>数据可视化 100 题</h2>
   <div id="moduleNav"></div>
@@ -25,32 +26,32 @@
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
     <div class="shortcuts-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      快捷键 <span class="arrow">▶</span>
+      快捷键 <span class="arrow">&#9654;</span>
     </div>
     <div class="shortcuts-body open">
-      <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上下题</span></div>
+      <div class="row"><span class="kbd">&larr;</span><span class="kbd">&rarr;</span><span class="label">上下题</span></div>
       <div class="row"><span class="kbd">Enter</span><span class="label">检查/确认</span></div>
       <div class="row"><span class="kbd">Space</span><span class="label">显示答案</span></div>
       <div class="row"><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span><span class="label">选ABCD</span></div>
-      <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项切换</span></div>
+      <div class="row"><span class="kbd">&uarr;</span><span class="kbd">&darr;</span><span class="label">选项切换</span></div>
     </div>
   </div>
 </nav>
 
 <div class="main">
+  <div class="main-inner">
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
     <span style="flex:1"></span>
-    <span style="font-size:12px;color:#888">跳转</span>
-    <input class="jump-input" id="jumpInput" onkeydown="if(event.key==='Enter')jumpToQuestion()" placeholder="题号">
+    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="resetProgress()">重新开始</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
   </div>
 
-  
+
   <div class="exam-banner" id="examBanner">
-    <span class="exam-info">考试中 — 剩余时间</span>
+    <span class="exam-info">考试中 -- 剩余时间</span>
     <span class="timer" id="examTimer">60:00</span>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px;background:#f44336;color:#fff;border:none" onclick="submitExam()">交卷</button>
   </div>
@@ -59,7 +60,7 @@
       <span class="q-num" id="qNum">第 1 题</span>
       <span class="q-type single" id="qType">单选题</span>
       <span style="flex:1"></span>
-      <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">☆</button>
+      <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">&star;</button>
     </div>
     <div class="q-text" id="qText"></div>
     <div class="options" id="qOptions"></div>
@@ -86,10 +87,11 @@
     </div>
 
     <div class="nav-btns">
-      <button class="btn btn-nav" onclick="prevQuestion()">← 上一题</button>
+      <button class="btn btn-nav" onclick="prevQuestion()">&larr; 上一题</button>
       <span style="color:#888;font-size:13px;line-height:36px" id="navInfo"></span>
-      <button class="btn btn-nav" onclick="nextQuestion()">下一题 →</button>
+      <button class="btn btn-nav" onclick="nextQuestion()">下一题 &rarr;</button>
     </div>
+  </div>
   </div>
 </div>
 
@@ -132,6 +134,7 @@
     <div id="wrongAnalysis"></div>
   </div>
 </div>
+
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>

@@ -1,4 +1,3 @@
-// ========== localStorage 持久化 ==========
 const STORAGE_KEY = 'dataviz_quiz_v3'; // v3: typeFilter+expand
 const EXAM_TIME = 45 * 60; // 45分钟
 
@@ -33,6 +32,12 @@ let data = loadData();
 let activeSet = data.activeSet || 0;
 let filter = data.filter || 'all';  // 'all', 'wrong', 'star'
 let sets = data.sets || [defaultSetData(), defaultSetData()];
+// 兼容旧数据：补充缺失字段
+sets.forEach(s => {
+  if (!s.expandedTypes) s.expandedTypes = {};
+  if (!s.stars) s.stars = {};
+  if (!s.typeFilter) s.typeFilter = 'all';
+});
 let examMode = false;
 let examTimer = null;
 let examTimeLeft = EXAM_TIME;
@@ -217,7 +222,7 @@ function showWrongAnalysis() {
   });
   let waHtml = '<p style="color:var(--text-muted);margin-bottom:12px">共 '+wrong.length+' 道错题</p>';
   for (const [label, qs] of Object.entries(byType)) {
-    waHtml += '<div class="wa-mod"><div class="wa-mod-name" onclick="this.nextElementSibling.classList.toggle(\'open\')">'+label+' ('+qs.length+'题) ▸</div>';
+    waHtml += '<div class="wa-mod"><div class="wa-mod-name" onclick="this.nextElementSibling.classList.toggle(\'open\')">'+label+' ('+qs.length+'题) \u25b8</div>';
     waHtml += '<div class="wa-qlist">';
     qs.forEach(q => {
       waHtml += '<span class="wa-qdot" onclick="document.getElementById(\'wrongModal\').classList.remove(\'show\');jumpToQ('+q.id+')">#'+q.id+'</span>';
@@ -274,7 +279,7 @@ function jumpToQuestion() {
   const idx = list.findIndex(x => x.id === num);
   if (idx < 0) {
     // 该题在当前筛选中不可见
-    if (!confirm('题号 #'+num+' 不在当前筛选中，是否切换至"全部题目"？')) { input.value = ''; return; }
+    if (!confirm('题号 #'+num+' 不在当前筛选中，是否切换至\"全部题目\"？')) { input.value = ''; return; }
     filter = 'all';
     data.filter = 'all';
     activeSetData().currentIdx = 0;
@@ -537,10 +542,11 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
-  // 考试模式下不泄露答案
-  if (!examMode) showAnswerBox(q);
-  else if (q.type === 'fill' && fillFeedback) {
-    // 考试模式下填空题也显示逐词反馈(不暴露完整答案)
+  // 答对才显示答案；答错只标红，不泄露正确选项，用户可手动点"显示答案"
+  // 答对才显示完整答案；答错只标红，用户可手动点"显示答案"
+  if (isCorrect && !examMode) showAnswerBox(q);
+  // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
+  if (!isCorrect && q.type === 'fill' && fillFeedback) {
     const ab = document.getElementById('answerBox');
     document.getElementById('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
     document.getElementById('ansExplanation').textContent = '';
@@ -596,11 +602,6 @@ function nextQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
-}
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-  document.body.classList.toggle('sb-collapsed');
 }
 
 // ========== 键盘快捷键 ==========

@@ -71,6 +71,18 @@ body.sb-collapsed .main{margin-left:50px}
 .shortcuts-toggle.open .arrow{transform:rotate(90deg)}
 .shortcuts-body{display:none}
 .shortcuts-body.open{display:block}
+
+.qnum-grid{display:none;flex-wrap:wrap;gap:3px;padding:6px 0 6px 16px}
+.qnum-grid.open{display:flex}
+.qnum-dot{width:26px;height:26px;border-radius:6px;border:1px solid #444;background:#2a2a3e;color:#aaa;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.qnum-dot:hover{border-color:#4ecdc4;color:#fff;transform:scale(1.15)}
+.qnum-dot.done-right{background:#1b5e20;border-color:#4caf50;color:#c8e6c9}
+.qnum-dot.done-wrong{background:#b71c1c;border-color:#f44336;color:#ffcdd2}
+.qnum-dot.starred{border-color:#f9a825;box-shadow:0 0 6px rgba(249,168,37,.4)}
+.module-btn{position:relative}
+.module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
+.module-btn.open .expand-arrow{transform:rotate(90deg);opacity:1}
+.module-btn .type-q-count{float:right;font-size:9px;color:#666;margin-top:2px}
 @media(max-width:768px){
 .right-panel{display:none}
 .main{margin-right:0}
@@ -467,7 +479,7 @@ const questions = [
 
 
 // ========== localStorage 持久化 ==========
-const STORAGE_KEY = 'dataviz_quiz_v2';
+const STORAGE_KEY = 'dataviz_quiz_v3'; // v3: typeFilter+expand
 const EXAM_TIME = 45 * 60; // 45分钟
 
 // 固定2套题: 题组0=前100题, 题组1=后100题
@@ -529,12 +541,23 @@ function renderSidebar() {
   const s = activeSetData();
   const pool = getQuestionPool();
   const nav = document.getElementById('moduleNav');
+  const eid = 'qt_'; // unique id for current render
   let html = '<button class="module-btn'+(s.typeFilter==='all'?' active':'')+'" onclick="setTypeFilter(&apos;all&apos;)">全部</button>';
   questionTypes.forEach(tt => {
     const qs = pool.filter(q => q.type === tt.type);
     const done = qs.filter(q => s.userAnswers[q.id] !== undefined);
     const active = s.typeFilter === tt.type ? ' active' : '';
-    html += '<button class="module-btn'+active+'" onclick="setTypeFilter(&apos;'+tt.type+'&apos;)">'+tt.short+' <span class="badge">'+done.length+'/'+qs.length+'</span></button>';
+    const open = s.typeFilter === tt.type ? ' open' : '';
+    html += '<button class="module-btn'+active+' '+open+'" onclick="toggleTypeExpand(&apos;'+tt.type+'&apos;,this)"><span class="expand-arrow">▶</span>'+tt.short+' <span class="type-q-count">'+done.length+'/'+qs.length+'</span></button>';
+    html += '<div class="qnum-grid'+(open?' open':'')+'" id="'+eid+tt.type+'">';
+    qs.forEach(q => {
+      let cls = 'qnum-dot';
+      if (s.userAnswers[q.id] === true) cls += ' done-right';
+      else if (s.userAnswers[q.id] === false) cls += ' done-wrong';
+      if (s.stars[q.id]) cls += ' starred';
+      html += '<div class="'+cls+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+q.id+'题'+'">'+q.id+'</div>';
+    });
+    html += '</div>';
   });
   nav.innerHTML = html;
 
@@ -578,6 +601,37 @@ function updateStats() {
   saveData();
 }
 
+// ========== 题型展开/折叠 + 跳转 ==========
+function toggleTypeExpand(type, btn) {
+  const grid = btn.nextElementSibling;
+  if (grid) {
+    const isOpen = grid.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+  }
+}
+
+function jumpToQ(qid) {
+  const s = activeSetData();
+  const pool = getQuestionPool();
+  const q = pool.find(q => q.id === qid);
+  if (!q) return;
+  // Switch to all filter and all types
+  filter = 'all';
+  data.filter = 'all';
+  s.typeFilter = 'all';
+  // Find index in full pool
+  const list = filteredQuestions();
+  // But first, we need filter to be 'all' and typeFilter to be 'all' for filteredQuestions to return all
+  // Since we just set both, proceed
+  const idx = list.findIndex(x => x.id === qid);
+  if (idx >= 0) {
+    s.currentIdx = idx;
+    saveData();
+    renderSidebar();
+    renderQuestion();
+  }
+}
+
 // ========== 套题/筛选切换 ==========
 function switchSetTab(idx) {
   activeSet = idx;
@@ -604,8 +658,10 @@ function setFilter(f) {
 }
 
 function setTypeFilter(t) {
-  activeSetData().typeFilter = t;
-  activeSetData().currentIdx = 0;
+  const s = activeSetData();
+  // Toggle: if clicking same type, go back to all
+  s.typeFilter = (s.typeFilter === t) ? 'all' : t;
+  s.currentIdx = 0;
   saveData();
   renderSidebar();
   renderQuestion();

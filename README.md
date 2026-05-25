@@ -60,14 +60,14 @@ window.QUIZ_CONFIG = {
 
 ```js
 window.QUIZ_QUESTIONS = [
-  // 单选
-  { id:1,  m:'第1章', type:'single', q:'问题文本', opts:['A','B','C','D'], ans:0, exp:'解析' },
-  // 多选
-  { id:2,  m:'第2章', type:'multi',  q:'...', opts:[...], ans:[0,2], exp:'...' },
-  // 填空
-  { id:3,  m:'第3章', type:'fill',   q:'...', ans:'标准答案', exp:'...' },
+  // 单选（ans 为下标数组，只有一个元素）
+  { id:1, m:'第1章', type:'single', q:'问题文本', opts:['A','B','C','D'], ans:[0], exp:'解析' },
+  // 多选（ans 为下标数组）
+  { id:2, m:'第2章', type:'multi',  q:'...', opts:['A','B','C','D'], ans:[0,2], exp:'...' },
+  // 填空（标准答案放 ansText）
+  { id:3, m:'第3章', type:'fill',   q:'...', ansText:'标准答案', exp:'...' },
   // 简答/作图/综合（提交即显示答案，不判对错）
-  { id:4,  m:'第4章', type:'short',  q:'...', ansText:'参考答案文本' },
+  { id:4, m:'第4章', type:'short',  q:'...', ansText:'参考答案文本' },
   // ...
 ];
 ```
@@ -87,8 +87,8 @@ window.QUIZ_QUESTIONS = [
 | `type`   | string     | ✅              | 见 `config.questionTypes[].type`      |
 | `q`      | string     | ✅              | 题干                                  |
 | `opts`   | string[]   | 单选/多选       | 选项                                  |
-| `ans`    | number\|number[] | 单选/多选/填空 | 正确选项下标 / 标准答案文本     |
-| `ansText`| string     | 简答/作图/综合  | 参考答案（不判对错，提交即展示）      |
+| `ans`    | number[]   | 单选/多选       | 正确选项下标数组（单选长度为 1）      |
+| `ansText`| string     | 填空/简答/作图/综合 | 标准答案 / 参考答案                |
 | `exp`    | string     | 可选             | 解析                                  |
 | `yq`     | string     | 可选             | 原题来源标记（如语雀题号）            |
 

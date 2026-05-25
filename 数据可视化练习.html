@@ -206,6 +206,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   <div class="main-inner">
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
+    <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span>
     <span style="flex:1"></span>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="resetProgress()">重新开始</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
@@ -215,6 +216,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   </div>
 
   
+  <div class="milestone-banner" id="milestoneBanner"></div>
   <div class="exam-banner" id="examBanner">
     <span class="exam-info">考试中 — 剩余时间</span>
     <span class="timer" id="examTimer">60:00</span>
@@ -789,6 +791,7 @@ function resetProgress() {
   s.stars = {};
   s.expandedTypes = {};
   s.wrongBank = bank;
+  s.streak = 0; document.getElementById('streakNum').textContent = 0;
   filter = 'all';
   data.filter = 'all';
   saveData();
@@ -829,6 +832,31 @@ function setTypeFilter(t) {
   saveData();
   renderSidebar();
   renderQuestion();
+}
+
+// ========== 连对里程碑 ==========
+const MILESTONES = {
+  3:{e:'❤️‍🔥',t:'三连对！！热热热热热热热热——',b:'linear-gradient(135deg,#ff6b6b,#ff8e53)'},
+  5:{e:'🤯',t:'五连对！！！！你的大脑是不是装了数据可视化芯片？！',b:'linear-gradient(135deg,#a855f7,#7c3aed)'},
+  10:{e:'🔥',t:'十！连！对！知识框架在脑子里自动生成了！！',b:'linear-gradient(135deg,#f97316,#ef4444)'},
+  20:{e:'🧨',t:'二！十！连！对！老师看到都要起立鼓掌了好吗！！！',b:'linear-gradient(135deg,#e11d48,#f43f5e)'},
+  30:{e:'🌋',t:'三十连对——————地球已经容不下你了！',b:'linear-gradient(135deg,#7c3aed,#a855f7)'},
+  40:{e:'💥',t:'四——十——连——对——！！你是在驯服题目！',b:'linear-gradient(135deg,#ec4899,#8b5cf6)'},
+  50:{e:'⚡',t:'半！！百！！连！！对！！恭喜解锁《数据可视化の神》称号！！',b:'linear-gradient(135deg,#f59e0b,#eab308)'},
+  100:{e:'🌌',t:'一↗百↗连↗对↗↗↗ 整个题库都被你踩在脚下了！！考试？走个过场嘛！！！',b:'linear-gradient(135deg,#06b6d4,#a855f7)'}
+};
+function showBanner(emoji,txt,bg){
+  const b=document.getElementById('milestoneBanner');
+  if(!b)return;
+  b.textContent=emoji+' '+txt;b.style.background=bg;
+  b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
+  setTimeout(function(){b.classList.remove('show')},3500);
+}
+function checkMilestone(s){
+  const m=MILESTONES[s];if(m)showBanner(m.e,m.t,m.b);
+}
+function showStreakBreak(s,best){
+  showBanner('💔','连对断了……但没关系！你可是拿过 '+best+' 连对的大佬！卷土重来未可知！','linear-gradient(135deg,#6b7280,#4b5563)');
 }
 
 // ========== 转为简答题 ==========
@@ -983,6 +1011,8 @@ function renderQuestion() {
   document.getElementById('qText').textContent = q.q;
   document.getElementById('navInfo').textContent = (s.currentIdx+1)+' / '+list.length;
   document.getElementById('moduleLabel').textContent = s.typeFilter==='all'?'全部题目':(questionTypes.find(t=>t.type===s.typeFilter)?.label||'');
+  var sb=document.getElementById('streakBadge');var st=s.streak||0;
+  if(sb){document.getElementById('streakNum').textContent=st;if(st>0){sb.style.display='inline-flex';sb.classList.remove('dormant');sb.querySelector('.fire').textContent='🔥';}}
 
   // Star button
   const starBtn = document.getElementById('starBtn');
@@ -1142,13 +1172,22 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
-  // 连续错2次自动显示答案
-  if (!isCorrect && q.type !== 'short') {
-    s.wrongBank[q.id] = true;
-    s._wrongRetry = (s._wrongRetry || {});
-    s._wrongRetry[q.id] = (s._wrongRetry[q.id] || 0) + 1;
-    if (s._wrongRetry[q.id] >= 2) showAnswerBox(q);
-  } else { if (s._wrongRetry) s._wrongRetry[q.id] = 0; }
+  // 连对逻辑 + 连续错2次自动显示答案
+  if (isCorrect && q.type !== 'short') {
+    s.streak=(s.streak||0)+1;if(s.streak>(s.bestStreak||0))s.bestStreak=s.streak;
+    var b=document.getElementById('streakBadge');if(b){b.style.display='inline-flex';b.classList.remove('dormant');b.querySelector('.fire').textContent='🔥';}
+    document.getElementById('streakNum').textContent=s.streak;
+    if(s.streak===1)showBanner('💨','火苗正在蓄势待发……命运的齿轮开始转动！','linear-gradient(135deg,#ff8a65,#ff7043)');
+    else checkMilestone(s.streak);
+  } else if (!isCorrect && q.type !== 'short') {
+    s.wrongBank[q.id]=true;
+    if(s.streak>0)showStreakBreak(s.streak,s.bestStreak||s.streak);
+    s.streak=0;
+    var b=document.getElementById('streakBadge');if(b){b.style.display='inline-flex';b.classList.add('dormant');b.querySelector('.fire').textContent='🧯';}
+    document.getElementById('streakNum').textContent=0;
+    s._wrongRetry=(s._wrongRetry||{});s._wrongRetry[q.id]=(s._wrongRetry[q.id]||0)+1;
+    if(s._wrongRetry[q.id]>=2)showAnswerBox(q);
+  } else { if(s._wrongRetry)s._wrongRetry[q.id]=0; }
   if (isCorrect && !examMode) showAnswerBox(q);
   // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
   if (!isCorrect && q.type === 'fill' && fillFeedback) {

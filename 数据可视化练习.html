@@ -54,8 +54,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
-.jump-input{width:70px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;text-align:center;outline:none}
-.jump-input:focus{border-color:var(--primary)}
 .exam-banner{background:var(--bg-dark);color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
 .exam-banner.show{display:flex}
 .exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:var(--primary)}
@@ -190,8 +188,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
     <span style="flex:1"></span>
-    <span style="font-size:12px;color:#888">跳转</span>
-    <input class="jump-input" id="jumpInput" onkeydown="if(event.key==='Enter')jumpToQuestion()" placeholder="题号">
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
@@ -782,32 +778,6 @@ function setTypeFilter(t) {
   else { s.typeFilter = t; s.currentIdx = 0; }
   saveData();
   renderSidebar();
-  renderQuestion();
-}
-
-function jumpToQuestion() {
-  const input = document.getElementById('jumpInput');
-  const num = parseInt(input.value);
-  if (isNaN(num)) return;
-  const pool = getQuestionPool();
-  const q = pool.find(q => q.id === num);
-  if (!q) { alert('题号不存在于当前题组'); return; }
-  const list = filteredQuestions();
-  const idx = list.findIndex(x => x.id === num);
-  if (idx < 0) {
-    // 该题在当前筛选中不可见
-    if (!confirm('题号 #'+num+' 不在当前筛选中，是否切换至\"全部题目\"？')) { input.value = ''; return; }
-    filter = 'all';
-    data.filter = 'all';
-    activeSetData().currentIdx = 0;
-    const newList = filteredQuestions();
-    const newIdx = newList.findIndex(x => x.id === num);
-    if (newIdx >= 0) activeSetData().currentIdx = newIdx;
-  } else {
-    activeSetData().currentIdx = idx;
-  }
-  input.value = '';
-  saveData();
   renderQuestion();
 }
 

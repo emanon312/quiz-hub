@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据可视化期末复习 100 题</title>
 <style>
+:root{--primary:#4ecdc4;--primary-dark:var(--primary-dark);--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#333;display:flex;min-height:100vh}
-.sidebar{width:260px;background:#1a1a2e;color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg-page);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--bg-dark);color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
 .sidebar h2{font-size:16px;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
 .module-btn{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:#ccc;font-size:14px;cursor:pointer;transition:.2s}
 .module-btn:hover,.module-btn.active{background:rgba(255,255,255,.08);color:#fff}
 .module-btn .badge{float:right;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
-.module-btn .done-badge{float:right;font-size:11px;color:#4ecdc4}
+.module-btn .done-badge{float:right;font-size:11px;color:var(--primary)}
 .sidebar-toggle{position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:.2s}
 .sidebar-toggle:hover{color:#fff;background:rgba(255,255,255,.1)}
 .sidebar.collapsed{width:50px;padding:20px 0}
@@ -22,48 +23,48 @@ body.sb-collapsed .main{margin-left:50px}
 .shortcuts{margin-top:16px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#888;line-height:1.8}
 .shortcuts .kbd{display:inline-block;background:rgba(255,255,255,.12);color:#ccc;padding:1px 7px;border-radius:4px;font-family:monospace;font-size:11px;margin:0 2px;min-width:18px;text-align:center}
 .shortcuts .row{margin-bottom:4px;display:flex;align-items:center}
-.main{margin-left:260px;margin-right:240px;flex:1;padding:24px 32px;max-width:860px;transition:margin-left .25s}
+.main{margin-left:260px;margin-right:220px;flex:1;padding:24px 32px;max-width:860px;transition:margin-left .25s}
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .topbar .module-title{font-size:13px;color:#888;background:#e8e8e8;padding:4px 12px;border-radius:12px}
 /* 右侧进度面板 */
-.right-panel{width:220px;background:#fff;position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:99;padding:24px 16px;box-shadow:-1px 0 4px rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;gap:16px}
+.right-panel{width:200px;background:var(--card-bg);position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:99;padding:24px 16px;box-shadow:-1px 0 4px rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;gap:16px}
 .right-panel .rp-stat{text-align:center}
-.right-panel .rp-num{font-size:48px;font-weight:800;color:#1a1a2e;line-height:1.1}
+.right-panel .rp-num{font-size:36px;font-weight:800;color:#1a1a2e;line-height:1.1}
 .right-panel .rp-label{font-size:12px;color:#999;margin-top:4px}
 .right-panel .rp-divider{width:40px;height:1px;background:#e8e8e8}
 .right-panel .rp-acc{text-align:center}
-.right-panel .rp-acc .val{font-size:36px;font-weight:700;color:#4ecdc4}
+.right-panel .rp-acc .val{font-size:36px;font-weight:700;color:var(--primary)}
 .right-panel .rp-acc .lbl{font-size:12px;color:#999}
 .rp-progress-wrap{width:100%}
 .rp-progress-wrap .lbl{font-size:11px;color:#aaa;margin-bottom:6px;text-align:center}
-.rp-bar{width:100%;height:12px;background:#f0f2f5;border-radius:6px;overflow:hidden}
+.rp-bar{width:100%;height:12px;background:var(--bg-page);border-radius:6px;overflow:hidden}
 .rp-bar .fill{height:100%;background:linear-gradient(180deg,#4ecdc4,#44a08d);border-radius:6px;transition:width .3s}
 .rp-modules{width:100%;margin-top:4px}
 .rp-modules .m-row{margin-bottom:8px}
 .rp-modules .m-name{font-size:10px;color:#888;margin-bottom:2px;display:flex;justify-content:space-between}
 .rp-modules .m-name span{color:#666}
-.rp-modules .m-bar{height:4px;background:#f0f2f5;border-radius:2px;overflow:hidden}
-.rp-modules .m-bar .fill{height:100%;background:#4ecdc4;border-radius:2px;transition:width .3s}
+.rp-modules .m-bar{height:4px;background:var(--bg-page);border-radius:2px;overflow:hidden}
+.rp-modules .m-bar .fill{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
 
 .opt.focused{border-color:#f9a825!important;background:#fffde7!important;box-shadow:0 0 0 3px rgba(249,168,37,.2)}
 .star-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;color:#ccc;transition:.15s;line-height:1}
 .star-btn.starred{color:#f9a825}
 .star-btn:hover{color:#f9a825}
 .filter-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer;white-space:nowrap}
-.filter-chip.active{background:#4ecdc4;color:#fff;border-color:#4ecdc4}
+.filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
+.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
 .jump-input{width:70px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;text-align:center;outline:none}
-.jump-input:focus{border-color:#4ecdc4}
-.exam-banner{background:#1a1a2e;color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
+.jump-input:focus{border-color:var(--primary)}
+.exam-banner{background:var(--bg-dark);color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
 .exam-banner.show{display:flex}
-.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:#4ecdc4}
+.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:var(--primary)}
 .exam-banner .timer.warning{color:#f9a825}
 .exam-banner .timer.danger{color:#f44336}
 .exam-banner .exam-info{font-size:13px;color:#aaa}
 .set-tabs{display:flex;gap:4px;margin-bottom:10px}
 .set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
-.set-tab.active{background:#4ecdc4;color:#fff;border-color:#4ecdc4}
+.set-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 
 .shortcuts-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;font-size:12px;color:#aaa;user-select:none}
 .shortcuts-toggle:hover{color:#fff}
@@ -75,7 +76,7 @@ body.sb-collapsed .main{margin-left:50px}
 .qnum-grid{display:none;flex-wrap:wrap;gap:3px;padding:6px 0 6px 16px}
 .qnum-grid.open{display:flex}
 .qnum-dot{width:26px;height:26px;border-radius:6px;border:1px solid #444;background:#2a2a3e;color:#aaa;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
-.qnum-dot:hover{border-color:#4ecdc4;color:#fff;transform:scale(1.15)}
+.qnum-dot:hover{border-color:var(--primary);color:#fff;transform:scale(1.15)}
 .qnum-dot.done-right{background:#1b5e20;border-color:#4caf50;color:#c8e6c9}
 .qnum-dot.done-wrong{background:#b71c1c;border-color:#f44336;color:#ffcdd2}
 .qnum-dot.starred{border-color:#f9a825;box-shadow:0 0 6px rgba(249,168,37,.4)}
@@ -83,13 +84,28 @@ body.sb-collapsed .main{margin-left:50px}
 .module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
 .module-btn.open .expand-arrow{transform:rotate(90deg);opacity:1}
 .module-btn .type-q-count{float:right;font-size:9px;color:#666;margin-top:2px}
+
+
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card-bg);border-radius:12px;padding:24px;max-width:600px;max-height:80vh;overflow-y:auto;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-box h3{font-size:20px;margin-bottom:12px}
+.modal-box .close-btn{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)}
+.modal-box .wa-mod{margin-bottom:12px}
+.modal-box .wa-mod-name{font-size:14px;font-weight:600;margin-bottom:4px;cursor:pointer;color:var(--primary)}
+.modal-box .wa-mod-name:hover{text-decoration:underline}
+.modal-box .wa-qlist{display:none;flex-wrap:wrap;gap:4px;margin:6px 0}
+.modal-box .wa-qlist.open{display:flex}
+.modal-box .wa-qdot{display:inline-block;padding:4px 10px;border-radius:6px;background:#ffebee;color:var(--danger);font-size:10px;cursor:pointer;border:1px solid #ef9a9a}
+.modal-box .wa-qdot:hover{background:#ffcdd2}
+
 @media(max-width:768px){
 .right-panel{display:none}
 .main{margin-right:0}
 }
-.card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
+.card{background:var(--card-bg);border-radius:12px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
 .q-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.q-num{font-size:12px;color:#888;background:#f0f2f5;padding:4px 10px;border-radius:12px;white-space:nowrap}
+.q-num{font-size:12px;color:#888;background:var(--bg-page);padding:4px 10px;border-radius:12px;white-space:nowrap}
 .q-type{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px}
 .q-type.single{background:#e3f2fd;color:#1565c0}
 .q-type.multi{background:#fce4ec;color:#c62828}
@@ -97,27 +113,27 @@ body.sb-collapsed .main{margin-left:50px}
 .q-type.short{background:#e8f5e9;color:#2e7d32}
 .q-text{font-size:17px;line-height:1.7;margin-bottom:20px}
 .options{margin-bottom:20px}
-.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border:2px solid #e8e8e8;border-radius:8px;cursor:pointer;transition:.15s}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s}
 .opt:hover{border-color:#b0b0b0;background:#fafafa}
-.opt.selected{border-color:#4ecdc4;background:#f0fdfa}
+.opt.selected{border-color:var(--primary);background:#f0fdfa}
 .opt.correct{border-color:#4caf50!important;background:#e8f5e9!important}
 .opt.wrong{border-color:#f44336!important;background:#ffebee!important}
-.opt input{margin-top:2px;accent-color:#4ecdc4;width:16px;height:16px}
+.opt input{margin-top:2px;accent-color:var(--primary);width:16px;height:16px}
 .opt .letter{font-weight:700;min-width:24px;color:#888}
 .opt .text{flex:1;line-height:1.6}
 .fill-input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:8px;font-size:15px;line-height:1.6;outline:none;transition:.2s}
-.fill-input:focus{border-color:#4ecdc4}
+.fill-input:focus{border-color:var(--primary)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-.btn-check{background:#4ecdc4;color:#fff}
-.btn-check:hover{background:#3dbdb5}
+.btn-check{background:var(--primary);color:#fff}
+.btn-check:hover{background:var(--primary-dark)}
 .btn-check:disabled{background:#ccc;cursor:not-allowed}
-.btn-reveal{background:#fff;color:#666;border:1px solid #ddd}
+.btn-reveal{background:var(--card-bg);color:#666;border:1px solid #ddd}
 .btn-reveal:hover{background:#f5f5f5}
-.btn-nav{background:#fff;color:#333;border:1px solid #ddd}
+.btn-nav{background:var(--card-bg);color:var(--text);border:1px solid #ddd}
 .btn-nav:hover{background:#f5f5f5}
-.answer-box{background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px;display:none}
-.answer-box.show{display:block}
+.answer-box{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px;display:none}
+.answer-box.show{max-height:600px;padding:16px 20px}
 .answer-box .ans-label{font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px}
 .answer-box .ans-content{font-size:15px;line-height:1.7;color:#333}
 .answer-box .ans-explanation{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #e0e0e0}
@@ -173,12 +189,14 @@ body.sb-collapsed .main{margin-left:50px}
 
 <div class="main">
   <div class="topbar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()" style="position:static;color:#888;font-size:16px;background:#f0f2f5;border:none;cursor:pointer;padding:4px 10px;border-radius:6px" title="折叠/展开侧边栏">☰</button>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" style="position:static;color:#888;font-size:16px;background:var(--bg-page);border:none;cursor:pointer;padding:4px 10px;border-radius:6px" title="折叠/展开侧边栏">☰</button>
     <span class="module-title" id="moduleLabel">全部题目</span>
     <span style="flex:1"></span>
     <span style="font-size:12px;color:#888">跳转</span>
     <input class="jump-input" id="jumpInput" onkeydown="if(event.key==='Enter')jumpToQuestion()" placeholder="题号">
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
+    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
+    <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
   </div>
 
   
@@ -227,9 +245,20 @@ body.sb-collapsed .main{margin-left:50px}
 </div>
 
 <aside class="right-panel" id="rightPanel">
+  <div class="rp-stat" style="margin-bottom:4px">
+    <div style="font-size:12px;color:var(--text-muted)">总进度（200题）</div>
+    <div class="rp-num" style="font-size:28px" id="rpGlobal">0</div>
+    <div style="font-size:10px;color:var(--text-muted)" id="rpGlobalPct">-</div>
+  </div>
+  <div class="rp-divider"></div>
   <div class="rp-stat">
     <div class="rp-num" id="rpDone">0</div>
-    <div class="rp-label">已完成 / 100 题</div>
+    <div class="rp-label">当前题组已完成</div>
+  </div>
+  <div class="rp-divider"></div>
+  <div class="rp-acc">
+    <div style="font-size:12px;color:var(--text-muted)">练习时长</div>
+    <div class="val" style="font-size:20px!important" id="rpTimer">00:00</div>
   </div>
   <div class="rp-divider"></div>
   <div class="rp-acc">
@@ -245,6 +274,15 @@ body.sb-collapsed .main{margin-left:50px}
   <div class="rp-divider"></div>
   <div class="rp-modules" id="rpModules"></div>
 </aside>
+
+
+<div class="modal-overlay" id="wrongModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <button class="close-btn" onclick="document.getElementById('wrongModal').classList.remove('show')">&times;</button>
+    <h3>错题分析</h3>
+    <div id="wrongAnalysis"></div>
+  </div>
+</div>
 
 <script>
 // ========== 题库数据 ==========
@@ -502,7 +540,8 @@ function saveData() {
   const compact = {
     activeSet, filter,
     sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars })),
-    examDone
+    examDone,
+    practiceSec
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 }
@@ -516,6 +555,13 @@ let examMode = false;
 let examTimer = null;
 let examTimeLeft = EXAM_TIME;
 let examDone = data.examDone || false;
+let practiceSec = data.practiceSec || 0;
+let practiceTimer = setInterval(function(){
+  practiceSec++;
+  const m = Math.floor(practiceSec/60), s = practiceSec%60;
+  const el = document.getElementById('rpTimer');
+  if (el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}, 1000);
 let focusedOptIdx = -1; // ↑↓ navigation
 
 function activeSetData() { return sets[activeSet]; }
@@ -533,6 +579,12 @@ function filteredQuestions() {
   // Wrong/star filter
   if (filter === 'wrong') pool = pool.filter(q => s.userAnswers[q.id] === false);
   if (filter === 'star') pool = pool.filter(q => s.stars[q.id]);
+  if (randomMode && pool.length > 1) {
+    const curQ = pool[activeSetData().currentIdx];
+    for (let i = pool.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    const newIdx = curQ ? pool.findIndex(q=>q.id===curQ.id) : 0;
+    activeSetData().currentIdx = Math.max(0, newIdx);
+  }
   return pool;
 }
 
@@ -595,8 +647,15 @@ function updateStats() {
   const pool = getQuestionPool();
   const allDone = pool.filter(q => s.userAnswers[q.id] !== undefined);
   const right = allDone.filter(q => s.userAnswers[q.id] === true).length;
-  document.getElementById('rpDone').textContent = allDone.length;
+    document.getElementById('rpDone').textContent = allDone.length;
   document.getElementById('rpAcc').textContent = allDone.length > 0 ? Math.round(right/allDone.length*100)+'%' : '-';
+  const gDone0 = Object.keys(sets[0].userAnswers).length;
+  const gDone1 = Object.keys(sets[1].userAnswers).length;
+  const gTotal = gDone0 + gDone1;
+  document.getElementById('rpGlobal').textContent = gTotal;
+  const gRight0 = Object.values(sets[0].userAnswers).filter(v=>v===true).length;
+  const gRight1 = Object.values(sets[1].userAnswers).filter(v=>v===true).length;
+  document.getElementById('rpGlobalPct').textContent = gTotal > 0 ? '正确率 '+Math.round((gRight0+gRight1)/gTotal*100)+'%' : '-';
   const list = filteredQuestions();
   const fDone = list.filter(q => s.userAnswers[q.id] !== undefined).length;
   document.getElementById('rpBarFill').style.width = list.length > 0 ? (fDone/list.length*100)+'%' : '0%';
@@ -641,6 +700,43 @@ function jumpToQ(qid) {
     renderSidebar();
     renderQuestion();
   }
+}
+
+// ========== 随机模式 ==========
+let randomMode = false;
+function toggleRandom() {
+  randomMode = !randomMode;
+  document.getElementById('randomChip').classList.toggle('random-on', randomMode);
+  document.getElementById('randomChip').style.background = randomMode ? '#fff3e0' : '';
+  document.getElementById('randomChip').style.color = randomMode ? '#e65100' : '';
+  document.getElementById('randomChip').style.borderColor = randomMode ? '#ffcc02' : '';
+  activeSetData().currentIdx = 0;
+  renderSidebar();
+  renderQuestion();
+}
+
+function showWrongAnalysis() {
+  const s = activeSetData();
+  const pool = getQuestionPool();
+  const wrong = pool.filter(q => s.userAnswers[q.id] === false);
+  if (wrong.length === 0) { alert('当前题组没有错题，太棒了！'); return; }
+  const byType = {};
+  wrong.forEach(q => {
+    const label = q.type==='single'?'单选题':q.type==='multi'?'多选题':q.type==='fill'?'填空题':'简答题';
+    if (!byType[label]) byType[label] = [];
+    byType[label].push(q);
+  });
+  let waHtml = '<p style="color:var(--text-muted);margin-bottom:12px">共 '+wrong.length+' 道错题</p>';
+  for (const [label, qs] of Object.entries(byType)) {
+    waHtml += '<div class="wa-mod"><div class="wa-mod-name" onclick="this.nextElementSibling.classList.toggle(\'open\')">'+label+' ('+qs.length+'题) \u25b8</div>';
+    waHtml += '<div class="wa-qlist">';
+    qs.forEach(q => {
+      waHtml += '<span class="wa-qdot" onclick="document.getElementById(\'wrongModal\').classList.remove(\'show\');jumpToQ('+q.id+')">#'+q.id+'</span>';
+    });
+    waHtml += '</div></div>';
+  }
+  document.getElementById('wrongAnalysis').innerHTML = waHtml;
+  document.getElementById('wrongModal').classList.add('show');
 }
 
 // ========== 套题/筛选切换 ==========
@@ -688,7 +784,8 @@ function jumpToQuestion() {
   const list = filteredQuestions();
   const idx = list.findIndex(x => x.id === num);
   if (idx < 0) {
-    // 该题在当前筛选中不可见，切换到 all
+    // 该题在当前筛选中不可见
+    if (!confirm('题号 #'+num+' 不在当前筛选中，是否切换至\"全部题目\"？')) { input.value = ''; return; }
     filter = 'all';
     data.filter = 'all';
     activeSetData().currentIdx = 0;
@@ -828,7 +925,7 @@ function renderQuestion() {
       }
       const letter = String.fromCharCode(65+i);
       const chk = isSelected ? ' checked' : '';
-      div.innerHTML = '<input type="'+inputType+'" name="'+groupName+'" value="'+i+'"'+chk+'><span class="letter">'+letter+'.</span><span class="text">'+opt.substring(3)+'</span>';
+      div.innerHTML = '<input type="'+inputType+'" name="'+groupName+'" value="'+i+'"'+chk+'><span class="letter">'+letter+'. <span style="font-size:9px;color:var(--text-muted)">['+(i+1)+']</span></span><span class="text">'+opt.substring(3)+'</span>';
       div.setAttribute('data-opt-idx', i);
       div.addEventListener('click', function(e) {
         if (e.target.tagName === 'INPUT') return;
@@ -1073,8 +1170,10 @@ document.addEventListener('keydown', function(e) {
       e.preventDefault();
       const idx = parseInt(e.key) - 1;
       if (idx < q.opts.length) {
-        if (q.type === 'single') {
-          s.userAnswers[q.id] = [idx];
+                if (q.type === 'single') {
+          const cur1 = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+          if (cur1.length === 1 && cur1[0] === idx) s.userAnswers[q.id] = [];
+          else s.userAnswers[q.id] = [idx];
         } else {
           const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
           if (cur.includes(idx)) { s.userAnswers[q.id] = cur.filter(v => v !== idx); }

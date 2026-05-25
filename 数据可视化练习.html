@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据可视化期末复习 100 题</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#333;display:flex;min-height:100vh}
+.sidebar{width:260px;background:#1a1a2e;color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
+.sidebar h2{font-size:16px;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
+.module-btn{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:#ccc;font-size:14px;cursor:pointer;transition:.2s}
+.module-btn:hover,.module-btn.active{background:rgba(255,255,255,.08);color:#fff}
+.module-btn .badge{float:right;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
+.module-btn .done-badge{float:right;font-size:11px;color:#4ecdc4}
+.sidebar-toggle{position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:.2s}
+.sidebar-toggle:hover{color:#fff;background:rgba(255,255,255,.1)}
+.sidebar.collapsed{width:50px;padding:20px 0}
+.sidebar.collapsed h2,.sidebar.collapsed .module-btn,.sidebar.collapsed .shortcuts{display:none}
+.sidebar.collapsed .sidebar-toggle{right:auto;left:50%;transform:translateX(-50%)}
+body.sb-collapsed .main{margin-left:50px}
+.shortcuts{margin-top:16px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#888;line-height:1.8}
+.shortcuts .kbd{display:inline-block;background:rgba(255,255,255,.12);color:#ccc;padding:1px 7px;border-radius:4px;font-family:monospace;font-size:11px;margin:0 2px;min-width:18px;text-align:center}
+.shortcuts .row{margin-bottom:4px;display:flex;align-items:center}
+.main{margin-left:260px;margin-right:240px;flex:1;padding:24px 32px;max-width:860px;transition:margin-left .25s}
+.topbar{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.topbar .module-title{font-size:13px;color:#888;background:#e8e8e8;padding:4px 12px;border-radius:12px}
+/* 右侧进度面板 */
+.right-panel{width:220px;background:#fff;position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:99;padding:24px 16px;box-shadow:-1px 0 4px rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;gap:16px}
+.right-panel .rp-stat{text-align:center}
+.right-panel .rp-num{font-size:48px;font-weight:800;color:#1a1a2e;line-height:1.1}
+.right-panel .rp-label{font-size:12px;color:#999;margin-top:4px}
+.right-panel .rp-divider{width:40px;height:1px;background:#e8e8e8}
+.right-panel .rp-acc{text-align:center}
+.right-panel .rp-acc .val{font-size:36px;font-weight:700;color:#4ecdc4}
+.right-panel .rp-acc .lbl{font-size:12px;color:#999}
+.rp-progress-wrap{width:100%}
+.rp-progress-wrap .lbl{font-size:11px;color:#aaa;margin-bottom:6px;text-align:center}
+.rp-bar{width:100%;height:12px;background:#f0f2f5;border-radius:6px;overflow:hidden}
+.rp-bar .fill{height:100%;background:linear-gradient(180deg,#4ecdc4,#44a08d);border-radius:6px;transition:width .3s}
+.rp-modules{width:100%;margin-top:4px}
+.rp-modules .m-row{margin-bottom:8px}
+.rp-modules .m-name{font-size:10px;color:#888;margin-bottom:2px;display:flex;justify-content:space-between}
+.rp-modules .m-name span{color:#666}
+.rp-modules .m-bar{height:4px;background:#f0f2f5;border-radius:2px;overflow:hidden}
+.rp-modules .m-bar .fill{height:100%;background:#4ecdc4;border-radius:2px;transition:width .3s}
+
+.opt.focused{border-color:#f9a825!important;background:#fffde7!important;box-shadow:0 0 0 3px rgba(249,168,37,.2)}
+.star-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;color:#ccc;transition:.15s;line-height:1}
+.star-btn.starred{color:#f9a825}
+.star-btn:hover{color:#f9a825}
+.filter-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer;white-space:nowrap}
+.filter-chip.active{background:#4ecdc4;color:#fff;border-color:#4ecdc4}
+.filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
+.jump-input{width:70px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;text-align:center;outline:none}
+.jump-input:focus{border-color:#4ecdc4}
+.exam-banner{background:#1a1a2e;color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
+.exam-banner.show{display:flex}
+.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:#4ecdc4}
+.exam-banner .timer.warning{color:#f9a825}
+.exam-banner .timer.danger{color:#f44336}
+.exam-banner .exam-info{font-size:13px;color:#aaa}
+.set-tabs{display:flex;gap:4px;margin-bottom:10px}
+.set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
+.set-tab.active{background:#4ecdc4;color:#fff;border-color:#4ecdc4}
+@media(max-width:768px){
+.right-panel{display:none}
+.main{margin-right:0}
+}
+.card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
+.q-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.q-num{font-size:12px;color:#888;background:#f0f2f5;padding:4px 10px;border-radius:12px;white-space:nowrap}
+.q-type{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px}
+.q-type.single{background:#e3f2fd;color:#1565c0}
+.q-type.multi{background:#fce4ec;color:#c62828}
+.q-type.fill{background:#fff3e0;color:#e65100}
+.q-type.short{background:#e8f5e9;color:#2e7d32}
+.q-text{font-size:17px;line-height:1.7;margin-bottom:20px}
+.options{margin-bottom:20px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border:2px solid #e8e8e8;border-radius:8px;cursor:pointer;transition:.15s}
+.opt:hover{border-color:#b0b0b0;background:#fafafa}
+.opt.selected{border-color:#4ecdc4;background:#f0fdfa}
+.opt.correct{border-color:#4caf50!important;background:#e8f5e9!important}
+.opt.wrong{border-color:#f44336!important;background:#ffebee!important}
+.opt input{margin-top:2px;accent-color:#4ecdc4;width:16px;height:16px}
+.opt .letter{font-weight:700;min-width:24px;color:#888}
+.opt .text{flex:1;line-height:1.6}
+.fill-input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:8px;font-size:15px;line-height:1.6;outline:none;transition:.2s}
+.fill-input:focus{border-color:#4ecdc4}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-check{background:#4ecdc4;color:#fff}
+.btn-check:hover{background:#3dbdb5}
+.btn-check:disabled{background:#ccc;cursor:not-allowed}
+.btn-reveal{background:#fff;color:#666;border:1px solid #ddd}
+.btn-reveal:hover{background:#f5f5f5}
+.btn-nav{background:#fff;color:#333;border:1px solid #ddd}
+.btn-nav:hover{background:#f5f5f5}
+.answer-box{background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px;display:none}
+.answer-box.show{display:block}
+.answer-box .ans-label{font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px}
+.answer-box .ans-content{font-size:15px;line-height:1.7;color:#333}
+.answer-box .ans-explanation{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #e0e0e0}
+.result-msg{font-size:14px;font-weight:600;padding:8px 14px;border-radius:8px;margin-bottom:12px;display:none}
+.result-msg.show{display:block}
+.result-msg.right{background:#e8f5e9;color:#2e7d32}
+.result-msg.wrong{background:#ffebee;color:#c62828}
+.nav-btns{display:flex;justify-content:space-between;margin-top:16px}
+.empty-state{text-align:center;padding:80px 20px;color:#999}
+.empty-state h3{font-size:20px;margin-bottom:8px}
+@media(max-width:768px){
+.sidebar{width:100%;position:relative;height:auto;padding:12px}
+.sidebar h2{font-size:14px;padding:0 12px 8px}
+.module-btn{font-size:12px;padding:8px 12px}
+.main{margin-left:0;padding:16px}
+.card{padding:20px 16px}
+.q-text{font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开侧边栏">☰</button>
+  <h2>数据可视化 100 题</h2>
+  <div id="moduleNav"></div>
+  <div class="shortcuts">
+    <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上下题</span></div>
+    <div class="row"><span class="kbd">Enter</span><span class="label">检查答案</span></div>
+    <div class="row"><span class="kbd">Space</span><span class="label">显示答案</span></div>
+    <div class="row"><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span><span class="label">选ABCD</span></div>
+  </div>
+  <div class="shortcuts" style="margin-top:12px;border-top:1px solid rgba(255,255,255,.15)">
+    <div style="font-size:12px;color:#aaa;margin-bottom:6px">套题切换</div>
+    <div class="set-tabs" id="setTabs">
+      <button class="set-tab active" onclick="switchSetTab(0)">题组一</button>
+      <button class="set-tab" onclick="switchSetTab(1)">题组二</button>
+    </div>
+    <div style="font-size:12px;color:#aaa;margin-top:10px;margin-bottom:6px">筛选</div>
+    <div class="filter-bar" style="display:block">
+      <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
+      <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
+      <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
+    </div>
+  </div>
+  <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
+    <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项切换</span></div>
+    <div class="row"><span class="kbd">Enter</span><span class="label">确认选中</span></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" style="position:static;color:#888;font-size:16px;background:#f0f2f5;border:none;cursor:pointer;padding:4px 10px;border-radius:6px" title="折叠/展开侧边栏">☰</button>
+    <span class="module-title" id="moduleLabel">全部题目</span>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:#888">跳转</span>
+    <input class="jump-input" id="jumpInput" onkeydown="if(event.key==='Enter')jumpToQuestion()" placeholder="题号">
+    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
+  </div>
+
+  
+  <div class="exam-banner" id="examBanner">
+    <span class="exam-info">考试中 — 剩余时间</span>
+    <span class="timer" id="examTimer">60:00</span>
+    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px;background:#f44336;color:#fff;border:none" onclick="submitExam()">交卷</button>
+  </div>
+<div class="card" id="questionCard">
+    <div class="q-header">
+      <span class="q-num" id="qNum">第 1 题</span>
+      <span class="q-type single" id="qType">单选题</span>
+      <span style="flex:1"></span>
+      <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">☆</button>
+    </div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="qOptions"></div>
+    <div id="fillArea" style="display:none">
+      <textarea class="fill-input" id="fillInput" rows="3" placeholder="请输入你的答案..."></textarea>
+    </div>
+    <div id="shortArea" style="display:none">
+      <p style="color:#888;font-size:14px;margin-bottom:12px">简答题请先自行作答，然后点击"显示答案"对照。</p>
+      <textarea class="fill-input" id="shortInput" rows="4" placeholder="在此写下你的答案（可选）..."></textarea>
+    </div>
+
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-check" id="btnCheck" onclick="checkAnswer()">检查答案</button>
+      <button class="btn btn-reveal" id="btnReveal" onclick="toggleAnswer()">显示答案</button>
+    <span id="examNotice" style="display:none;font-size:12px;color:#f44336;line-height:36px">考试模式下答案按钮已禁用</span>
+    </div>
+
+    <div class="result-msg" id="resultMsg"></div>
+
+    <div class="answer-box" id="answerBox">
+      <div class="ans-label">参考答案</div>
+      <div class="ans-content" id="ansContent"></div>
+      <div class="ans-explanation" id="ansExplanation"></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-nav" onclick="prevQuestion()">← 上一题</button>
+      <span style="color:#888;font-size:13px;line-height:36px" id="navInfo"></span>
+      <button class="btn btn-nav" onclick="nextQuestion()">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<aside class="right-panel" id="rightPanel">
+  <div class="rp-stat">
+    <div class="rp-num" id="rpDone">0</div>
+    <div class="rp-label">已完成 / 100 题</div>
+  </div>
+  <div class="rp-divider"></div>
+  <div class="rp-acc">
+    <div class="val" id="rpAcc">-</div>
+    <div class="lbl">正确率</div>
+  </div>
+  <div class="rp-divider"></div>
+  <div class="rp-progress-wrap">
+    <div class="lbl">当前模块进度</div>
+    <div class="rp-bar"><div class="fill" id="rpBarFill" style="width:0%"></div></div>
+    <div style="text-align:center;font-size:11px;color:#666;margin-top:4px" id="rpLabel">0 / 100</div>
+  </div>
+  <div class="rp-divider"></div>
+  <div class="rp-modules" id="rpModules"></div>
+</aside>
+
+<script>
+// ========== 题库数据 ==========
+const modules = [
+  { name:'模块一：可视化概述', short:'概述', range:[1,15] },
+  { name:'模块二：视觉感知与认知', short:'感知认知', range:[16,35] },
+  { name:'模块三：数据与视觉通道', short:'数据通道', range:[36,60] },
+  { name:'模块四：可视化设计美学', short:'设计美学', range:[61,80] },
+  { name:'模块五：Tableau 基础与计算', short:'Tableau', range:[81,100] }
+];
+
+const questions = [
+  // ===== 模块一：可视化概述 (1-15) =====
+  {id:1,m:'概述',type:'single',q:'下列不属于数据可视化框架的是（ ）',opts:['A. 抽象层','B. 计算层','C. 问题刻画层','D. 编码层'],ans:[1],exp:'计算层不属于可视化框架。可视化框架包含：问题刻画层→抽象层→编码层。'},
+  {id:2,m:'概述',type:'single',q:'以下哪项不是数据可视化的主要作用（ ）',opts:['A. 分析推理','B. 信息的传播交流','C. 数据采集','D. 信息记录'],ans:[2],exp:'数据采集属于可视化流程的前置步骤，不是可视化本身的作用。'},
+  {id:3,m:'概述',type:'single',q:'数据可视化流程的核心步骤不包括（ ）',opts:['A. 数据采集','B. 数据存储','C. 可视化映射','D. 用户感知'],ans:[1],exp:'核心流程为：数据采集→数据处理和变换→可视化映射→用户感知。数据存储不在核心流程中。'},
+  {id:4,m:'概述',type:'single',q:'下列哪种可视化分类主要面向物理空间数据（如气象、流体）的呈现（ ）',opts:['A. 科学可视化','B. 信息可视化','C. 可视分析学','D. 文本可视化'],ans:[0],exp:'科学可视化侧重呈现具有空间几何属性的科学数据。'},
+  {id:5,m:'概述',type:'single',q:'数据可视化流程中，将数据转换为图形元素（如位置、大小、颜色等）的步骤是（ ）',opts:['A. 数据采集','B. 数据处理和变换','C. 可视化映射','D. 用户感知'],ans:[2],exp:'可视化映射是核心步骤，将数据属性映射为视觉通道。'},
+  {id:6,m:'概述',type:'single',q:'信息可视化主要面向的数据类型是（ ）',opts:['A. 空间场数据','B. 抽象的非空间数据','C. 分子结构数据','D. 地形数据'],ans:[1],exp:'信息可视化处理抽象的非空间数据，如金融数据、社交网络等。'},
+  {id:7,m:'概述',type:'single',q:'下列哪种可视化分类最强调人机交互与自动分析推理的结合（ ）',opts:['A. 科学可视化','B. 信息可视化','C. 可视分析学','D. 数据新闻'],ans:[2],exp:'可视分析学 = 可视化 + 自动分析 + 人机交互。'},
+  {id:8,m:'概述',type:'multi',q:'数据可视化的三大主要分类是（ ）',opts:['A. 可视分析学','B. 信息可视化','C. 科学可视化','D. 文本可视化'],ans:[0,1,2],exp:'文本可视化是信息可视化的子领域，不是一级分类。'},
+  {id:9,m:'概述',type:'multi',q:'数据可视化流程以数据流向为主线，其核心流程主要包括（ ）',opts:['A. 可视化映射','B. 数据采集','C. 数据处理和变换','D. 用户感知'],ans:[0,1,2,3],exp:'四步骤均为核心流程。'},
+  {id:10,m:'概述',type:'multi',q:'以下属于数据可视化作用的有（ ）',opts:['A. 分析推理','B. 信息的传播交流','C. 信息记录','D. 数据清洗'],ans:[0,1,2],exp:'数据清洗属于数据处理环节，不是可视化的直接作用。'},
+  {id:11,m:'概述',type:'multi',q:'关于数据可视化的定义，下列说法正确的有（ ）',opts:['A. 数据可视化是将数据转换为图形图像以便于理解的过程','B. 数据可视化仅关注最终的呈现效果，不关注交互','C. 数据可视化的目标是帮助用户洞察数据、发现规律','D. 数据可视化结合了计算机图形学、人机交互和认知科学等多个学科'],ans:[0,2,3],exp:'现代可视化同样重视交互能力，B错误。'},
+  {id:12,m:'概述',type:'fill',q:'数据可视化流程以____为主线。',ansText:'数据流向',exp:'数据流向是贯穿可视化流程的主线。'},
+  {id:13,m:'概述',type:'fill',q:'可视化框架中，负责将问题抽象为可视化任务的是____层。',ansText:'问题刻画',exp:'问题刻画层负责分析和抽象可视化需求。'},
+  {id:14,m:'概述',type:'fill',q:'负责将图形元素渲染到屏幕上的框架层是____层。',ansText:'编码',exp:'编码层将抽象的可视化表达转换为具体的图形元素。'},
+  {id:15,m:'概述',type:'short',q:'简述数据可视化的定义及其核心流程。',ansText:'定义：将抽象数据通过计算机图形学等手段转换为可感知的视觉形式，帮助人们洞察数据、发现规律、辅助决策的过程。\n核心流程：数据采集 → 数据处理和变换 → 可视化映射 → 用户感知。\n关键点：可视化映射是核心步骤，将数据属性编码为位置、大小、形状、颜色等视觉通道。'},
+
+  // ===== 模块二：视觉感知与认知 (16-35) =====
+  {id:16,m:'感知认知',type:'single',q:'视觉感知属于（ ）层次的认知活动',opts:['A. 低层次，主要涉及基本物理属性的感受','B. 中层次，涉及模式识别','C. 高层次，涉及语义理解和判断','D. 超层次，涉及元认知'],ans:[0],exp:'视觉感知是低层次感觉活动，感受形状、颜色等基本物理属性。'},
+  {id:17,m:'感知认知',type:'single',q:'视觉认知属于（ ）层次的心理活动',opts:['A. 低层次感觉活动','B. 中层次知觉活动','C. 高层次，涉及加工、分析、记忆、判断与解释','D. 无意识活动'],ans:[2],exp:'视觉认知是对视觉信息的深度加工和解释。'},
+  {id:18,m:'感知认知',type:'single',q:'下列不属于格式塔八大原则的是（ ）',opts:['A. 接近原则','B. 对称原则','C. 美观原则','D. 相似原则'],ans:[2],exp:'格式塔八大原则无"美观原则"。'},
+  {id:19,m:'感知认知',type:'single',q:'人眼倾向于将颜色、形状、大小相似的元素自动归为一组。这是格式塔的（ ）',opts:['A. 接近原则','B. 相似原则','C. 闭合原则','D. 连续原则'],ans:[1],exp:'相似原则：外观相似的元素被自动归为一组。'},
+  {id:20,m:'感知认知',type:'single',q:'人眼会自动补全不完整或有缺口的图形，将其感知为完整物体。这体现了格式塔的（ ）',opts:['A. 连续原则','B. 对称原则','C. 闭合原则','D. 经验原则'],ans:[2],exp:'闭合原则：大脑自动补全缺口形成完整图形。'},
+  {id:21,m:'感知认知',type:'single',q:'人眼倾向于将沿着平滑路径排列的元素感知为同一组。这是格式塔的（ ）',opts:['A. 接近原则','B. 连续原则','C. 图形-背景原则','D. 共同命运原则'],ans:[1],exp:'连续原则：沿平滑路径排列的元素被视为连续的整体。'},
+  {id:22,m:'感知认知',type:'single',q:'多个物体同时向同一方向移动时，人眼会将它们视为同一组。这体现了格式塔的（ ）',opts:['A. 接近原则','B. 连续原则','C. 共同命运原则','D. 相似原则'],ans:[2],exp:'共同命运原则：同方向运动的元素被视为一组。'},
+  {id:23,m:'感知认知',type:'single',q:'"图形-背景"原则的核心是指（ ）',opts:['A. 人眼自动将视野分为突出的主体和模糊的背景','B. 前景一定比背景更大','C. 图形和背景必须颜色相同','D. 图形必须位于画面中央'],ans:[0],exp:'图形-背景原则：视觉系统自动区分主体（图形）和背景。'},
+  {id:24,m:'感知认知',type:'single',q:'用户看到复杂图表时会凭借过往经验来解读图形含义。这体现了格式塔的（ ）',opts:['A. 闭合原则','B. 相似原则','C. 经验原则','D. 对称原则'],ans:[2],exp:'经验原则：过往经验影响对视觉信息的解读。'},
+  {id:25,m:'感知认知',type:'multi',q:'以下属于格式塔八大原则的有（ ）',opts:['A. 接近原则','B. 相似原则','C. 闭合原则','D. 连续原则','E. 对称原则','F. 经验原则','G. 图形-背景原则','H. 共同命运原则'],ans:[0,1,2,3,4,5,6,7],exp:'八项全部属于格式塔八大原则。'},
+  {id:26,m:'感知认知',type:'multi',q:'关于视觉感知和视觉认知的区别，下列说法正确的有（ ）',opts:['A. 视觉感知是低层次的感觉活动，视觉认知是高层次的心理活动','B. 视觉感知只涉及对物理属性的感受，视觉认知涉及加工、分析、判断','C. 视觉感知是视觉认知的基础','D. 两者没有区别'],ans:[0,1,2],exp:'视觉感知是基础（低层次），视觉认知是进阶（高层次）。'},
+  {id:27,m:'感知认知',type:'multi',q:'格式塔理论对数据可视化设计的主要指导意义包括（ ）',opts:['A. 通过接近性将相关元素放在一起','B. 使用相似性表示相同类型的数据','C. 避免不完整的视觉表达造成误解','D. 利用对称性增强视觉美感'],ans:[0,1,2,3],exp:'格式塔各项原则均对可视化设计有指导意义。'},
+  {id:28,m:'感知认知',type:'multi',q:'以下关于视觉认知过程的描述，正确的有（ ）',opts:['A. 包括对视觉信息的加工和分析','B. 包括对视觉信息的记忆和比较','C. 包括对视觉信息的判断与解释','D. 属于无意识的本能反应'],ans:[0,1,2],exp:'视觉认知是有意识的高层次活动，不是无意识本能。'},
+  {id:29,m:'感知认知',type:'multi',q:'在可视化设计中运用格式塔原则，下列说法正确的有（ ）',opts:['A. 散点图中，空间距离近的点会被自动视为一组（接近原则）','B. 折线图中，连续分布的点被视为趋势线（连续原则）','C. 使用不同颜色标记不同类别属于相似原则的反向运用','D. 格式塔原则之间可能产生冲突，需要根据实际数据特征权衡'],ans:[0,1,2,3],exp:'四项描述均正确。'},
+  {id:30,m:'感知认知',type:'fill',q:'视觉感知是____层次的感觉活动，视觉认知是____层次的心理活动过程。',ansText:'低|高',exp:'视觉感知→低层次；视觉认知→高层次。'},
+  {id:31,m:'感知认知',type:'fill',q:'人眼倾向于将沿平滑路径排列的元素视为一组，这是格式塔的____原则。',ansText:'连续',exp:'连续原则。'},
+  {id:32,m:'感知认知',type:'fill',q:'格式塔八大原则包括：接近原则、相似原则、____原则、连续原则、对称原则、经验原则、图形-背景原则和____原则。',ansText:'闭合|共同命运',exp:'注意"闭合"和"共同命运"两个原则。'},
+  {id:33,m:'感知认知',type:'fill',q:'在信息可视化中，设计师利用格式塔的____原则，通过调整间距来暗示数据的逻辑分组。',ansText:'接近',exp:'接近原则：空间距离近的元素被自动归为一组。'},
+  {id:34,m:'感知认知',type:'short',q:'简述视觉感知和视觉认知的定义及区别。',ansText:'视觉感知：人通过眼睛接收外界光刺激，将其转化为神经信号传入大脑，感受到客观事物的形状、大小、颜色、明暗、位置、运动等基本物理属性，属于低层次的感觉活动。\n视觉认知：在视觉感知的基础上，大脑对获取的视觉信息进行进一步加工、分析、比较、记忆、判断与解释，从而识别对象、理解含义并形成知识的高层次心理活动过程。\n区别：感知是基础（感受物理属性，低层次），认知是进阶（语义理解与判断，高层次）。'},
+  {id:35,m:'感知认知',type:'short',q:'简述格式塔理论中"接近原则"和"相似原则"在可视化设计中的应用，各举一例。',ansText:'接近原则：将数据点在空间上靠近放置，观众会自动将其视为一组。例：散点图中将同一类别的点靠近排列以暗示关联性。\n相似原则：使用相同的颜色、形状或大小来表示同类数据。例：折线图中用相同颜色表示同一变量的多条曲线。\n两者可联合使用：既通过空间接近又通过颜色相似来双重强调数据分组。'},
+
+  // ===== 模块三：数据与视觉通道 (36-60) =====
+  {id:36,m:'数据通道',type:'single',q:'下列哪种数据类型不属于数据可视化中的三大基本数据类型（ ）',opts:['A. 数值型数据','B. 文本型数据','C. 类别型数据','D. 有序型数据'],ans:[1],exp:'三大基本数据类型为数值型、类别型、有序型，文本型不属于此分类。'},
+  {id:37,m:'数据通道',type:'single',q:'下列视觉通道中，哪个不属于定量/定序型视觉通道（ ）',opts:['A. 角度','B. 直线的长度','C. 空间的体积','D. 色调'],ans:[3],exp:'色调属于定性/分类型通道，不适合编码定量数据。'},
+  {id:38,m:'数据通道',type:'single',q:'根据史蒂文斯幂次法则，以下哪种视觉通道的指数最高，表现力最好（ ）',opts:['A. 长度','B. 亮度','C. 面积','D. 饱和度'],ans:[0],exp:'长度通道的指数约为1，是表现力最强的通道。'},
+  {id:39,m:'数据通道',type:'single',q:'以下哪种视觉通道最适合编码类别型数据（ ）',opts:['A. 直线的长度','B. 角度','C. 色调/颜色','D. 空间的体积'],ans:[2],exp:'色调是定性/分类型通道，适合区分不同类别。'},
+  {id:40,m:'数据通道',type:'single',q:'视觉通道的表现力和有效性判断标准不包括（ ）',opts:['A. 精确性','B. 可辨性','C. 美观性','D. 可分离性'],ans:[2],exp:'四大标准是：精确性、可辨性、可分离性、视觉突出性，不含美观性。'},
+  {id:41,m:'数据通道',type:'single',q:'根据史蒂文斯幂次法则，人感知到的物理刺激强度与物理刺激的实际强度之间的关系是（ ）',opts:['A. 线性关系','B. 指数关系','C. 幂函数关系','D. 对数关系'],ans:[2],exp:'史蒂文斯幂次法则描述的是幂函数关系：S ∝ Iⁿ。'},
+  {id:42,m:'数据通道',type:'single',q:'在数据可视化中，有序型数据与数值型数据的主要区别在于（ ）',opts:['A. 有序型数据不能进行数学运算，数值型数据可以进行数学运算','B. 两者完全相同','C. 有序型数据可以进行任意数学运算','D. 数值型数据只能做加法运算'],ans:[0],exp:'有序型数据表示顺序/等级关系，不能做精确数值运算。'},
+  {id:43,m:'数据通道',type:'single',q:'类别型数据的典型特征是（ ）',opts:['A. 数据之间有明确的顺序关系','B. 数据之间可以进行加减运算','C. 数据之间没有内在的顺序关系，仅用于区分不同类别','D. 数据必须是数字形式'],ans:[2],exp:'类别型数据仅用于区分，无内在顺序关系。'},
+  {id:44,m:'数据通道',type:'single',q:'饱和度通道在史蒂文斯幂次法则中，指数约为（ ）',opts:['A. 1.0','B. 0.7','C. 1.7','D. 0.5'],ans:[1],exp:'饱和度指数约0.7，表现力低于长度（≈1.0）。'},
+  {id:45,m:'数据通道',type:'single',q:'在编码数值型数据时，以下哪种视觉通道的精确性最差（ ）',opts:['A. 位置（共同刻度）','B. 长度','C. 面积','D. 角度'],ans:[2],exp:'面积通道的史蒂文斯指数约为0.7，人对面积的判断精确度较低。'},
+  {id:46,m:'数据通道',type:'single',q:'以下哪种视觉通道属于定性/分类型通道（ ）',opts:['A. 位置','B. 直线长度','C. 形状','D. 角度'],ans:[2],exp:'形状适合区分不同类别，不适合表示数值大小。'},
+  {id:47,m:'数据通道',type:'multi',q:'视觉通道的表现力和有效性的判断标准包括（ ）',opts:['A. 精确性','B. 可辨性','C. 可分离性','D. 视觉突出性'],ans:[0,1,2,3],exp:'四项均为判断标准。'},
+  {id:48,m:'数据通道',type:'multi',q:'以下属于定量/定序型视觉通道的有（ ）',opts:['A. 位置','B. 直线长度','C. 面积','D. 色调'],ans:[0,1,2],exp:'色调属于定性/分类型通道。'},
+  {id:49,m:'数据通道',type:'multi',q:'以下属于定性/分类型视觉通道的有（ ）',opts:['A. 色调','B. 形状','C. 纹理','D. 体积'],ans:[0,1,2],exp:'体积属于定量型通道。'},
+  {id:50,m:'数据通道',type:'multi',q:'根据史蒂文斯幂次法则，以下说法正确的有（ ）',opts:['A. 长度通道的指数高于面积通道','B. 人对长度的判断比面积更精确','C. 饱和度通道的表现力低于长度通道','D. 视觉通道的指数越高，人对该通道的判断越精确'],ans:[0,1,2,3],exp:'四项均正确。指数越高=判断越精确。'},
+  {id:51,m:'数据通道',type:'multi',q:'关于数据类型与视觉通道的匹配，下列说法正确的有（ ）',opts:['A. 数值型数据适合使用长度、位置等定量通道','B. 类别型数据适合使用色调、形状等定性通道','C. 有序型数据适合使用亮度饱和度等定序通道','D. 任意视觉通道可以编码任意类型的数据'],ans:[0,1,2],exp:'不是任意匹配，需要根据数据类型选择合适通道。'},
+  {id:52,m:'数据通道',type:'multi',q:'以下属于数值型数据的有（ ）',opts:['A. 销售额（元）','B. 学生人数','C. 城市名称','D. 考试分数'],ans:[0,1,3],exp:'城市名称属于类别型数据。'},
+  {id:53,m:'数据通道',type:'fill',q:'视觉通道的表现力和有效性的判断标准包括：____、____、可分离性、____。',ansText:'精确性|可辨性|视觉突出性',exp:'四大标准：精确性、可辨性、可分离性、视觉突出性。'},
+  {id:54,m:'数据通道',type:'fill',q:'史蒂文斯幂次法则描述了____与____之间的幂函数关系。',ansText:'心理量|物理量',exp:'S（心理量） ∝ I（物理量）ⁿ。'},
+  {id:55,m:'数据通道',type:'fill',q:'数据类型一般分为三类：____、____和有序型数据。',ansText:'数值型数据|类别型数据',exp:'数值型、类别型、有序型。'},
+  {id:56,m:'数据通道',type:'fill',q:'视觉通道按功能可分为____型通道和____型通道两大类。',ansText:'定量/定序|定性/分类',exp:'定量/定序型（如长度、位置）和定性/分类型（如色调、形状）。'},
+  {id:57,m:'数据通道',type:'fill',q:'在常用的视觉通道中，____通道的表现力最强，____通道主要在区分不同类型时使用。',ansText:'位置/长度|色调/形状',exp:'长度/位置精确性最高；色调/形状用于区分类型。'},
+  {id:58,m:'数据通道',type:'short',q:'简述视觉通道的四大表现力判断标准。',ansText:'精确性：视觉通道能否精确传达数据之间的数值差异。\n可辨性：不同取值之间的视觉差异是否能被人眼分辨。\n可分离性：多个视觉通道叠加使用时是否互相干扰。\n视觉突出性：视觉通道是否能自然地吸引注意力，突出重要信息。'},
+  {id:59,m:'数据通道',type:'short',q:'简述史蒂文斯幂次法则及其对可视化设计的指导意义。',ansText:'法则内容：人感知到的心理量（S）与物理刺激强度（I）之间存在幂函数关系 S ∝ Iⁿ。不同视觉通道的指数 n 不同，n 越接近 1，人的判断越精确。长度≈1.0，面积≈0.7，亮度≈0.5。\n指导意义：编码数值数据时应优先选择高指数通道（如位置、长度），避免低指数通道（如面积、亮度）。例如柱状图（长度通道）比气泡图（面积通道）更精确。'},
+  {id:60,m:'数据通道',type:'short',q:'简述三种数据类型（数值型、类别型、有序型）的特点，并各举一例。',ansText:'数值型：可以精确测量和进行数学运算，有绝对的零点或等距间隔。例：销售额、年龄、温度。\n类别型：无内在顺序关系，仅用于区分不同类别。例：性别、城市名称、产品类型。\n有序型：有明确的顺序/等级关系，但不能精确量化等级之间的差距。例：学历（小学<中学<大学）、满意度（满意>一般>不满意）。'},
+
+  // ===== 模块四：可视化设计美学 (61-80) =====
+  {id:61,m:'设计美学',type:'single',q:'数据可视化的美学因素所对应的三个原则不包括（ ）',opts:['A. 简洁原则','B. 平衡原则','C. 重点突出原则','D. 复杂原则'],ans:[3],exp:'美学三原则为：简洁（聚焦/简单）、平衡、重点突出。'},
+  {id:62,m:'设计美学',type:'single',q:'十二色相环中的原色（一次色）是（ ）',opts:['A. 红、绿、蓝','B. 红、黄、蓝','C. 青、品红、黄','D. 橙、绿、紫'],ans:[1],exp:'传统色彩理论中十二色相环原色为红、黄、蓝。'},
+  {id:63,m:'设计美学',type:'single',q:'在数据可视化中，"数据墨水比"概念强调的是（ ）',opts:['A. 尽可能使用更多颜色装饰图表','B. 最大化用于展示数据的墨水比例，去除无关装饰','C. 使用尽可能多的墨水渲染图表','D. 所有的数据都必须用黑色墨水展示'],ans:[1],exp:'数据墨水比越高，图表越精简有效。'},
+  {id:64,m:'设计美学',type:'single',q:'色彩的三属性不包括（ ）',opts:['A. 色相','B. 饱和度','C. 透明度','D. 亮度'],ans:[2],exp:'色彩三属性为色相、饱和度、亮度（HSB/HSL模型）。'},
+  {id:65,m:'设计美学',type:'single',q:'在可视化配色中，适合用来编码有序数据的配色方案是（ ）',opts:['A. 分类配色方案','B. 顺序配色方案（单一色调渐变亮度）','C. 发散配色方案','D. 彩虹配色方案'],ans:[1],exp:'顺序配色通过亮度/饱和度的渐变表示数值大小或顺序。'},
+  {id:66,m:'设计美学',type:'single',q:'十二色相环中，色相环上相距 180° 的两种颜色称为（ ）',opts:['A. 类似色','B. 邻近色','C. 互补色','D. 中性色'],ans:[2],exp:'相距180°互为互补色，对比最强烈。'},
+  {id:67,m:'设计美学',type:'single',q:'关于可视化中饱和度的使用，下列说法正确的是（ ）',opts:['A. 饱和度适合编码连续型/有序的数值数据（如从浅到深的渐变）','B. 饱和度在数据可视化中通常被用于编码数据的分类属性','C. 饱和度越高，颜色越接近灰色','D. 饱和度与色相没有区别'],ans:[0],exp:'饱和度通过从浅到深的渐变表示数值大小或顺序。B错误（分类用色调），C错误（饱和度越高越鲜艳），D错误（两者是不同的色彩属性）。'},
+  {id:68,m:'设计美学',type:'single',q:'在可视化设计中使用过多高饱和度颜色会导致（ ）',opts:['A. 更精确的数据比较','B. 视觉疲劳和注意力分散','C. 自动按格式塔原则分组','D. 提高数据墨水比'],ans:[1],exp:'高饱和度过量使用导致视觉疲劳和注意力分散。'},
+  {id:69,m:'设计美学',type:'single',q:'展示数据偏离中心值（如高于/低于平均值）最合适的配色方案是（ ）',opts:['A. 顺序配色方案','B. 分类配色方案','C. 发散配色方案','D. 彩虹配色方案'],ans:[2],exp:'发散配色以中心值为中性色，两端不同色调表示正负偏离。'},
+  {id:70,m:'设计美学',type:'multi',q:'以下属于数据可视化美学原则的有（ ）',opts:['A. 简洁（聚焦/简单）','B. 平衡','C. 重点突出','D. 最大化色彩使用'],ans:[0,1,2],exp:'美学三原则：简洁、平衡、重点突出。'},
+  {id:71,m:'设计美学',type:'multi',q:'色彩的三属性包括（ ）',opts:['A. 色相','B. 饱和度','C. 亮度','D. 对比度'],ans:[0,1,2],exp:'对比度不是色彩基本属性，是由亮度差产生的视觉效果。'},
+  {id:72,m:'设计美学',type:'multi',q:'关于可视化配色方案的选择，下列说法正确的有（ ）',opts:['A. 分类数据使用不同色调等饱和度的分类配色','B. 有序/连续数据使用单一色调渐变亮度的顺序配色','C. 双极数据使用两种色调从中间发散的配色','D. 任意数据都可以使用彩虹配色'],ans:[0,1,2],exp:'彩虹配色存在感知不均匀、色盲不友好等问题，不推荐任意使用。'},
+  {id:73,m:'设计美学',type:'multi',q:'以下哪些是好的可视化设计应当遵循的原则（ ）',opts:['A. 一个好的可视化作品必须展示适量的信息，以保证用户获取信息的效率','B. 对于简单的数据，可以使用基本的可视化视图','C. 设计者应在可视化中尽量使用更多元素来营造复杂效果','D. 清除不必要的装饰，突出数据本身的规律'],ans:[0,1,3],exp:'C错误，应避免过度装饰，遵循简洁原则。'},
+  {id:74,m:'设计美学',type:'multi',q:'在可视化设计中使用色彩的注意事项包括（ ）',opts:['A. 考虑色盲友好的配色方案','B. 避免同时使用过多颜色（建议不超过6-8种）','C. 利用色彩对比突出关键数据','D. 色彩越鲜艳越好'],ans:[0,1,2],exp:'色彩并非越鲜艳越好，过度鲜艳会导致视觉疲劳。'},
+  {id:75,m:'设计美学',type:'fill',q:'数据可视化的美学因素所对应的三个原则分别是：____原则、____原则、____原则。',ansText:'简洁/聚焦/简单|平衡|重点突出',exp:'三原则的不同表述：简洁（聚焦/简单）、平衡、重点突出。'},
+  {id:76,m:'设计美学',type:'fill',q:'十二色相环中的原色是____、____、____。',ansText:'红|黄|蓝',exp:'传统十二色相环的原色为红、黄、蓝。'},
+  {id:77,m:'设计美学',type:'fill',q:'色彩的三个基本属性是____、____、____。',ansText:'色相|饱和度|亮度',exp:'HSB/HSL模型中的三个基本属性。'},
+  {id:78,m:'设计美学',type:'fill',q:'在可视化设计中，____原则要求突出最重要的信息，____原则要求去除不必要的装饰元素。',ansText:'重点突出|简洁/简单/聚焦',exp:'重点突出=强调关键信息；简洁=去除冗余装饰。'},
+  {id:79,m:'设计美学',type:'short',q:'简述数据可视化美学三原则。',ansText:'简洁（聚焦/简单）原则：去除与数据无关的装饰（chart junk），专注于数据本身。使用最少视觉元素传达最多信息。\n平衡原则：视觉元素在图表中的分布要均衡，包括空间布局的平衡、色彩轻重的平衡等，避免一侧过于拥挤。\n重点突出原则：通过色彩、大小、位置等手段将最重要数据或结论凸现出来，引导用户注意力的聚焦点。'},
+  {id:80,m:'设计美学',type:'short',q:'简述色彩在数据可视化中的作用及注意事项。',ansText:'作用：①区分不同类别数据（色调）；②表示数值大小和顺序（亮度/饱和度渐变）；③突出关键信息；④增强视觉吸引力和记忆。\n注意事项：①考虑色盲友好（红绿色盲）；②颜色数量不宜过多（≤6-8种）；③避免使用彩虹配色编码连续数据；④注意文化差异（如红色在不同文化中含义不同）；⑤确保配色与数据含义一致。'},
+
+  // ===== 模块五：Tableau 基础与计算 (81-100) =====
+  {id:81,m:'Tableau',type:'single',q:'下列哪个函数可以计算两个日期的差值（ ）',opts:['A. IIF( )','B. DATE( )','C. SUM( )','D. DATEDIFF( )'],ans:[3],exp:'DATEDIFF( ) 用于计算两个日期的差值。'},
+  {id:82,m:'Tableau',type:'single',q:'Tableau 工作簿文件的扩展名是（ ）',opts:['A. .twb','B. .twbx','C. .tds','D. .tde'],ans:[0],exp:'.twb=工作簿；.twbx=打包工作簿（含数据）；.tds=数据源；.tde/.hyper=数据提取。'},
+  {id:83,m:'Tableau',type:'single',q:'在 Tableau 中，用于计算不同值（去重）计数的函数是（ ）',opts:['A. COUNT( )','B. COUNTD( )','C. SUM( )','D. AVG( )'],ans:[1],exp:'COUNTD( ) 对去重后的值进行计数。'},
+  {id:84,m:'Tableau',type:'single',q:'在 Tableau 中，以下哪种"集"可以随数据更新而自动变化（ ）',opts:['A. 常量集','B. 计算集','C. 合并集','D. 以上都不能'],ans:[1],exp:'计算集基于条件和公式动态计算，数据更新后自动刷新。'},
+  {id:85,m:'Tableau',type:'single',q:'以下关于 Tableau 中维度和度量的描述，正确的是（ ）',opts:['A. 维度通常为数值字段，度量通常为文本字段','B. 维度字段通常显示为蓝色，度量字段通常显示为绿色','C. 维度用于分类和分组，度量用于聚合计算','D. 维度和度量在使用上没有区别'],ans:[2],exp:'维度（蓝色/离散）用于分类分组；度量（绿色/连续）用于聚合计算。注意：蓝/绿与连续/离散对应，不完全等同于维度/度量。'},
+  {id:86,m:'Tableau',type:'single',q:'在 Tableau 中，筛选器的执行顺序从早到晚依次是（ ）',opts:['A. 提取筛选器 → 数据源筛选器 → 上下文筛选器 → 维度筛选器 → 度量筛选器','B. 数据源筛选器 → 提取筛选器 → 上下文筛选器 → 维度筛选器 → 度量筛选器','C. 上下文筛选器 → 数据源筛选器 → 提取筛选器 → 维度筛选器 → 度量筛选器','D. 维度筛选器 → 度量筛选器 → 上下文筛选器 → 数据源筛选器 → 提取筛选器'],ans:[0],exp:'正确顺序：提取→数据源→上下文→维度→度量筛选器。'},
+  {id:87,m:'Tableau',type:'single',q:'使用以下哪种可视化工具不需要编程基础（ ）',opts:['A. Processing','B. Tableau','C. Vega','D. D3.js'],ans:[1],exp:'Tableau是拖拽式可视化工具，无需编程。'},
+  {id:88,m:'Tableau',type:'single',q:'在 Tableau 中，关于参数的说法正确的是（ ）',opts:['A. 参数是静态常量，不能由用户交互修改','B. 参数可以用于创建动态的集、计算字段和参考线','C. 参数只能取数值类型','D. 参数创建后不能显示为控件'],ans:[1],exp:'参数是用户可交互控制的动态值，支持多种类型，可显示为参数控件。'},
+  {id:89,m:'Tableau',type:'single',q:'Tableau 中，以下哪种文件格式表示"Tableau 打包工作簿"（含数据）（ ）',opts:['A. .twb','B. .twbx','C. .tds','D. .hyper'],ans:[1],exp:'.twbx 包含工作簿和数据的打包文件，适合分享。'},
+  {id:90,m:'Tableau',type:'multi',q:'以下属于 Tableau 中基本数据操作的有（ ）',opts:['A. 创建分层结构','B. 创建组','C. 创建集','D. 创建参数'],ans:[0,1,2,3],exp:'分层、组、集、参数均为 Tableau 核心数据操作。'},
+  {id:91,m:'Tableau',type:'multi',q:'Tableau 中"集"的类型包括（ ）',opts:['A. 常量集','B. 计算集','C. 合并集','D. 自动集'],ans:[0,1,2],exp:'常量集（手动固定）、计算集（动态公式）、合并集（集合运算）。'},
+  {id:92,m:'Tableau',type:'multi',q:'关于 Tableau 中参数的使用，下列说法正确的有（ ）',opts:['A. 参数可以用于动态调整参考线的值','B. 参数可以用于创建计算集时指定排名前N的N值','C. 参数必须绑定到筛选器才能使用','D. 参数可以创建为控件让用户自由调节'],ans:[0,1,3],exp:'参数不必须绑定筛选器，也可用于计算字段、参考线等。'},
+  {id:93,m:'Tableau',type:'multi',q:'以下属于 Tableau 常用聚合函数的有（ ）',opts:['A. SUM( )','B. AVG( )','C. COUNT( )','D. STDEV( )'],ans:[0,1,2,3],exp:'均为 Tableau 支持的聚合函数。'},
+  {id:94,m:'Tableau',type:'multi',q:'Tableau 支持的数据连接方式包括（ ）',opts:['A. 单表连接','B. 多表关联（JOIN）','C. 数据混合（Data Blending）','D. 跨数据库连接'],ans:[0,1,2,3],exp:'Tableau 支持多种连接方式。'},
+  {id:95,m:'Tableau',type:'fill',q:'Tableau 中，实现多表连接的步骤包括：建立____、选择____方式、指定____字段。',ansText:'连接关系|连接/JOIN|关键/匹配',exp:'建立表之间的逻辑连接关系，选择JOIN类型，指定关键匹配字段。'},
+  {id:96,m:'Tableau',type:'fill',q:'Tableau 中"集"分为三种类型：____、____、____。',ansText:'常量集|计算集|合并集',exp:'常量集、计算集、合并集。'},
+  {id:97,m:'Tableau',type:'fill',q:'在 Tableau 中，____字段通常为蓝色，用于数据的分类和分组；____字段通常为绿色，用于数据的聚合计算。',ansText:'维度/离散|度量/连续',exp:'蓝色=离散（维度），绿色=连续（度量）。'},
+  {id:98,m:'Tableau',type:'fill',q:'在 Tableau 中，____是一个用户可交互控制的动态输入，可以用于调整计算、参考线或筛选条件。',ansText:'参数',exp:'参数（Parameter）是 Tableau 中的动态交互控件。'},
+  {id:99,m:'Tableau',type:'short',q:'简述 Tableau 中维度和度量的区别。',ansText:'维度：包含定性/分类数据（如名称、日期、地理），用于对数据进行分组和分类。默认显示为蓝色（离散）。\n度量：包含定量/数值数据（如销售额、数量），用于聚合计算。默认显示为绿色（连续）。\n关键区别：维度"切分"数据（作为分组依据），度量"填充"数据（每个分组内的聚合值）。'},
+  {id:100,m:'Tableau',type:'short',q:'简述 Tableau 中常量集、计算集和合并集的区别。',ansText:'常量集：手动选取固定的成员，创建后成员不会随数据更新而变化。\n计算集：基于公式/条件动态计算成员，数据更新后自动刷新成员列表。\n合并集：对两个已有的集执行交、并、差等集合运算得到新集。\n应用场景：常量集适合固定的分析范围，计算集适合动态排名/阈值，合并集适合交叉分析（如"销售额与利润均排名前10的省份"）。'},
+// ===== 概述 新增 (101-115) =====
+  {id:101,m:'概述',type:'single',q:'数据可视化中"帮助用户从数据中发现规律和洞察"对应的是哪种作用（ ）',opts:['A. 信息记录','B. 分析推理','C. 信息传播','D. 数据清洗'],ans:[1],exp:'分析推理是可视化的核心作用之一。'},
+  {id:102,m:'概述',type:'single',q:'可视化框架中，将用户问题转化为可视化分析任务的是哪个层（ ）',opts:['A. 抽象层','B. 编码层','C. 问题刻画层','D. 渲染层'],ans:[2],exp:'问题刻画层将业务问题抽象为可视化分析任务。'},
+  {id:103,m:'概述',type:'single',q:'将可视化表达转换为具体图形元素的过程发生在哪个层（ ）',opts:['A. 问题刻画层','B. 抽象层','C. 编码层','D. 数据层'],ans:[2],exp:'编码层负责将抽象表达转化为具体图形元素。'},
+  {id:104,m:'概述',type:'single',q:'科学可视化最早应用于哪个领域（ ）',opts:['A. 金融分析','B. 气象学与流体力学','C. 社交网络分析','D. 文本挖掘'],ans:[1],exp:'科学可视化起源于气象学、流体力学等需要呈现空间场数据的领域。'},
+  {id:105,m:'概述',type:'single',q:'可视分析学的核心特征是（ ）',opts:['A. 仅展示数据不提供交互','B. 结合可视化、自动分析和人机交互','C. 只依赖机器学习算法','D. 不需要人的参与'],ans:[1],exp:'可视分析学=可视化+自动分析+人机交互。'},
+  {id:106,m:'概述',type:'single',q:'数据可视化流程中，数据处理和变换环节不包括（ ）',opts:['A. 数据清洗','B. 数据格式转换','C. 可视化渲染','D. 缺失值处理'],ans:[2],exp:'渲染属于编码/感知环节，不属于数据预处理。'},
+  {id:107,m:'概述',type:'single',q:'以下哪种场景更适合使用信息可视化而非科学可视化（ ）',opts:['A. 飓风路径模拟','B. 公司销售数据看板','C. 三维人体器官模型','D. 流体力学模拟'],ans:[1],exp:'公司销售数据是抽象非空间数据，属于信息可视化范畴。'},
+  {id:108,m:'概述',type:'multi',q:'以下属于数据可视化框架层次的有（ ）',opts:['A. 问题刻画层','B. 抽象层','C. 编码层','D. 计算层'],ans:[0,1,2],exp:'计算层不属于可视化框架。正确层次为问题刻画层→抽象层→编码层。'},
+  {id:109,m:'概述',type:'multi',q:'关于科学可视化和信息可视化的区别，正确的有（ ）',opts:['A. 科学可视化处理有空间属性的数据','B. 信息可视化处理抽象非空间数据','C. 两者没有区别','D. 科学可视化常用于医学影像、气象等领域'],ans:[0,1,3],exp:'科学可视化面向空间数据，信息可视化面向抽象数据。'},
+  {id:110,m:'概述',type:'multi',q:'数据可视化流程中包含以下哪些阶段（ ）',opts:['A. 数据采集','B. 数据处理和变换','C. 可视化映射','D. 用户感知'],ans:[0,1,2,3],exp:'全部四个阶段均为核心流程。'},
+  {id:111,m:'概述',type:'multi',q:'关于可视分析学的描述正确的有（ ）',opts:['A. 结合了可视化技术和自动分析方法','B. 强调人机交互与人的判断','C. 完全取代了人工分析','D. 适用于需要交互式探索的复杂数据分析'],ans:[0,1,3],exp:'可视分析学不取代人工分析，而是辅助人工分析。'},
+  {id:112,m:'概述',type:'fill',q:'数据可视化的三大分类是：____、____和可视分析学。',ansText:'科学可视化|信息可视化',exp:'科学可视化、信息可视化、可视分析学。'},
+  {id:113,m:'概述',type:'fill',q:'可视化框架包含三个层次：问题刻画层、____层和____层。',ansText:'抽象|编码',exp:'问题刻画→抽象→编码。'},
+  {id:114,m:'概述',type:'fill',q:'数据可视化流程中，____是将数据转换为视觉元素的关键步骤。',ansText:'可视化映射',exp:'可视化映射是核心步骤。'},
+  {id:115,m:'概述',type:'short',q:'简述科学可视化和信息可视化的主要区别。',ansText:'科学可视化：处理有空间几何属性的数据（如气象、流体场、医学影像），数据天然有空间分布。\n信息可视化：处理抽象非空间数据（如金融、社交网络、文本），需通过可视化映射赋予空间位置。\n科学可视化更依赖图形学和渲染技术，信息可视化更侧重认知心理学和人机交互。'},
+
+  // ===== 感知认知 新增 (116-135) =====
+  {id:116,m:'感知认知',type:'single',q:'人眼分辨出物体明暗差异的能力属于（ ）',opts:['A. 视觉认知','B. 视觉感知','C. 格式塔加工','D. 语义理解'],ans:[1],exp:'感受明暗属于低层次的视觉感知活动。'},
+  {id:117,m:'感知认知',type:'single',q:'大脑将看到的部分圆环自动补全为完整圆形，这是格式塔的（ ）',opts:['A. 连续原则','B. 接近原则','C. 闭合原则','D. 对称原则'],ans:[2],exp:'闭合原则：大脑自动填补缺失形成完整图形。'},
+  {id:118,m:'感知认知',type:'single',q:'散点图中空间距离近的点被自然视为同一组，体现的是（ ）',opts:['A. 相似原则','B. 接近原则','C. 连续原则','D. 经验原则'],ans:[1],exp:'接近原则：空间靠近的元素被自动归为一组。'},
+  {id:119,m:'感知认知',type:'single',q:'同时向右移动的多个点被视为一组，这是格式塔的（ ）',opts:['A. 闭合原则','B. 相似原则','C. 共同命运原则','D. 接近原则'],ans:[2],exp:'共同命运原则：同方向运动的元素被感知为一组。'},
+  {id:120,m:'感知认知',type:'single',q:'用高亮色突出关键数据点、其余数据用灰色背景，运用的是（ ）',opts:['A. 连续原则','B. 图形-背景原则','C. 对称原则','D. 闭合原则'],ans:[1],exp:'图形-背景：重要信息为"图形"，其余为"背景"。'},
+  {id:121,m:'感知认知',type:'single',q:'可视化中加粗标题使其凸显，主要运用的心理学原理是（ ）',opts:['A. 闭合原则','B. 图形-背景原则','C. 共同命运原则','D. 对称原则'],ans:[1],exp:'加粗加大=增强图形-背景对比，吸引注意力。'},
+  {id:122,m:'感知认知',type:'single',q:'视觉认知与视觉感知的根本区别在于（ ）',opts:['A. 是否使用眼睛','B. 是否涉及对信息的高层次加工与解释','C. 反应速度快慢','D. 是否有颜色感知'],ans:[1],exp:'感知=低层感受，认知=高层加工与解释。'},
+  {id:123,m:'感知认知',type:'single',q:'格式塔的"对称原则"在可视化中主要用于（ ）',opts:['A. 区分数据类别','B. 增强视觉美感和平衡感','C. 表示数据变化趋势','D. 编码数值大小'],ans:[1],exp:'对称原则主要提升视觉美感和平衡感。'},
+  {id:124,m:'感知认知',type:'single',q:'多条折线在相同方向有相似波动时人眼将它们视为相关，最接近（ ）',opts:['A. 接近+连续原则','B. 相似+共同命运原则','C. 闭合原则','D. 经验原则'],ans:[1],exp:'趋势方向一致=共同命运，形态相似=相似原则。'},
+  {id:125,m:'感知认知',type:'multi',q:'关于格式塔"连续原则"的描述正确的有（ ）',opts:['A. 人眼倾向于沿平滑路径追踪元素','B. 折线图的趋势线利用了连续原则','C. 被中断的线条仍被感知为连续整体','D. 与闭合原则完全相同'],ans:[0,1,2],exp:'连续原则≠闭合原则。连续沿平滑路径，闭合是补全缺口。'},
+  {id:126,m:'感知认知',type:'multi',q:'视觉认知的过程包括（ ）',opts:['A. 对视觉信息的分析和加工','B. 与已有知识和记忆的比较','C. 对视觉信息做出判断和解释','D. 单纯接收外界光刺激'],ans:[0,1,2],exp:'单纯接收光刺激属于视觉感知而非认知。'},
+  {id:127,m:'感知认知',type:'multi',q:'违反格式塔原则可能导致的问题有（ ）',opts:['A. 用户误解数据分组关系','B. 关键信息被忽略','C. 增加认知负荷','D. 图表更加美观'],ans:[0,1,2],exp:'违反格式塔原则会导致混淆和认知负担增加。'},
+  {id:128,m:'感知认知',type:'multi',q:'以下哪些属于低层次的视觉感知（ ）',opts:['A. 感受颜色明暗','B. 分辨物体大小','C. 理解图表的数据含义','D. 判断物体运动方向'],ans:[0,1,3],exp:'理解数据含义属于视觉认知（高层次）。'},
+  {id:129,m:'感知认知',type:'multi',q:'格式塔理论对可视化的具体指导包括（ ）',opts:['A. 同类数据用相同颜色编码','B. 相关图表靠近放置','C. 用平滑曲线连接散点表示趋势','D. 尽可能使用最多颜色'],ans:[0,1,2],exp:'尽可能多颜色不是格式塔指导，且会适得其反。'},
+  {id:130,m:'感知认知',type:'fill',q:'格式塔的____原则指人眼将颜色、形状相似的元素归为一组。',ansText:'相似',exp:'相似原则。'},
+  {id:131,m:'感知认知',type:'fill',q:'视觉系统自动将视野分为突出的主体和____，属图形-背景原则。',ansText:'背景',exp:'图形-背景原则。'},
+  {id:132,m:'感知认知',type:'fill',q:'物体同步运动时被感知为同一组，是格式塔的____原则。',ansText:'共同命运',exp:'共同命运原则。'},
+  {id:133,m:'感知认知',type:'fill',q:'人基于过去经验解读视觉信息，体现格式塔的____原则。',ansText:'经验',exp:'经验原则：过往经验影响视觉解读。'},
+  {id:134,m:'感知认知',type:'short',q:'简述格式塔"图形-背景"原则及其在仪表板设计中的应用。',ansText:'图形-背景原则：视觉系统自动将视野分为突出的主体（图形）和弱化的背景。\n仪表板应用：将KPI关键指标用高对比色、大字体突出作为"图形"，将辅助信息、网格线用浅色弱化为"背景"，引导用户第一时间关注最重要的数据。'},
+  {id:135,m:'感知认知',type:'short',q:'简述可视化设计需遵循格式塔原则的原因。',ansText:'格式塔原则描述了人类视觉系统自动组织信息的规律。遵循的好处：①减少用户理解图表的时间和认知努力；②避免视觉错觉和误解；③自然引导用户注意力到重要信息；④使图表更协调美观。违反会导致用户困惑和误判数据关系。'},
+
+  // ===== 数据通道 新增 (136-160) =====
+  {id:136,m:'数据通道',type:'single',q:'"性别"字段属于哪种数据类型（ ）',opts:['A. 数值型','B. 类别型','C. 有序型','D. 连续型'],ans:[1],exp:'性别只有类别区分，无顺序或数值意义。'},
+  {id:137,m:'数据通道',type:'single',q:'学历（小学<初中<高中<大学）属于哪种数据类型（ ）',opts:['A. 数值型','B. 类别型','C. 有序型','D. 文本型'],ans:[2],exp:'有明确顺序但无法量化等级间的精确差距，属有序型。'},
+  {id:138,m:'数据通道',type:'single',q:'用面积表示数值时人对差异的低估程度比用长度（ ）',opts:['A. 更小','B. 更大','C. 相同','D. 无法比较'],ans:[1],exp:'面积指数≈0.7<长度≈1.0，人对面积判断更不精确。'},
+  {id:139,m:'数据通道',type:'single',q:'在可视化中同时表示精确数值和类别，最佳做法是（ ）',opts:['A. 只用色调','B. 用位置/长度表示数值，色调区分类别','C. 只用形状','D. 只用面积'],ans:[1],exp:'多通道联合：长度精确表示数值，色调区分类别。'},
+  {id:140,m:'数据通道',type:'single',q:'视觉通道的"可分离性"指（ ）',opts:['A. 通道能否独立调整','B. 两个通道叠加时是否互相干扰','C. 通道是否可被肉眼看到','D. 通道是否编码多种类型'],ans:[1],exp:'可分离性：多通道叠加时相互干扰的程度。'},
+  {id:141,m:'数据通道',type:'single',q:'下列通道组合最容易相互干扰的是（ ）',opts:['A. 位置+色调','B. 长度+位置','C. 红色色调+红色饱和度','D. 形状+位置'],ans:[2],exp:'同色系色调和饱和度叠加时容易互相干扰，难以独立分辨。'},
+  {id:142,m:'数据通道',type:'single',q:'编码类别型数据时最不合适的通道是（ ）',opts:['A. 不同色调','B. 不同形状','C. 长度','D. 纹理'],ans:[2],exp:'长度是定量通道，用于类别会误导"一个类比另一个大"。'},
+  {id:143,m:'数据通道',type:'single',q:'"视觉突出性"标准指（ ）',opts:['A. 通道精确表达数值的能力','B. 通道能否自然抓住用户注意力','C. 通道间区分能力','D. 通道是否支持动画'],ans:[1],exp:'视觉突出性（pop-out）：某些特征能自然快速凸显。'},
+  {id:144,m:'数据通道',type:'single',q:'史蒂文斯幂次法则中n>1表示（ ）',opts:['A. 感知差异比实际差异小','B. 感知差异比实际大（感知夸大）','C. 感知与实际一致','D. 无法感知该通道'],ans:[1],exp:'n>1：感知夸大（如电击痛感n≈3.5）。'},
+  {id:145,m:'数据通道',type:'single',q:'以下视觉通道中史蒂文斯指数最低、精确性最差的是（ ）',opts:['A. 位置','B. 长度','C. 亮度','D. 色调'],ans:[2],exp:'亮度指数≈0.5，在所有常用通道中表现力最低。'},
+  {id:146,m:'数据通道',type:'single',q:'哪种数据类型可以执行加减乘除等数学运算（ ）',opts:['A. 类别型','B. 有序型','C. 数值型','D. 文本型'],ans:[2],exp:'只有数值型数据可进行完整数学运算。有序型只能比较。'},
+  {id:147,m:'数据通道',type:'multi',q:'以下哪些属于类别型数据（ ）',opts:['A. 国家名称','B. 产品颜色','C. 满意度评分(1-5星)','D. 手机品牌'],ans:[0,1,3],exp:'满意度评分有顺序，属有序型，不是单纯的类别。'},
+  {id:148,m:'数据通道',type:'multi',q:'视觉通道选择时需考虑的因素包括（ ）',opts:['A. 数据类型匹配','B. 通道表现力','C. 通道间可分离性','D. 用户的艺术偏好'],ans:[0,1,2],exp:'艺术偏好不是视觉通道选择的核心标准。'},
+  {id:149,m:'数据通道',type:'multi',q:'关于位置通道的说法正确的有（ ）',opts:['A. 是表现力最强的通道之一','B. 同坐标系中位置编码最精确','C. 位置史蒂文斯指数接近1','D. 位置通道不适合编码类别'],ans:[0,1,2],exp:'位置也可编码类别（散点图不同位置表不同类别），D错误。'},
+  {id:150,m:'数据通道',type:'multi',q:'以下属于有序型数据的有（ ）',opts:['A. 教育程度(小学/中学/大学)','B. 比赛排名(第1/2/3名)','C. 电话号码','D. 商品评分(一星/二星/三星)'],ans:[0,1,3],exp:'电话号码是类别型（无顺序意义）。'},
+  {id:151,m:'数据通道',type:'multi',q:'使用色调通道时应注意（ ）',opts:['A. 适合编码类别型数据','B. 不适合编码精确数值差异','C. 色调种类不宜过多','D. 需考虑色盲友好'],ans:[0,1,2,3],exp:'四个注意事项均为色调通道的重要考量。'},
+  {id:152,m:'数据通道',type:'multi',q:'关于视觉通道的陈述正确的有（ ）',opts:['A. 长度比面积更适合编码精确数值','B. 色调是定性/分类型通道','C. 角度可编码数值（如饼图）','D. 所有通道表现力相同'],ans:[0,1,2],exp:'不同通道表现力差异大，D错误。角度虽可用于编码但精确性低于长度。'},
+  {id:153,m:'数据通道',type:'fill',q:'人感知的心理量与物理刺激强度呈____关系，此定律称为____。',ansText:'幂函数|史蒂文斯幂次法则',exp:'S ∝ Iⁿ，心理学家史蒂文斯提出。'},
+  {id:154,m:'数据通道',type:'fill',q:'视觉通道四大标准中，____指通道精确传达数值差异的能力，____指多通道是否互相干扰。',ansText:'精确性|可分离性',exp:'精确性+可分离性。'},
+  {id:155,m:'数据通道',type:'fill',q:'类别型数据的特征是无____关系，仅用于____。',ansText:'内在顺序|区分类别',exp:'类别型数据的核心特征。'},
+  {id:156,m:'数据通道',type:'fill',q:'史蒂文斯幂次法则中长度指数约为____，面积指数约为____。',ansText:'1.0|0.7',exp:'长度≈1.0（最精确），面积≈0.7（较差）。'},
+  {id:157,m:'数据通道',type:'fill',q:'____型视觉通道主要包括色调、形状、纹理，用于区分类别。',ansText:'定性/分类',exp:'定性/分类型通道。'},
+  {id:158,m:'数据通道',type:'short',q:'举例说明"可分离性"在可视化设计中的重要性。',ansText:'可分离性：多个视觉通道叠加时是否互相干扰。\n例1：用色调表示类别+饱和度表示数值 — 容易互相干扰，色调变化影响饱和度感知。\n例2：用位置(X/Y)表示数值+形状表示类别 — 可分离性好，互不干扰。\n设计启示：优先选可分离性好的组合（位置+形状+色调），避免同维度叠加（同色系色调+饱和度）。'},
+  {id:159,m:'数据通道',type:'short',q:'简述如何根据数据类型选择合适的视觉通道。',ansText:'数值型：选高表现力定量通道（位置、长度），确保精确传达差异。如柱状图用长度。\n类别型：选定性通道（色调、形状、纹理）以区分。如不同颜色表示不同国家。\n有序型：选有顺序含义但不要求精确定量的通道（亮度/饱和度渐变）。如颜色深浅表示密度高低。'},
+  {id:160,m:'数据通道',type:'short',q:'解释为何饼图（角度通道）不如柱状图（长度通道）适合精确比较。',ansText:'根据史蒂文斯幂次法则，角度通道指数低于长度（长度≈1.0，角度<1.0）。人对角度判断的精确性不如长度。比较扇形角度时人眼很难精确区分"32%和35%"，但柱状图中通过长度比较则容易得多。因此精确比较场景柱状图优于饼图。'},
+
+  // ===== 设计美学 新增 (161-180) =====
+  {id:161,m:'设计美学',type:'single',q:'"数据墨水比"公式的分母是（ ）',opts:['A. 用于展示数据的墨水','B. 图表中全部墨水','C. 彩色墨水部分','D. 文字标注墨水'],ans:[1],exp:'数据墨水比=数据墨水/全部墨水（Edward Tufte）。'},
+  {id:162,m:'设计美学',type:'single',q:'原色红+黄混合得到的间色是（ ）',opts:['A. 绿','B. 紫','C. 橙','D. 青'],ans:[2],exp:'红+黄=橙。红+蓝=紫。黄+蓝=绿。'},
+  {id:163,m:'设计美学',type:'single',q:'色相环上相距约120°的颜色关系称为（ ）',opts:['A. 类似色','B. 互补色','C. 对比色','D. 邻近色'],ans:[2],exp:'约120°为对比色，180°为互补色。'},
+  {id:164,m:'设计美学',type:'single',q:'在可视化中"平衡原则"主要关注（ ）',opts:['A. 数据精确性','B. 视觉元素在空间和色彩上的均衡分布','C. 使用尽可能多颜色','D. 最大化3D效果'],ans:[1],exp:'平衡原则要求视觉元素分布均衡。'},
+  {id:165,m:'设计美学',type:'single',q:'以下哪种情况违反"简洁原则"（ ）',opts:['A. 柱状图使用单一颜色','B. 图表添加大量3D效果和背景图片','C. 折线图用虚线表示预测值','D. 散点图用不同形状表示类别'],ans:[1],exp:'3D效果和背景图片属于chart junk，无信息增量。'},
+  {id:166,m:'设计美学',type:'single',q:'HSL色彩模型中L代表（ ）',opts:['A. 色调','B. 饱和度','C. 亮度','D. 对比度'],ans:[2],exp:'HSL: Hue(色相)+Saturation(饱和度)+Lightness(亮度)。'},
+  {id:167,m:'设计美学',type:'single',q:'关于可视化配色，以下正确的是（ ）',opts:['A. 红绿搭配对红绿色盲友好','B. 顺序配色适合表示从低到高的数值渐变','C. 彩虹配色是最优连续配色','D. 黑白配色不适合任何可视化'],ans:[1],exp:'顺序配色(单色调渐变亮度)适合从小到大数值。红绿对色盲不友好。'},
+  {id:168,m:'设计美学',type:'single',q:'仪表板中最重要的KPI应使用什么设计手法（ ）',opts:['A. 最不显眼颜色','B. 最大字号和最突出颜色','C. 与其他数据相同样式','D. 隐藏在下钻层级'],ans:[1],exp:'重点突出原则：大字号+突出颜色+最佳位置。'},
+  {id:169,m:'设计美学',type:'single',q:'互补色在可视化中的主要用途是（ ）',opts:['A. 表示连续数值渐变','B. 强调对比和差异','C. 让图表更暗','D. 减少视觉突出性'],ans:[1],exp:'互补色对比最强烈，适合强调差异和对立。'},
+  {id:170,m:'设计美学',type:'multi',q:'以下属于chart junk的有（ ）',opts:['A. 不必要3D效果','B. 过多网格线','C. 装饰性背景图片','D. 数据标签'],ans:[0,1,2],exp:'数据标签有信息价值，不属于chart junk。'},
+  {id:171,m:'设计美学',type:'multi',q:'选择配色方案应考虑的因素包括（ ）',opts:['A. 数据类型（分类/有序/数值）','B. 色盲友好性','C. 颜色数量不宜过多','D. 个人喜好'],ans:[0,1,2],exp:'个人喜好不是可视化配色的核心标准。'},
+  {id:172,m:'设计美学',type:'multi',q:'好的可视化设计习惯包括（ ）',opts:['A. 使用清晰有意义的标题','B. 对坐标轴进行标注','C. 删除所有网格线','D. 图例放在易对照的位置'],ans:[0,1,3],exp:'适度网格线有助于读数，不应全删。'},
+  {id:173,m:'设计美学',type:'multi',q:'关于十二色相环正确的有（ ）',opts:['A. 原色为红黄蓝','B. 间色由两种原色混合而成','C. 复色由间色再混合而成','D. 互补色相距90°'],ans:[0,1,2],exp:'互补色相距180°，不是90°。'},
+  {id:174,m:'设计美学',type:'multi',q:'"重点突出原则"可通过哪些方式实现（ ）',opts:['A. 用高亮颜色标记关键数据','B. 放大重要图表元素','C. 将关键数据放在视觉中心','D. 全部数据统一样式'],ans:[0,1,2],exp:'统一样式不利于突出重点，需要差异化。'},
+  {id:175,m:'设计美学',type:'fill',q:'色相环上相距180°互为____色，相距约120°互为____色。',ansText:'互补|对比',exp:'180°=互补，120°≈对比。'},
+  {id:176,m:'设计美学',type:'fill',q:'数据墨水比越高，____的比例越高，____的比例越低。',ansText:'展示数据|无关装饰',exp:'数据墨水比高=数据占比高、装饰少。'},
+  {id:177,m:'设计美学',type:'fill',q:'可视化中表示从低到高的数值变化通常用____配色方案（单色调渐变亮度）。',ansText:'顺序',exp:'顺序配色（sequential colormap）。'},
+  {id:178,m:'设计美学',type:'fill',q:'红+蓝混合得到____色，红+黄混合得到____色。',ansText:'紫|橙',exp:'红+蓝=紫，红+黄=橙，黄+蓝=绿。'},
+  {id:179,m:'设计美学',type:'short',q:'简述"数据墨水比"概念及设计指导意义。',ansText:'数据墨水比=展示数据的墨水÷图表全部墨水，由Edward Tufte提出。\n指导意义：最大化数据墨水比，去除不必要网格线、背景色、3D效果、过度装饰等非数据元素。让注意力集中到数据本身而非设计花哨。但也要避免过度精简导致信息缺失。'},
+  {id:180,m:'设计美学',type:'short',q:'简述三种常用配色方案及适用场景。',ansText:'顺序配色（sequential）：单色调渐变亮度/饱和度。适用于从小到大连续数值（如人口密度）。\n分类配色（categorical）：不同色调等亮度等饱和度。适用于区分不同类别（如不同国家）。\n发散配色（diverging）：两端不同色调中间中性色。适用于有中心值的双极数据（如正/负增长、高于/低于平均）。'},
+
+  // ===== Tableau 新增 (181-200) =====
+  {id:181,m:'Tableau',type:'single',q:'Tableau中离散字段在视图中通常显示为什么颜色（ ）',opts:['A. 绿色','B. 蓝色','C. 红色','D. 黄色'],ans:[1],exp:'蓝色=离散字段，绿色=连续字段。'},
+  {id:182,m:'Tableau',type:'single',q:'要计算销售额的同比增长率最适合使用（ ）',opts:['A. 快速表计算','B. 基础聚合SUM','C. 参数','D. 筛选器'],ans:[0],exp:'同比增长率是表计算（如"百分比差异"），属于快速表计算。'},
+  {id:183,m:'Tableau',type:'single',q:'Tableau中用于判断字符串是否包含子串的函数是（ ）',opts:['A. SUM( )','B. CONTAINS( )','C. DATEDIFF( )','D. ABS( )'],ans:[1],exp:'CONTAINS( )判断字符串是否包含指定子串。'},
+  {id:184,m:'Tableau',type:'single',q:'关于Tableau"组"的说法正确的是（ ）',opts:['A. 组只能包含两个成员','B. 组用于将多个维度成员合并为一个','C. 组随数据更新自动变化','D. 组就是集'],ans:[1],exp:'组用于手动合并维度成员（如"北京""上海"合并为"一线城市"），是静态的。'},
+  {id:185,m:'Tableau',type:'single',q:'两个集取交集合并表示（ ）',opts:['A. 两个集的并集','B. 同时属于两个集的成员','C. 不属于任何集的成员','D. 只属于一个集的成员'],ans:[1],exp:'交集合并=同时满足两个条件的成员。'},
+  {id:186,m:'Tableau',type:'single',q:'Tableau中计算标准差的聚合函数是（ ）',opts:['A. VAR( )','B. STDEV( )','C. MEDIAN( )','D. COUNTD( )'],ans:[1],exp:'STDEV( )=标准差，VAR( )=方差。'},
+  {id:187,m:'Tableau',type:'single',q:'Tableau Prep的主要功能是（ ）',opts:['A. 可视化呈现','B. 数据清洗与准备','C. 创建仪表板','D. 编写SQL'],ans:[1],exp:'Tableau Prep用于可视化数据清洗和准备（ETL）。'},
+  {id:188,m:'Tableau',type:'single',q:'关于"上下文筛选器"正确的说法是（ ）',opts:['A. 执行顺序在所有筛选器之后','B. 用于创建依赖上下文的计算（如Top N）','C. 只能筛选日期字段','D. 与普通维度筛选器完全相同'],ans:[1],exp:'上下文筛选器在维度筛选器之前执行，为后续筛选提供上下文。'},
+  {id:189,m:'Tableau',type:'single',q:'.twbx和.twb文件的主要区别是（ ）',opts:['A. .twbx是旧格式','B. .twbx含数据打包，.twb只含工作簿结构','C. .twbx只能读不能改','D. 没有区别'],ans:[1],exp:'.twbx=打包工作簿(含数据)；.twb=纯工作簿，数据在原位置。'},
+  {id:190,m:'Tableau',type:'multi',q:'Tableau计算字段可使用的元素包括（ ）',opts:['A. 聚合函数','B. 逻辑判断(IF/IIF)','C. 其他计算字段','D. 参数'],ans:[0,1,2,3],exp:'计算字段可使用函数、逻辑、其他字段和参数。'},
+  {id:191,m:'Tableau',type:'multi',q:'属于Tableau筛选器类型的有（ ）',opts:['A. 提取筛选器','B. 数据源筛选器','C. 上下文筛选器','D. 维度筛选器'],ans:[0,1,2,3],exp:'全部属于Tableau筛选器类型。'},
+  {id:192,m:'Tableau',type:'multi',q:'创建分层结构（Hierarchy）的好处包括（ ）',opts:['A. 支持逐层下钻分析','B. 自动汇总上层数据','C. 方便按层级组织维度','D. 替代筛选器功能'],ans:[0,1,2],exp:'分层不替代筛选器，两者功能独立。'},
+  {id:193,m:'Tableau',type:'multi',q:'关于Tableau参数正确的有（ ）',opts:['A. 支持数值、字符串、日期类型','B. 可显示为滑块、输入框等控件','C. 值是静态不可变的','D. 可在计算字段中引用'],ans:[0,1,3],exp:'参数值由用户交互改变是动态的，C错误。'},
+  {id:194,m:'Tableau',type:'multi',q:'Tableau中JOIN的类型包括（ ）',opts:['A. 内连接(INNER JOIN)','B. 左连接(LEFT JOIN)','C. 右连接(RIGHT JOIN)','D. 全外连接(FULL OUTER JOIN)'],ans:[0,1,2,3],exp:'Tableau支持四种JOIN类型。'},
+  {id:195,m:'Tableau',type:'fill',q:'Tableau中____是含数据的打包工作簿，____是纯工作簿文件。',ansText:'.twbx|.twb',exp:'.twbx(打包) vs .twb(纯工作簿)。'},
+  {id:196,m:'Tableau',type:'fill',q:'手动选择固定成员创建____集，基于动态条件创建____集。',ansText:'常量|计算',exp:'常量集=手动固定；计算集=动态条件。'},
+  {id:197,m:'Tableau',type:'fill',q:'筛选器执行顺序：提取筛选器→____筛选器→上下文筛选器→____筛选器→度量筛选器。',ansText:'数据源|维度',exp:'提取→数据源→上下文→维度→度量。'},
+  {id:198,m:'Tableau',type:'fill',q:'____字段用于分类分组（蓝色），____字段用于聚合计算（绿色）。',ansText:'维度/离散|度量/连续',exp:'蓝色=维度/离散，绿色=度量/连续。'},
+  {id:199,m:'Tableau',type:'short',q:'简述Tableau中"组"和"集"的主要区别。',ansText:'组（Group）：手动将多个维度成员合并为一个新的维度成员，是静态的。用于简化维度标签（如合并小类别为"其他"）。\n集（Set）：根据条件或手动选择创建的数据子集。分常量集（手动固定）、计算集（动态条件）、合并集（集合运算）。可用于筛选、对比"集内/集外"数据。\n关键区别：组改变维度结构本身，集是在维度上创建逻辑子集。'},
+  {id:200,m:'Tableau',type:'short',q:'简述Tableau参数（Parameter）的典型应用场景（至少3个）。',ansText:'1. 动态Top N筛选：创建参数N(1-20)，在计算集中引用实现"排名前N名"动态切换。\n2. 动态参考线：参数绑定参考线值，用户拖动滑块调整。\n3. 度量切换器：参数字段供用户选择"销售额"或"利润"，计算字段根据参数显示不同度量。\n4. What-if分析：参数控制增长率假设值，计算字段模拟不同增长场景预测。'},
+
+];
+
+
+// ========== localStorage 持久化 ==========
+const STORAGE_KEY = 'dataviz_quiz_v2';
+const EXAM_TIME = 45 * 60; // 45分钟
+
+// 固定2套题: 题组0=前100题, 题组1=后100题
+const SET_0 = questions.slice(0, 100).map((_,i) => i);
+const SET_1 = questions.slice(100, 200).map((_,i) => i + 100);
+
+function defaultSetData() {
+  return { userAnswers:{}, revealedIds:{}, currentIdx:0, moduleFilter:'all', stars:{} };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { activeSet:0, filter:'all', sets:[defaultSetData(), defaultSetData()], examDone:false };
+}
+
+function saveData() {
+  const compact = {
+    activeSet, filter,
+    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, moduleFilter:s.moduleFilter, stars:s.stars })),
+    examDone
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
+}
+
+// ========== 应用状态 ==========
+let data = loadData();
+let activeSet = data.activeSet || 0;
+let filter = data.filter || 'all';  // 'all', 'wrong', 'star'
+let sets = data.sets || [defaultSetData(), defaultSetData()];
+let examMode = false;
+let examTimer = null;
+let examTimeLeft = EXAM_TIME;
+let examDone = data.examDone || false;
+let focusedOptIdx = -1; // ↑↓ navigation
+
+function activeSetData() { return sets[activeSet]; }
+
+function getQuestionPool() {
+  const indices = activeSet === 0 ? SET_0 : SET_1;
+  return indices.map(i => questions[i]);
+}
+
+function filteredQuestions() {
+  const s = activeSetData();
+  let pool = getQuestionPool();
+  // Module filter
+  if (s.moduleFilter !== 'all') pool = pool.filter(q => q.m === s.moduleFilter);
+  // Wrong/star filter
+  if (filter === 'wrong') pool = pool.filter(q => s.userAnswers[q.id] === false);
+  if (filter === 'star') pool = pool.filter(q => s.stars[q.id]);
+  return pool;
+}
+
+// ========== 渲染侧边栏 ==========
+function renderSidebar() {
+  const s = activeSetData();
+  const nav = document.getElementById('moduleNav');
+  let html = '<button class="module-btn'+(s.moduleFilter==='all'?' active':'')+'" onclick="setModule(&apos;all&apos;)">全部</button>';
+  modules.forEach(mod => {
+    const qs = getQuestionPool().filter(q => q.m === mod.short);
+    const done = qs.filter(q => s.userAnswers[q.id] !== undefined);
+    const active = s.moduleFilter === mod.short ? ' active' : '';
+    html += '<button class="module-btn'+active+'" onclick="setModule(&apos;'+mod.short+'&apos;)">'+mod.short+' <span class="badge">'+done.length+'/'+qs.length+'</span></button>';
+  });
+  nav.innerHTML = html;
+
+  // 套题切换按钮
+  document.querySelectorAll('.set-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', i === activeSet);
+    const sData = sets[i];
+    const done = Object.keys(sData.userAnswers).length;
+    btn.textContent = '题组'+(i===0?'一':'二')+' ('+done+'/100)';
+  });
+
+  // 筛选按钮状态
+  document.getElementById('filterAll').classList.toggle('active', filter==='all');
+  const fw = document.getElementById('filterWrong');
+  fw.classList.toggle('active', filter==='wrong');
+  if (filter==='wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
+  document.getElementById('filterStar').classList.toggle('active', filter==='star');
+
+  updateStats();
+}
+
+function updateStats() {
+  const s = activeSetData();
+  const pool = getQuestionPool();
+  const allDone = pool.filter(q => s.userAnswers[q.id] !== undefined);
+  const right = allDone.filter(q => s.userAnswers[q.id] === true).length;
+  document.getElementById('rpDone').textContent = allDone.length;
+  document.getElementById('rpAcc').textContent = allDone.length > 0 ? Math.round(right/allDone.length*100)+'%' : '-';
+  const list = filteredQuestions();
+  const fDone = list.filter(q => s.userAnswers[q.id] !== undefined).length;
+  document.getElementById('rpBarFill').style.width = list.length > 0 ? (fDone/list.length*100)+'%' : '0%';
+  document.getElementById('rpLabel').textContent = fDone + ' / ' + list.length;
+  let modHtml = '';
+  modules.forEach(mod => {
+    const qs = pool.filter(q => q.m === mod.short);
+    const done = qs.filter(q => s.userAnswers[q.id] !== undefined).length;
+    const pct = qs.length > 0 ? Math.round(done/qs.length*100) : 0;
+    modHtml += '<div class="m-row"><div class="m-name">'+mod.short+' <span>'+done+'/'+qs.length+'</span></div><div class="m-bar"><div class="fill" style="width:'+pct+'%"></div></div></div>';
+  });
+  document.getElementById('rpModules').innerHTML = modHtml;
+  saveData();
+}
+
+// ========== 套题/筛选切换 ==========
+function switchSetTab(idx) {
+  activeSet = idx;
+  data.activeSet = idx;
+  filter = 'all';
+  saveData();
+  renderSidebar();
+  renderQuestion();
+}
+
+function setFilter(f) {
+  filter = f;
+  data.filter = f;
+  activeSetData().currentIdx = 0;
+  saveData();
+  renderSidebar();
+  renderQuestion();
+}
+
+function setModule(m) {
+  activeSetData().moduleFilter = m;
+  activeSetData().currentIdx = 0;
+  saveData();
+  renderSidebar();
+  renderQuestion();
+}
+
+function jumpToQuestion() {
+  const input = document.getElementById('jumpInput');
+  const num = parseInt(input.value);
+  if (isNaN(num)) return;
+  const pool = getQuestionPool();
+  const q = pool.find(q => q.id === num);
+  if (!q) { alert('题号不存在于当前题组'); return; }
+  const list = filteredQuestions();
+  const idx = list.findIndex(x => x.id === num);
+  if (idx < 0) {
+    // 该题在当前筛选中不可见，切换到 all
+    filter = 'all';
+    setFilter('all');
+    const newList = filteredQuestions();
+    const newIdx = newList.findIndex(x => x.id === num);
+    if (newIdx >= 0) activeSetData().currentIdx = newIdx;
+  } else {
+    activeSetData().currentIdx = idx;
+  }
+  input.value = '';
+  saveData();
+  renderQuestion();
+}
+
+// ========== ⭐ 标记 ==========
+function toggleStar() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  s.stars[q.id] = !s.stars[q.id];
+  saveData();
+  renderQuestion();
+}
+
+// ========== 模拟考试 ==========
+function toggleExamMode() {
+  if (examMode) { submitExam(); return; }
+  if (!confirm('开始模拟考试？\n\n规则：\n• 45分钟倒计时\n• 答案按钮被禁用\n• 时间到或点击交卷后显示成绩\n\n当前进度将被保留。')) return;
+  examMode = true;
+  examTimeLeft = EXAM_TIME;
+  document.getElementById('examBanner').classList.add('show');
+  document.getElementById('btnReveal').style.display = 'none';
+  document.getElementById('examNotice').style.display = 'inline';
+  document.getElementById('btnExam').textContent = '交卷';
+  document.getElementById('btnExam').style.background = '#f44336';
+  document.getElementById('btnExam').style.color = '#fff';
+  updateExamTimer();
+  examTimer = setInterval(tickExam, 1000);
+}
+
+function tickExam() {
+  examTimeLeft--;
+  updateExamTimer();
+  if (examTimeLeft <= 0) submitExam();
+}
+
+function updateExamTimer() {
+  const m = Math.floor(examTimeLeft / 60);
+  const s = examTimeLeft % 60;
+  const timer = document.getElementById('examTimer');
+  timer.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  timer.className = 'timer' + (examTimeLeft < 300 ? ' danger' : examTimeLeft < 600 ? ' warning' : '');
+}
+
+function submitExam() {
+  examMode = false;
+  if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  document.getElementById('examBanner').classList.remove('show');
+  document.getElementById('btnReveal').style.display = '';
+  document.getElementById('examNotice').style.display = 'none';
+  document.getElementById('btnExam').textContent = '模拟考试';
+  document.getElementById('btnExam').style.background = '';
+  document.getElementById('btnExam').style.color = '';
+  const s = activeSetData();
+  const pool = getQuestionPool();
+  const done = pool.filter(q => s.userAnswers[q.id] !== undefined);
+  const right = done.filter(q => s.userAnswers[q.id] === true).length;
+  const score = right;
+  const total = done.length;
+  alert('考试结束！\n\n已完成：'+total+' / 100 题\n正确：'+right+' 题\n正确率：'+(total>0?Math.round(right/total*100):0)+'%\n\n（仅统计已作答的题目）');
+  examDone = true;
+  saveData();
+  renderQuestion();
+}
+
+// ========== 渲染题目 ==========
+function renderQuestion() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  if (list.length === 0) {
+    const msg = filter==='wrong' ? '没有错题，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
+    document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>'+msg+'</h3></div>';
+    updateStats();
+    return;
+  }
+  if (s.currentIdx >= list.length) s.currentIdx = 0;
+  const q = list[s.currentIdx];
+  if (!q) { document.getElementById('questionCard').innerHTML = '<div class="empty-state"><h3>暂无题目</h3></div>'; return; }
+
+  focusedOptIdx = -1;
+  const typeLabels = {single:'单选题', multi:'多选题', fill:'填空题', short:'简答题'};
+  const typeClass = {single:'single', multi:'multi', fill:'fill', short:'short'};
+  document.getElementById('qNum').textContent = '第 '+q.id+' 题';
+  document.getElementById('qType').textContent = typeLabels[q.type];
+  document.getElementById('qType').className = 'q-type '+typeClass[q.type];
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('navInfo').textContent = (s.currentIdx+1)+' / '+list.length;
+  document.getElementById('moduleLabel').textContent = s.moduleFilter==='all'?'全部题目':(modules.find(m=>m.short===s.moduleFilter)?.name||'');
+
+  // Star button
+  const starBtn = document.getElementById('starBtn');
+  starBtn.textContent = s.stars[q.id] ? '★' : '☆';
+  starBtn.className = 'star-btn' + (s.stars[q.id] ? ' starred' : '');
+
+  const optDiv = document.getElementById('qOptions');
+  const fillDiv = document.getElementById('fillArea');
+  const shortDiv = document.getElementById('shortArea');
+  optDiv.innerHTML = '';
+  optDiv.style.display = 'none';
+  fillDiv.style.display = 'none';
+  shortDiv.style.display = 'none';
+
+  if (q.type === 'single' || q.type === 'multi') {
+    optDiv.style.display = 'block';
+    const inputType = q.type === 'single' ? 'radio' : 'checkbox';
+    const groupName = 'q'+q.id;
+    const saved = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+    const checked = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false);
+
+    q.opts.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'opt';
+      const isSelected = saved.includes(i);
+      if (isSelected) div.classList.add('selected');
+      if (checked) {
+        if (q.ans.includes(i)) div.classList.add('correct');
+        if (!q.ans.includes(i) && isSelected) div.classList.add('wrong');
+      }
+      const letter = String.fromCharCode(65+i);
+      const chk = isSelected ? ' checked' : '';
+      div.innerHTML = '<input type="'+inputType+'" name="'+groupName+'" value="'+i+'"'+chk+'><span class="letter">'+letter+'.</span><span class="text">'+opt.substring(3)+'</span>';
+      div.setAttribute('data-opt-idx', i);
+      div.addEventListener('click', function(e) {
+        if (e.target.tagName === 'INPUT') return;
+        const inp = div.querySelector('input');
+        if (inputType === 'radio') {
+          inp.checked = true;
+          s.userAnswers[q.id] = [i];
+        } else {
+          inp.checked = !inp.checked;
+          const checks = document.querySelectorAll('input[name="'+groupName+'"]:checked');
+          s.userAnswers[q.id] = Array.from(checks).map(c => parseInt(c.value));
+        }
+        saveData();
+        renderQuestion();
+      });
+      optDiv.appendChild(div);
+    });
+  } else if (q.type === 'fill') {
+    fillDiv.style.display = 'block';
+    const fi = document.getElementById('fillInput');
+    fi.value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
+  } else if (q.type === 'short') {
+    shortDiv.style.display = 'block';
+    const si = document.getElementById('shortInput');
+    si.value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
+  }
+
+  document.getElementById('answerBox').classList.remove('show');
+  document.getElementById('resultMsg').classList.remove('show','right','wrong');
+  document.getElementById('resultMsg').style.background = '';
+  document.getElementById('resultMsg').style.color = '';
+
+  if (s.revealedIds[q.id]) showAnswerBox(q);
+  if (s.userAnswers[q.id] === true) {
+    const rm = document.getElementById('resultMsg');
+    rm.textContent = '✓ 回答正确！';
+    rm.className = 'result-msg right show';
+  } else if (s.userAnswers[q.id] === false) {
+    const rm = document.getElementById('resultMsg');
+    rm.textContent = '✗ 回答错误';
+    rm.className = 'result-msg wrong show';
+  } else if (s.userAnswers[q.id] === 'submitted') {
+    const rm = document.getElementById('resultMsg');
+    rm.textContent = '已提交。请对照参考答案自行评判。';
+    rm.className = 'result-msg show';
+    rm.style.background = '#fff3e0';
+    rm.style.color = '#e65100';
+  }
+
+  document.getElementById('btnCheck').disabled = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted');
+
+  // Exam mode: hide answer button
+  if (examMode) {
+    document.getElementById('btnReveal').style.display = 'none';
+    document.getElementById('examNotice').style.display = 'inline';
+  }
+  updateStats();
+}
+
+function checkAnswer() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted') return;
+
+  let isCorrect = null;
+  if (q.type === 'single' || q.type === 'multi') {
+    const selected = s.userAnswers[q.id] || [];
+    if (!Array.isArray(selected) || selected.length === 0) { alert('请先选择答案'); return; }
+    const corr = new Set(q.ans), sel = new Set(selected);
+    isCorrect = corr.size === sel.size && [...corr].every(v => sel.has(v));
+  } else if (q.type === 'fill') {
+    const input = document.getElementById('fillInput').value.trim();
+    if (!input) { alert('请输入你的答案'); return; }
+    s.userAnswers[q.id] = input;
+    const keywords = q.ansText.split('|');
+    isCorrect = keywords.every(kw => input.includes(kw.trim()));
+  } else if (q.type === 'short') {
+    const input = document.getElementById('shortInput').value.trim();
+    if (!input) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
+    s.userAnswers[q.id] = 'submitted';
+    showAnswerBox(q);
+    saveData();
+    renderQuestion();
+    return;
+  }
+
+  s.userAnswers[q.id] = isCorrect;
+  showAnswerBox(q);
+  saveData();
+  renderQuestion();
+}
+
+function toggleAnswer() {
+  if (examMode) return;
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  if (document.getElementById('answerBox').classList.contains('show')) {
+    document.getElementById('answerBox').classList.remove('show');
+    s.revealedIds[q.id] = false;
+  } else {
+    showAnswerBox(q);
+  }
+  saveData();
+}
+
+function showAnswerBox(q) {
+  activeSetData().revealedIds[q.id] = true;
+  const ab = document.getElementById('answerBox');
+  ab.classList.add('show');
+  if (q.type === 'single' || q.type === 'multi') {
+    const letters = q.ans.map(i => String.fromCharCode(65+i));
+    document.getElementById('ansContent').textContent = '正确答案：'+letters.join(' + ')+' — '+q.ans.map(i => q.opts[i].substring(3)).join('；');
+  } else if (q.type === 'fill') {
+    document.getElementById('ansContent').textContent = '参考答案：'+q.ansText.replace(/\|/g, '、');
+  } else {
+    document.getElementById('ansContent').textContent = q.ansText;
+  }
+  document.getElementById('ansExplanation').textContent = q.exp ? '解析：'+q.exp : '';
+}
+
+function prevQuestion() {
+  const s = activeSetData();
+  if (s.currentIdx > 0) { s.currentIdx--; saveData(); renderQuestion(); }
+}
+function nextQuestion() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.body.classList.toggle('sb-collapsed');
+}
+
+// ========== 键盘快捷键 ==========
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') { prevQuestion(); return; }
+  if (e.key === 'ArrowRight') { nextQuestion(); return; }
+  if (e.key === 'Enter' && e.target.tagName !== 'INPUT') {
+    const s = activeSetData();
+    const list = filteredQuestions();
+    const q = list[s.currentIdx];
+    if (q && (q.type === 'single' || q.type === 'multi') && focusedOptIdx >= 0) {
+      // Enter in option navigation mode: select focused option
+      e.preventDefault();
+      if (q.type === 'single') {
+        s.userAnswers[q.id] = [focusedOptIdx];
+      } else {
+        const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+        if (cur.includes(focusedOptIdx)) { s.userAnswers[q.id] = cur.filter(v => v !== focusedOptIdx); }
+        else { s.userAnswers[q.id] = [...cur, focusedOptIdx]; }
+      }
+      saveData();
+      renderQuestion();
+    } else {
+      checkAnswer();
+    }
+    return;
+  }
+  if (e.key === ' ') { e.preventDefault(); toggleAnswer(); return; }
+  // ↑↓ 选项导航
+  if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && document.getElementById('qOptions').style.display !== 'none') {
+    e.preventDefault();
+    const opts = document.querySelectorAll('#qOptions .opt');
+    if (opts.length === 0) return;
+    if (focusedOptIdx < 0) focusedOptIdx = 0;
+    else {
+      opts[focusedOptIdx].classList.remove('focused');
+      if (e.key === 'ArrowUp') focusedOptIdx = Math.max(0, focusedOptIdx - 1);
+      else focusedOptIdx = Math.min(opts.length - 1, focusedOptIdx + 1);
+    }
+    opts[focusedOptIdx].classList.add('focused');
+    opts[focusedOptIdx].scrollIntoView({block:'nearest'});
+    return;
+  }
+  // 1-4 对应 ABCD
+  if (['1','2','3','4'].includes(e.key)) {
+    const s = activeSetData();
+    const list = filteredQuestions();
+    const q = list[s.currentIdx];
+    if (q && (q.type === 'single' || q.type === 'multi')) {
+      e.preventDefault();
+      const idx = parseInt(e.key) - 1;
+      if (idx < q.opts.length) {
+        if (q.type === 'single') {
+          s.userAnswers[q.id] = [idx];
+        } else {
+          const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+          if (cur.includes(idx)) { s.userAnswers[q.id] = cur.filter(v => v !== idx); }
+          else { s.userAnswers[q.id] = [...cur, idx]; }
+        }
+        saveData();
+        renderQuestion();
+      }
+    }
+  }
+});
+
+// ========== 初始化 ==========
+renderSidebar();
+renderQuestion();
+</script>
+</body>
+</html>

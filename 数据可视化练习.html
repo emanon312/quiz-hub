@@ -6,6 +6,25 @@
 <title>数据可视化期末复习 100 题</title>
 <style>
 :root{--primary:#4ecdc4;--primary-dark:#3bb5ac;--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
+[data-theme="dark"]{--bg-page:#121212;--card-bg:#1e1e2e;--text:#e0e0e0;--text-muted:#999;--border:#333;--shadow:0 1px 4px rgba(0,0,0,.3)}
+[data-theme="dark"] .sidebar{background:#0d0d1a}
+[data-theme="dark"] .topbar .module-title{background:#333;color:#ccc}
+[data-theme="dark"] .card{background:var(--card-bg)}
+[data-theme="dark"] .opt:hover{background:#2a2a3e}
+[data-theme="dark"] .btn-nav{background:#2a2a3e;color:#e0e0e0;border-color:#444}
+[data-theme="dark"] .btn-nav:hover{background:#3a3a4e}
+[data-theme="dark"] .btn-reveal{background:#2a2a3e;color:#ccc;border-color:#444}
+[data-theme="dark"] .btn-reveal:hover{background:#3a3a4e}
+[data-theme="dark"] .fill-input{background:#2a2a3e;color:#e0e0e0;border-color:#444}
+[data-theme="dark"] .answer-box{background:#1b3a1b;border-color:#2e5a2e}
+[data-theme="dark"] .answer-box .ans-content{color:#e0e0e0}
+[data-theme="dark"] .answer-box .ans-explanation{color:#aaa;border-top-color:#333}
+[data-theme="dark"] .result-msg.right{background:#1b3a1b;color:#81c784}
+[data-theme="dark"] .result-msg.wrong{background:#3a1b1b;color:#ef9a9a}
+[data-theme="dark"] .modal-box{background:#1e1e2e;color:#e0e0e0}
+[data-theme="dark"] .right-panel{background:#1a1a2a}
+[data-theme="dark"] .rp-divider{background:#333}
+[data-theme="dark"] .filter-chip{background:#2a2a3e;color:#ccc;border-color:#444}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg-page);color:var(--text);display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--bg-dark);color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
@@ -58,6 +77,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
+.tools-dropdown.open .tools-menu{display:block}
+.tools-item{display:block;width:100%;text-align:left;padding:6px 14px;border:none;background:none;color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
+.tools-item:hover{background:var(--bg-page)}
+.tools-item.danger{color:#f44336}
+.tools-item.danger:hover{background:#ffebee}
+[data-theme="dark"] .tools-item.danger:hover{background:#3a1b1b}
 .set-tabs{display:flex;gap:4px;margin-bottom:10px}
 .set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
 .set-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -104,10 +129,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 @keyframes fadeUp{0%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
 @keyframes streakPulse{0%{transform:scale(.7);opacity:.5}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}
 
-@media(max-width:768px){
-.right-panel{display:none}
-.main{margin-right:0}
-}
 .card{background:var(--card-bg);border-radius:12px;padding:36px 40px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
 .q-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .q-num{font-size:12px;color:#888;background:var(--bg-page);padding:4px 10px;border-radius:12px;white-space:nowrap}
@@ -150,13 +171,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .empty-state{text-align:center;padding:80px 20px;color:#999}
 .empty-state h3{font-size:20px;margin-bottom:8px}
 @media(max-width:768px){
-.sidebar{width:100%;position:relative;height:auto;padding:12px}
-.sidebar h2{font-size:14px;padding:0 12px 8px}
-.module-btn{font-size:12px;padding:8px 12px}
-.main{margin-left:0;margin-right:0;padding:16px;display:block}
-.main-inner{max-width:100%}
-.card{padding:20px 16px}
-.q-text{font-size:15px}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:280px;transform:translateX(-100%);transition:transform .3s ease;z-index:300;padding-top:16px}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:299}
+  .sidebar-overlay.show{display:block}
+  .main{margin-left:0;margin-right:0;padding:60px 12px 16px;display:block}
+  .main-inner{max-width:100%}
+  .card{padding:20px 16px}
+  .q-text{font-size:15px}
+  .mobile-topbar{display:flex;position:fixed;top:0;left:0;right:0;z-index:250;background:var(--bg-dark);color:#fff;padding:8px 12px;align-items:center;gap:10px;font-size:14px}
+  .mobile-topbar .hamburger{font-size:20px;cursor:pointer;background:none;border:none;color:#fff;padding:4px}
+  .right-panel{display:none}
 }
 </style>
 
@@ -164,6 +189,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 </head>
 <body>
 
+<div class="mobile-topbar" style="display:none">
+  <button class="hamburger" onclick="toggleMobileSidebar()">☰</button>
+  <span style="font-weight:600">数据可视化 100 题</span>
+  <span style="flex:1"></span>
+  <span style="font-size:11px;color:#aaa" id="mobileStats">0/200</span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
@@ -202,12 +234,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   <div class="main-inner">
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
+    <input type="text" id="searchInput" placeholder="搜索题干或选项..." style="padding:5px 12px;border:1px solid var(--border);border-radius:16px;font-size:12px;width:180px;outline:none;background:var(--card-bg);color:var(--text)" oninput="onSearch(this.value)">
     <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span>
     <span style="flex:1"></span>
-    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="resetProgress()">重新开始</button>
-    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="exportShortAnswers()" id="btnExport">导出简答题</button>
-    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
+    <div class="tools-dropdown" style="position:relative;display:inline-block">
+      <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" id="btnTools" onclick="this.parentElement.classList.toggle('open')">⚙ 工具</button>
+      <div class="tools-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:150;min-width:140px;padding:4px 0;margin-top:4px">
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">📥 导出简答题</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showWrongAnalysis()">📊 错题分析</button>
+        <div style="height:1px;background:var(--border);margin:4px 8px"></div>
+        <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetProgress()">🔄 重新开始</button>
+      </div>
+    </div>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
+    <span class="filter-chip" id="themeToggle" onclick="toggleTheme()" style="cursor:pointer;margin-left:4px">🌙</span>
   </div>
 
   
@@ -558,6 +598,24 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
 }
 
+// ========== 深色模式 ==========
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? '' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  $('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('dataviz_theme', next);
+}
+// 初始化主题
+(function() {
+  const saved = localStorage.getItem('dataviz_theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    const el = $('themeToggle');
+    if (el) el.textContent = '☀️';
+  }
+})();
+
 // ========== 应用状态 ==========
 let data = loadData();
 let activeSet = data.activeSet || 0;
@@ -631,7 +689,7 @@ function renderSidebar() {
       if (s.userAnswers[q.id] === true) cls += ' done-right';
       else if (s.userAnswers[q.id] === false) cls += ' done-wrong';
       if (s.stars[q.id]) cls += ' starred';
-      html += '<div class="'+cls+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+(cls.includes('done-right')?'✓':cls.includes('done-wrong')?'✗':localNum)+'</div>';
+      html += '<div class="'+cls+'" data-qid="'+q.id+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+(cls.includes('done-right')?'✓':cls.includes('done-wrong')?'✗':localNum)+'</div>';
     });
     html += '</div>';
   });
@@ -681,6 +739,7 @@ function updateStats() {
     modHtml += '<div class="m-row"><div class="m-name">'+tt.short+' <span>'+done+'/'+qs.length+'</span></div><div class="m-bar"><div class="fill" style="width:'+pct+'%"></div></div></div>';
   });
   $('rpModules').innerHTML = modHtml;
+  const ms = $('mobileStats'); if (ms) ms.textContent = gTotal+'/200';
   saveData();
 }
 
@@ -715,6 +774,7 @@ function jumpToQ(qid) {
     saveData();
     renderSidebar();
     renderQuestion();
+    if (window.innerWidth <= 768) toggleMobileSidebar();
   }
 }
 
@@ -730,6 +790,33 @@ function toggleRandom() {
   activeSetData().currentIdx = 0;
   renderSidebar();
   renderQuestion();
+}
+
+// ========== 移动端侧边栏 ==========
+function toggleMobileSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+// ========== 题目搜索 ==========
+let searchQuery = '';
+function onSearch(val) {
+  searchQuery = val.trim().toLowerCase();
+  renderSidebar();
+  if (searchQuery) {
+    // 高亮匹配的题号格
+    const pool = getQuestionPool();
+    const matched = new Set();
+    pool.forEach(q => {
+      if (q.q.toLowerCase().includes(searchQuery)) matched.add(q.id);
+      else if (q.opts && q.opts.some(o => o.toLowerCase().includes(searchQuery))) matched.add(q.id);
+    });
+    document.querySelectorAll('.qnum-dot').forEach(dot => {
+      const qid = parseInt(dot.getAttribute('data-qid'));
+      if (!matched.has(qid)) dot.style.opacity = '0.25';
+      else dot.classList.add('search-hit');
+    });
+  }
 }
 
 function showWrongAnalysis() {
@@ -1216,6 +1303,12 @@ function nextQuestion() {
   const list = filteredQuestions();
   if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
 }
+
+// ═══════════ SECTION: 全局事件 ═══════════
+document.addEventListener('click', function(e) {
+  const dd = document.querySelector('.tools-dropdown');
+  if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
 
 // ═══════════ SECTION: 键盘快捷键 ═══════════
 document.addEventListener('keydown', function(e) {

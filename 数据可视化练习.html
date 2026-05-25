@@ -4,31 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据可视化期末复习 100 题</title>
-<style>
+<style>/* ===== CSS变量 ===== */
 :root{--primary:#4ecdc4;--primary-dark:var(--primary-dark);--danger:#f44336;--warning:#f9a825;--success:#4caf50;--bg-dark:#1a1a2e;--bg-page:#f0f2f5;--text:#333;--text-muted:#888;--card-bg:#fff;--border:#e8e8e8;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* ===== 全局重置 ===== */
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg-page);color:var(--text);display:flex;min-height:100vh}
+
+/* ===== 侧边栏 ===== */
 .sidebar{width:260px;background:var(--bg-dark);color:#fff;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
 .sidebar h2{font-size:16px;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
 .module-btn{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:#ccc;font-size:14px;cursor:pointer;transition:.2s}
 .module-btn:hover,.module-btn.active{background:rgba(255,255,255,.08);color:#fff}
 .module-btn .badge{float:right;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
 .module-btn .done-badge{float:right;font-size:11px;color:var(--primary)}
-/* 侧边栏滚动条美化 */
-.sidebar::-webkit-scrollbar{width:5px}
 .sidebar::-webkit-scrollbar-track{background:transparent}
 .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
 .sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.22)}
 .sidebar{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.module-btn{position:relative}
+.module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
+.module-btn.open .expand-arrow{transform:rotate(90deg);opacity:1}
+.module-btn .type-q-count{float:right;font-size:9px;color:#666;margin-top:2px}
+.sidebar h2{font-size:14px;padding:0 12px 8px}
+.module-btn{font-size:12px;padding:8px 12px}
+
+/* ===== 快捷键面板 ===== */
 .shortcuts{margin-top:16px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#888;line-height:1.8}
 .shortcuts .kbd{display:inline-block;background:rgba(255,255,255,.12);color:#ccc;padding:1px 7px;border-radius:4px;font-family:monospace;font-size:11px;margin:0 2px;min-width:18px;text-align:center}
 .shortcuts .row{margin-bottom:4px;display:flex;align-items:center}
+.shortcuts-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;font-size:12px;color:#aaa;user-select:none}
+.shortcuts-toggle:hover{color:#fff}
+.shortcuts-toggle .arrow{transition:transform .2s;font-size:10px}
+.shortcuts-toggle.open .arrow{transform:rotate(90deg)}
+.shortcuts-body{display:none}
+.shortcuts-body.open{display:block}
+
+/* ===== 主区域布局 ===== */
 .main{margin-left:260px;margin-right:200px;flex:1;display:flex;justify-content:center;padding:24px 20px}
 .main-inner{width:100%;max-width:800px}
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .topbar .module-title{font-size:13px;color:#888;background:#e8e8e8;padding:4px 12px;border-radius:12px}
-/* 右侧进度面板 */
-.right-panel{width:200px;background:var(--card-bg);position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:99;padding:24px 16px;box-shadow:-1px 0 4px rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;gap:16px}
+.main{margin-right:0}
+.main{margin-left:0;margin-right:0;padding:16px;display:block}
+.main-inner{max-width:100%}
+
+/* ===== 右侧面板 ===== */
 .right-panel .rp-stat{text-align:center}
 .right-panel .rp-num{font-size:36px;font-weight:800;color:#1a1a2e;line-height:1.1}
 .right-panel .rp-label{font-size:12px;color:#999;margin-top:4px}
@@ -47,34 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .rp-modules .m-bar{height:4px;background:var(--bg-page);border-radius:2px;overflow:hidden}
 .rp-modules .m-bar .fill{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
 
-.opt.focused{border-color:#f9a825!important;background:#fffde7!important;box-shadow:0 0 0 3px rgba(249,168,37,.2)}
-.star-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;color:#ccc;transition:.15s;line-height:1}
-.star-btn.starred{color:#f9a825}
-.star-btn:hover{color:#f9a825}
-.sa-btn{background:none;border:none;cursor:pointer;padding:4px 8px;color:#aaa;transition:.15s;font-size:12px;border-radius:4px}
-.sa-btn:hover{color:#7c4dff;background:rgba(124,77,255,.1)}
-.sa-btn.saved{color:#7c4dff}
-.filter-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
-.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
-.exam-banner{background:var(--bg-dark);color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
-.exam-banner.show{display:flex}
-.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:var(--primary)}
-.exam-banner .timer.warning{color:#f9a825}
-.exam-banner .timer.danger{color:#f44336}
-.exam-banner .exam-info{font-size:13px;color:#aaa}
-.set-tabs{display:flex;gap:4px;margin-bottom:10px}
-.set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
-.set-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-
-.shortcuts-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;font-size:12px;color:#aaa;user-select:none}
-.shortcuts-toggle:hover{color:#fff}
-.shortcuts-toggle .arrow{transition:transform .2s;font-size:10px}
-.shortcuts-toggle.open .arrow{transform:rotate(90deg)}
-.shortcuts-body{display:none}
-.shortcuts-body.open{display:block}
-
+/* ===== 题号网格 ===== */
 .qnum-grid{display:none;flex-wrap:wrap;gap:3px;padding:6px 0 6px 16px}
 .qnum-grid.open{display:flex}
 .qnum-dot{width:26px;height:26px;border-radius:6px;border:1px solid #444;background:#2a2a3e;color:#aaa;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
@@ -82,12 +76,56 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .qnum-dot.done-right{background:#1b5e20;border-color:#4caf50;color:#c8e6c9}
 .qnum-dot.done-wrong{background:#b71c1c;border-color:#f44336;color:#ffcdd2}
 .qnum-dot.starred{border-color:#f9a825;box-shadow:0 0 6px rgba(249,168,37,.4)}
-.module-btn{position:relative}
-.module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
-.module-btn.open .expand-arrow{transform:rotate(90deg);opacity:1}
-.module-btn .type-q-count{float:right;font-size:9px;color:#666;margin-top:2px}
 
+/* ===== 选项交互 ===== */
+.opt.focused{border-color:#f9a825!important;background:#fffde7!important;box-shadow:0 0 0 3px rgba(249,168,37,.2)}
+.options{margin-bottom:20px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s}
+.opt:hover{border-color:#b0b0b0;background:#fafafa}
+.opt.selected{border-color:var(--primary);background:#f0fdfa}
+.opt.correct{border-color:#4caf50!important;background:#e8f5e9!important}
+.opt.wrong{border-color:#f44336!important;background:#ffebee!important}
+.opt input{margin-top:2px;accent-color:var(--primary);width:16px;height:16px}
+.opt .letter{font-weight:700;min-width:24px;color:#888}
+.opt .text{flex:1;line-height:1.6}
 
+/* ===== 按钮 ===== */
+.star-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;color:#ccc;transition:.15s;line-height:1}
+.star-btn.starred{color:#f9a825}
+.star-btn:hover{color:#f9a825}
+.sa-btn{background:none;border:none;cursor:pointer;padding:4px 8px;color:#aaa;transition:.15s;font-size:12px;border-radius:4px}
+.sa-btn:hover{color:#7c4dff;background:rgba(124,77,255,.1)}
+.sa-btn.saved{color:#7c4dff}
+.filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
+.filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-check{background:var(--primary);color:#fff}
+.btn-check:hover{background:var(--primary-dark)}
+.btn-check:disabled{background:#ccc;cursor:not-allowed}
+.btn-reveal{background:var(--card-bg);color:#666;border:1px solid #ddd}
+.btn-reveal:hover{background:#f5f5f5}
+.btn-nav{background:var(--card-bg);color:var(--text);border:1px solid #ddd}
+.btn-nav:hover{background:#f5f5f5}
+
+/* ===== 筛选与输入 ===== */
+.filter-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* ===== 考试横幅 ===== */
+.exam-banner{background:var(--bg-dark);color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
+.exam-banner.show{display:flex}
+.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:var(--primary)}
+.exam-banner .timer.warning{color:#f9a825}
+.exam-banner .timer.danger{color:#f44336}
+.exam-banner .exam-info{font-size:13px;color:#aaa}
+
+/* ===== 套题切换 ===== */
+.set-tabs{display:flex;gap:4px;margin-bottom:10px}
+.set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
+.set-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ===== 弹窗 ===== */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
 .modal-box{background:var(--card-bg);border-radius:12px;padding:24px;max-width:600px;max-height:80vh;overflow-y:auto;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
@@ -101,11 +139,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .modal-box .wa-qdot{display:inline-block;padding:4px 10px;border-radius:6px;background:#ffebee;color:var(--danger);font-size:10px;cursor:pointer;border:1px solid #ef9a9a}
 .modal-box .wa-qdot:hover{background:#ffcdd2}
 
-@media(max-width:768px){
-.right-panel{display:none}
-.main{margin-right:0}
-}
-.card{background:var(--card-bg);border-radius:12px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
+/* ===== 答案区 ===== */
+.answer-box{display:none;background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px}
+.answer-box.show{display:block}
+.answer-box .ans-label{font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px}
+.answer-box .ans-content{font-size:15px;line-height:1.7;color:#333}
+.answer-box .ans-explanation{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #e0e0e0}
+
+/* ===== 结果消息 ===== */
+.result-msg{font-size:14px;font-weight:600;padding:8px 14px;border-radius:8px;margin-bottom:12px;display:none}
+.result-msg.show{display:block}
+.result-msg.right{background:#e8f5e9;color:#2e7d32}
+.result-msg.wrong{background:#ffebee;color:#c62828}
+
+/* ===== 题目卡片 ===== */
 .q-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .q-num{font-size:12px;color:#888;background:var(--bg-page);padding:4px 10px;border-radius:12px;white-space:nowrap}
 .q-type{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px}
@@ -114,51 +161,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .q-type.fill{background:#fff3e0;color:#e65100}
 .q-type.short{background:#e8f5e9;color:#2e7d32}
 .q-text{font-size:17px;line-height:1.7;margin-bottom:20px}
-.options{margin-bottom:20px}
-.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s}
-.opt:hover{border-color:#b0b0b0;background:#fafafa}
-.opt.selected{border-color:var(--primary);background:#f0fdfa}
-.opt.correct{border-color:#4caf50!important;background:#e8f5e9!important}
-.opt.wrong{border-color:#f44336!important;background:#ffebee!important}
-.opt input{margin-top:2px;accent-color:var(--primary);width:16px;height:16px}
-.opt .letter{font-weight:700;min-width:24px;color:#888}
-.opt .text{flex:1;line-height:1.6}
 .fill-input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:8px;font-size:15px;line-height:1.6;outline:none;transition:.2s}
 .fill-input:focus{border-color:var(--primary)}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-.btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-.btn-check{background:var(--primary);color:#fff}
-.btn-check:hover{background:var(--primary-dark)}
-.btn-check:disabled{background:#ccc;cursor:not-allowed}
-.btn-reveal{background:var(--card-bg);color:#666;border:1px solid #ddd}
-.btn-reveal:hover{background:#f5f5f5}
-.btn-nav{background:var(--card-bg);color:var(--text);border:1px solid #ddd}
-.btn-nav:hover{background:#f5f5f5}
-.answer-box{display:none;background:#f8fdf8;border:1px solid #c8e6c9;border-radius:8px;padding:16px 20px;margin-top:12px}
-.answer-box.show{display:block}
-.answer-box .ans-label{font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px}
-.answer-box .ans-content{font-size:15px;line-height:1.7;color:#333}
-.answer-box .ans-explanation{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #e0e0e0}
-.result-msg{font-size:14px;font-weight:600;padding:8px 14px;border-radius:8px;margin-bottom:12px;display:none}
-.result-msg.show{display:block}
-.result-msg.right{background:#e8f5e9;color:#2e7d32}
-.result-msg.wrong{background:#ffebee;color:#c62828}
 .nav-btns{display:flex;justify-content:space-between;margin-top:16px}
 .empty-state{text-align:center;padding:80px 20px;color:#999}
 .empty-state h3{font-size:20px;margin-bottom:8px}
-@media(max-width:768px){
-.sidebar{width:100%;position:relative;height:auto;padding:12px}
-.sidebar h2{font-size:14px;padding:0 12px 8px}
-.module-btn{font-size:12px;padding:8px 12px}
-.main{margin-left:0;margin-right:0;padding:16px;display:block}
-.main-inner{max-width:100%}
 .card{padding:20px 16px}
 .q-text{font-size:15px}
+
+/* ===== 响应式 ===== */
+@media(max-width:768px){
+.right-panel{display:none}
+@media(max-width:768px){
+.sidebar{width:100%;position:relative;height:auto;padding:12px}
+
+/* ===== 其他 ===== */
+/* 侧边栏滚动条美化 */
+.sidebar::-webkit-scrollbar{width:5px}
+/* 右侧进度面板 */
+.right-panel{width:200px;background:var(--card-bg);position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:99;padding:24px 16px;box-shadow:-1px 0 4px rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;gap:16px}
 }
-</style>
+.card{background:var(--card-bg);border-radius:12px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}</style>
+
+<!-- ═══════ CSS 样式 ═══════ -->
 </head>
 <body>
 
+
+<!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
   <h2>数据可视化 100 题</h2>
   <div id="moduleNav"></div>
@@ -189,6 +219,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   </div>
 </nav>
 
+
+<!-- ═══════ 主区域 ═══════ -->
 <div class="main">
   <div class="main-inner">
   <div class="topbar">
@@ -248,6 +280,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   </div>
 </div>
 
+
+<!-- ═══════ 右侧面板 ═══════ -->
 <aside class="right-panel" id="rightPanel">
   <div class="rp-stat" style="margin-bottom:4px">
     <div style="font-size:12px;color:var(--text-muted)">总进度（200题）</div>
@@ -288,6 +322,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   </div>
 </div>
 
+
+<!-- ═══════ JavaScript ═══════ -->
 <script>
 // ========== 题库数据 ==========
 const questionTypes = [

@@ -576,6 +576,17 @@ function renderSidebar() {
   if (filter==='wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
   document.getElementById('filterStar').classList.toggle('active', filter==='star');
 
+  // 显示填空题逐词反馈
+  if (s._fillFeedback && (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted')) {
+    const fb = s._fillFeedback;
+    const rm = document.getElementById('resultMsg');
+    if (!rm.classList.contains('show')) {
+      rm.textContent = '关键词：'+fb.map(h=>(h.ok?'✓':'✗')+' '+h.kw).join('  ');
+      rm.className = 'result-msg show';
+      rm.style.background = fb.every(h=>h.ok) ? '#e8f5e9' : '#fff3e0';
+      rm.style.color = fb.every(h=>h.ok) ? '#2e7d32' : '#e65100';
+    }
+  }
   updateStats();
 }
 
@@ -867,14 +878,39 @@ function renderQuestion() {
     rm.style.color = '#e65100';
   }
 
-  document.getElementById('btnCheck').disabled = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted');
+    const done = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted');
+  document.getElementById('btnCheck').disabled = done;
+  document.getElementById('btnRetry').style.display = done ? '' : 'none';
 
   // Exam mode: hide answer button
   if (examMode) {
     document.getElementById('btnReveal').style.display = 'none';
     document.getElementById('examNotice').style.display = 'inline';
   }
+  // 显示填空题逐词反馈
+  if (s._fillFeedback && (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted')) {
+    const fb = s._fillFeedback;
+    const rm = document.getElementById('resultMsg');
+    if (!rm.classList.contains('show')) {
+      rm.textContent = '关键词：'+fb.map(h=>(h.ok?'✓':'✗')+' '+h.kw).join('  ');
+      rm.className = 'result-msg show';
+      rm.style.background = fb.every(h=>h.ok) ? '#e8f5e9' : '#fff3e0';
+      rm.style.color = fb.every(h=>h.ok) ? '#2e7d32' : '#e65100';
+    }
+  }
   updateStats();
+}
+
+function retryQuestion() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  delete s.userAnswers[q.id];
+  delete s.revealedIds[q.id];
+  delete s._fillFeedback;
+  saveData();
+  renderQuestion();
 }
 
 function checkAnswer() {
@@ -885,6 +921,7 @@ function checkAnswer() {
   if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false || s.userAnswers[q.id] === 'submitted') return;
 
   let isCorrect = null;
+  let fillFeedback = null; // 填空题逐词反馈
   if (q.type === 'single' || q.type === 'multi') {
     const selected = s.userAnswers[q.id] || [];
     if (!Array.isArray(selected) || selected.length === 0) { alert('请先选择答案'); return; }
@@ -894,20 +931,38 @@ function checkAnswer() {
     const input = document.getElementById('fillInput').value.trim();
     if (!input) { alert('请输入你的答案'); return; }
     s.userAnswers[q.id] = input;
+    // 逐词检查并生成反馈
+    const normalized = input.replace(/\s+/g,'').toLowerCase();
     const keywords = q.ansText.split('|');
-    isCorrect = keywords.every(kw => input.includes(kw.trim()));
+    const hits = keywords.map(kw => {
+      const nkw = kw.trim().replace(/\s+/g,'').toLowerCase();
+      return { kw: kw.trim(), ok: normalized.includes(nkw) };
+    });
+    isCorrect = hits.every(h => h.ok);
+    fillFeedback = hits;
   } else if (q.type === 'short') {
     const input = document.getElementById('shortInput').value.trim();
     if (!input) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
     s.userAnswers[q.id] = 'submitted';
-    showAnswerBox(q);
+    if (!examMode) showAnswerBox(q);
     saveData();
     renderQuestion();
     return;
   }
 
   s.userAnswers[q.id] = isCorrect;
-  showAnswerBox(q);
+  // 考试模式下不泄露答案
+  if (!examMode) showAnswerBox(q);
+  else if (q.type === 'fill' && fillFeedback) {
+    // 考试模式下填空题也显示逐词反馈(不暴露完整答案)
+    const ab = document.getElementById('answerBox');
+    document.getElementById('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
+    document.getElementById('ansExplanation').textContent = '';
+    ab.classList.add('show');
+    activeSetData().revealedIds[q.id] = true;
+  }
+  // 存储填空反馈供 renderQuestion 使用
+  if (q.type === 'fill' && fillFeedback) s._fillFeedback = fillFeedback;
   saveData();
   renderQuestion();
 }
@@ -939,7 +994,12 @@ function showAnswerBox(q) {
   } else {
     document.getElementById('ansContent').textContent = q.ansText;
   }
-  document.getElementById('ansExplanation').textContent = q.exp ? '解析：'+q.exp : '';
+    document.getElementById('ansExplanation').textContent = q.exp ? '解析：'+q.exp : '';
+  // 填空反馈也显示在答案区
+  if (q.type === 'fill' && activeSetData()._fillFeedback) {
+    const fb = activeSetData()._fillFeedback;
+    document.getElementById('ansContent').textContent += ' | 你的匹配：'+fb.map(h=>(h.ok?'✓':'✗')+h.kw).join(' ');
+  }
 }
 
 function prevQuestion() {
@@ -967,17 +1027,25 @@ document.addEventListener('keydown', function(e) {
     const list = filteredQuestions();
     const q = list[s.currentIdx];
     if (q && (q.type === 'single' || q.type === 'multi') && focusedOptIdx >= 0) {
-      // Enter in option navigation mode: select focused option
-      e.preventDefault();
-      if (q.type === 'single') {
-        s.userAnswers[q.id] = [focusedOptIdx];
+      const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+      // If single-choice and focused option already selected → check answer
+      if (q.type === 'single' && cur.length === 1 && cur[0] === focusedOptIdx) {
+        checkAnswer();
+      } else if (q.type === 'multi' && cur.includes(focusedOptIdx) && cur.length > 0) {
+        // Multi-choice: pressing already-selected option toggles it off
+        e.preventDefault();
+        s.userAnswers[q.id] = cur.filter(v => v !== focusedOptIdx);
+        if (s.userAnswers[q.id].length === 0) focusedOptIdx = -1;
+        saveData();
+        renderQuestion();
       } else {
-        const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-        if (cur.includes(focusedOptIdx)) { s.userAnswers[q.id] = cur.filter(v => v !== focusedOptIdx); }
-        else { s.userAnswers[q.id] = [...cur, focusedOptIdx]; }
+        e.preventDefault();
+        if (q.type === 'single') s.userAnswers[q.id] = [focusedOptIdx];
+        else s.userAnswers[q.id] = [...cur, focusedOptIdx];
+        saveData();
+        renderQuestion();
       }
-      saveData();
-      renderQuestion();
+      // Don't return — keep focus for ↑↓ navigation
     } else {
       checkAnswer();
     }

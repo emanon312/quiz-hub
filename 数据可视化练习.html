@@ -58,12 +58,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
-.exam-banner{background:var(--bg-dark);color:#fff;text-align:center;padding:10px 20px;border-radius:8px;margin-bottom:16px;display:none;align-items:center;justify-content:center;gap:16px}
-.exam-banner.show{display:flex}
-.exam-banner .timer{font-size:28px;font-weight:800;font-family:monospace;color:var(--primary)}
-.exam-banner .timer.warning{color:#f9a825}
-.exam-banner .timer.danger{color:#f44336}
-.exam-banner .exam-info{font-size:13px;color:#aaa}
 .set-tabs{display:flex;gap:4px;margin-bottom:10px}
 .set-tab{flex:1;text-align:center;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#ccc;font-size:12px;cursor:pointer}
 .set-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -209,7 +203,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
     <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span>
     <span style="flex:1"></span>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="resetProgress()">重新开始</button>
-    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="toggleExamMode()" id="btnExam">模拟考试</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="exportShortAnswers()" id="btnExport">导出简答题</button>
     <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" onclick="showWrongAnalysis()">错题分析</button>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
@@ -217,11 +210,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 
   
   <div class="milestone-banner" id="milestoneBanner"></div>
-  <div class="exam-banner" id="examBanner">
-    <span class="exam-info">考试中 — 剩余时间</span>
-    <span class="timer" id="examTimer">60:00</span>
-    <button class="btn btn-nav" style="padding:6px 14px;font-size:12px;background:#f44336;color:#fff;border:none" onclick="submitExam()">交卷</button>
-  </div>
 <div class="card" id="questionCard">
     <div class="q-header">
       <span class="q-num" id="qNum">第 1 题</span>
@@ -243,7 +231,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
     <div class="btn-row" style="margin-top:12px">
       <button class="btn btn-check" id="btnCheck" onclick="checkAnswer()">检查答案</button>
       <button class="btn btn-reveal" id="btnReveal" onclick="toggleAnswer()">显示答案</button>
-    <span id="examNotice" style="display:none;font-size:12px;color:#f44336;line-height:36px">考试模式下答案按钮已禁用</span>
     </div>
 
     <div class="result-msg" id="resultMsg"></div>
@@ -544,8 +531,6 @@ const $ = id => document.getElementById(id);
 
 // ========== localStorage 持久化 ==========
 const STORAGE_KEY = 'dataviz_quiz_v3'; // v3: typeFilter+expand
-const EXAM_TIME = 45 * 60; // 45分钟
-
 // 固定2套题: 题组0=前100题, 题组1=后100题
 const SET_0 = questions.slice(0, 100).map((_,i) => i);
 const SET_1 = questions.slice(100, 200).map((_,i) => i + 100);
@@ -559,14 +544,13 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return { activeSet:0, filter:'all', sets:[defaultSetData(), defaultSetData()], examDone:false };
+  return { activeSet:0, filter:'all', sets:[defaultSetData(), defaultSetData()] };
 }
 
 function saveData() {
   const compact = {
     activeSet, filter,
     sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes, wrongBank:s.wrongBank, shortAnswerBank:s.shortAnswerBank, streak:s.streak, bestStreak:s.bestStreak })),
-    examDone,
     practiceSec
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(compact));
@@ -587,10 +571,6 @@ sets.forEach(s => {
   if (s.streak === undefined) s.streak = 0;
   if (s.bestStreak === undefined) s.bestStreak = 0;
 });
-let examMode = false;
-let examTimer = null;
-let examTimeLeft = EXAM_TIME;
-let examDone = data.examDone || false;
 let practiceSec = data.practiceSec || 0;
 let practiceTimer = setInterval(function(){
   practiceSec++;
@@ -986,59 +966,8 @@ function toggleStar() {
   renderQuestion();
 }
 
-// ========== 模拟考试 ==========
-function toggleExamMode() {
-  if (examMode) { submitExam(); return; }
-  if (!confirm('开始模拟考试？\n\n规则：\n• 45分钟倒计时\n• 答案按钮被禁用\n• 时间到或点击交卷后显示成绩\n\n当前进度将被保留。')) return;
-  examMode = true;
-  examTimeLeft = EXAM_TIME;
-  $('examBanner').classList.add('show');
-  $('btnReveal').style.display = 'none';
-  $('examNotice').style.display = 'inline';
-  $('btnExam').textContent = '交卷';
-  $('btnExam').style.background = '#f44336';
-  $('btnExam').style.color = '#fff';
-  updateExamTimer();
-  examTimer = setInterval(tickExam, 1000);
-}
-
-function tickExam() {
-  examTimeLeft--;
-  updateExamTimer();
-  if (examTimeLeft <= 0) submitExam();
-}
-
-function updateExamTimer() {
-  const m = Math.floor(examTimeLeft / 60);
-  const s = examTimeLeft % 60;
-  const timer = $('examTimer');
-  timer.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  timer.className = 'timer' + (examTimeLeft < 300 ? ' danger' : examTimeLeft < 600 ? ' warning' : '');
-}
-
-function submitExam() {
-  examMode = false;
-  if (examTimer) { clearInterval(examTimer); examTimer = null; }
-  $('examBanner').classList.remove('show');
-  $('btnReveal').style.display = '';
-  $('examNotice').style.display = 'none';
-  $('btnExam').textContent = '模拟考试';
-  $('btnExam').style.background = '';
-  $('btnExam').style.color = '';
-  const s = activeSetData();
-  const pool = getQuestionPool();
-  const done = pool.filter(q => s.userAnswers[q.id] !== undefined);
-  const right = done.filter(q => s.userAnswers[q.id] === true).length;
-  const score = right;
-  const total = done.length;
-  alert('考试结束！\n\n已完成：'+total+' / 100 题\n正确：'+right+' 题\n正确率：'+(total>0?Math.round(right/total*100):0)+'%\n\n（仅统计已作答的题目）');
-  examDone = true;
-  saveData();
-  renderQuestion();
-}
-
 // ===== renderQuestion — 渲染当前题目到主区域 =====
-// 流程: 获取筛选列表 → 检查空状态 → 构建选项DOM → 设置正确/错误/提交状态 → 显示答案区/结果消息 → 填空逐词反馈 → 考试模式 → 更新统计
+// 流程: 获取筛选列表 → 检查空状态 → 构建选项DOM → 设置正确/错误/提交状态 → 显示答案区/结果消息 → 填空逐词反馈 → 更新侧边栏
 function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
@@ -1161,11 +1090,6 @@ function renderQuestion() {
     const done = isAnswered(s, q);
   $('btnCheck').disabled = done;
 
-  // Exam mode: hide answer button
-  if (examMode) {
-    $('btnReveal').style.display = 'none';
-    $('examNotice').style.display = 'inline';
-  }
   // 显示填空题逐词反馈
   if (s._fillFeedback && isAnswered(s, q)) {
     const fb = s._fillFeedback;
@@ -1177,7 +1101,7 @@ function renderQuestion() {
       rm.style.color = fb.every(h=>h.ok) ? '#2e7d32' : '#e65100';
     }
   }
-  updateStats();
+  renderSidebar();
 }
 
 function checkAnswer() {
@@ -1211,7 +1135,7 @@ function checkAnswer() {
     const input = $('shortInput').value.trim();
     if (!input) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
     s.userAnswers[q.id] = 'submitted';
-    if (!examMode) showAnswerBox(q);
+    showAnswerBox(q);
     saveData();
     renderQuestion();
     return;
@@ -1231,7 +1155,7 @@ function checkAnswer() {
     s._wrongRetry=(s._wrongRetry||{});s._wrongRetry[q.id]=(s._wrongRetry[q.id]||0)+1;
     if(s._wrongRetry[q.id]>=2)showAnswerBox(q);
   } else { if(s._wrongRetry)s._wrongRetry[q.id]=0; }
-  if (isCorrect && !examMode) showAnswerBox(q);
+  if (isCorrect) showAnswerBox(q);
   // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
   if (!isCorrect && q.type === 'fill' && fillFeedback) {
     const ab = $('answerBox');
@@ -1247,7 +1171,6 @@ function checkAnswer() {
 }
 
 function toggleAnswer() {
-  if (examMode) return;
   const s = activeSetData();
   const list = filteredQuestions();
   const q = list[s.currentIdx];

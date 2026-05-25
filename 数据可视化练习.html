@@ -525,7 +525,7 @@ const SET_0 = questions.slice(0, 100).map((_,i) => i);
 const SET_1 = questions.slice(100, 200).map((_,i) => i + 100);
 
 function defaultSetData() {
-  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{} };
+  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{} };
 }
 
 function loadData() {
@@ -539,7 +539,7 @@ function loadData() {
 function saveData() {
   const compact = {
     activeSet, filter,
-    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars })),
+    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes })),
     examDone,
     practiceSec
   };
@@ -600,15 +600,17 @@ function renderSidebar() {
     const qs = pool.filter(q => q.type === tt.type);
     const done = qs.filter(q => s.userAnswers[q.id] !== undefined);
     const active = s.typeFilter === tt.type ? ' active' : '';
-    const open = s.typeFilter === tt.type ? ' open' : '';
-    html += '<button class="module-btn'+active+' '+open+'" onclick="toggleTypeExpand(&apos;'+tt.type+'&apos;,this)"><span class="expand-arrow">▶</span>'+tt.short+' <span class="type-q-count">'+done.length+'/'+qs.length+'</span></button>';
-    html += '<div class="qnum-grid'+(open?' open':'')+'" id="'+eid+tt.type+'">';
-    qs.forEach(q => {
+    const isOpen = s.expandedTypes[tt.type] || s.typeFilter === tt.type;
+    s.expandedTypes[tt.type] = isOpen;
+    html += '<button class="module-btn'+active+(isOpen?' open':'')+'" onclick="toggleTypeExpand(&apos;'+tt.type+'&apos;,this)"><span class="expand-arrow">▶</span>'+tt.short+' <span class="type-q-count">'+done.length+'/'+qs.length+'</span></button>';
+    html += '<div class="qnum-grid'+(isOpen?' open':'')+'" id="'+eid+tt.type+'">';
+    qs.forEach((q, qi) => {
+      const localNum = qi + 1;
       let cls = 'qnum-dot';
       if (s.userAnswers[q.id] === true) cls += ' done-right';
       else if (s.userAnswers[q.id] === false) cls += ' done-wrong';
       if (s.stars[q.id]) cls += ' starred';
-      html += '<div class="'+cls+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+q.id+'题'+'">'+q.id+'</div>';
+      html += '<div class="'+cls+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+localNum+'</div>';
     });
     html += '</div>';
   });
@@ -674,11 +676,15 @@ function updateStats() {
 
 // ========== 题型展开/折叠 + 跳转 ==========
 function toggleTypeExpand(type, btn) {
+  const s = activeSetData();
   const grid = btn.nextElementSibling;
+  const isOpen = !s.expandedTypes[type];
+  s.expandedTypes[type] = isOpen;
   if (grid) {
-    const isOpen = grid.classList.toggle('open');
+    grid.classList.toggle('open', isOpen);
     btn.classList.toggle('open', isOpen);
   }
+  saveData();
 }
 
 function jumpToQ(qid) {
@@ -888,7 +894,7 @@ function renderQuestion() {
   }
   const typeLabels = {single:'单选题', multi:'多选题', fill:'填空题', short:'简答题'};
   const typeClass = {single:'single', multi:'multi', fill:'fill', short:'short'};
-  document.getElementById('qNum').textContent = '第 '+q.id+' 题';
+  document.getElementById('qNum').textContent = '第 '+(list.indexOf(q)+1)+' 题';
   document.getElementById('qType').textContent = typeLabels[q.type];
   document.getElementById('qType').className = 'q-type '+typeClass[q.type];
   document.getElementById('qText').textContent = q.q;

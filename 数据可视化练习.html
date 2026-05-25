@@ -100,6 +100,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .modal-box .wa-qlist.open{display:flex}
 .modal-box .wa-qdot{display:inline-block;padding:4px 10px;border-radius:6px;background:#ffebee;color:var(--danger);font-size:10px;cursor:pointer;border:1px solid #ef9a9a}
 .modal-box .wa-qdot:hover{background:#ffcdd2}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#ff6b6b,#ff8e53);color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap}
+.streak-badge .fire{font-size:14px}
+.streak-badge.dormant{background:linear-gradient(135deg,#666,#444);opacity:.5}
+.milestone-banner{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:300;padding:10px 24px;border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;animation:slideDown .4s ease-out;pointer-events:none;white-space:nowrap;line-height:1.5}
+.milestone-banner.show{display:block;animation:slideDown .4s ease-out, fadeUp 1s 2s ease-out forwards}
+@keyframes slideDown{0%{transform:translateX(-50%) translateY(-100%);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
+@keyframes fadeUp{0%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
 
 @media(max-width:768px){
 .right-panel{display:none}
@@ -539,7 +546,7 @@ const SET_0 = questions.slice(0, 100).map((_,i) => i);
 const SET_1 = questions.slice(100, 200).map((_,i) => i + 100);
 
 function defaultSetData() {
-  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{}, wrongBank:{}, shortAnswerBank:{} };
+  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{}, wrongBank:{}, shortAnswerBank:{}, streak:0, bestStreak:0 };
 }
 
 function loadData() {
@@ -553,7 +560,7 @@ function loadData() {
 function saveData() {
   const compact = {
     activeSet, filter,
-    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes, wrongBank:s.wrongBank, shortAnswerBank:s.shortAnswerBank })),
+    sets: sets.map(s => ({ userAnswers:s.userAnswers, revealedIds:s.revealedIds, currentIdx:s.currentIdx, typeFilter:s.typeFilter, stars:s.stars, expandedTypes:s.expandedTypes, wrongBank:s.wrongBank, shortAnswerBank:s.shortAnswerBank, streak:s.streak, bestStreak:s.bestStreak })),
     examDone,
     practiceSec
   };
@@ -572,6 +579,8 @@ sets.forEach(s => {
   if (!s.typeFilter) s.typeFilter = 'all';
   if (!s.wrongBank) s.wrongBank = {};
   if (!s.shortAnswerBank) s.shortAnswerBank = {};
+  if (s.streak === undefined) s.streak = 0;
+  if (s.bestStreak === undefined) s.bestStreak = 0;
 });
 let examMode = false;
 let examTimer = null;

@@ -106,6 +106,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .qnum-dot.done-right{background:#1b5e20;border-color:#4caf50;color:#c8e6c9}
 .qnum-dot.done-wrong{background:#b71c1c;border-color:#f44336;color:#ffcdd2}
 .qnum-dot.starred{border-color:#f9a825;box-shadow:0 0 6px rgba(249,168,37,.4)}
+.qnum-dot.current{border-color:var(--primary);box-shadow:0 0 8px rgba(78,205,196,.6);transform:scale(1.15);color:#fff;font-weight:700}
 .module-btn{position:relative}
 .module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
 .module-btn.open .expand-arrow{transform:rotate(90deg);opacity:1}
@@ -256,6 +257,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
       </div>
     </div>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
+    <span class="filter-chip" id="autoRevealChip" onclick="toggleAutoReveal()" style="cursor:pointer;margin-left:4px">🔍 显示答案</span>
     <span class="filter-chip" id="themeToggle" onclick="toggleTheme()" style="cursor:pointer;margin-left:4px">🌙</span>
   </div>
 
@@ -305,7 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <!-- ═══════ 右侧面板 ═══════ -->
 <aside class="right-panel" id="rightPanel">
   <div class="rp-stat" style="margin-bottom:4px">
-    <div style="font-size:12px;color:var(--text-muted)">总进度（200题）</div>
+    <div style="font-size:12px;color:var(--text-muted)">题组进度（100题）</div>
     <div class="rp-num" style="font-size:28px" id="rpGlobal">0</div>
     <div style="font-size:10px;color:var(--text-muted)" id="rpGlobalPct">-</div>
   </div>
@@ -702,8 +704,9 @@ function filteredQuestions() {
 function renderSidebar() {
   const s = activeSetData();
   const pool = getQuestionPool();
+  const curQ = filteredQuestions()[s.currentIdx];
   const nav = $('moduleNav');
-  const eid = 'qt_'; // unique id for current render
+  const eid = 'qt_';
   let html = '<button class="module-btn'+(s.typeFilter==='all'?' active':'')+'" onclick="setTypeFilter(&apos;all&apos;)">全部</button>';
   questionTypes.forEach(tt => {
     const qs = pool.filter(q => q.type === tt.type);
@@ -719,6 +722,7 @@ function renderSidebar() {
       if (s.userAnswers[q.id] === true) cls += ' done-right';
       else if (s.userAnswers[q.id] === false) cls += ' done-wrong';
       if (s.stars[q.id]) cls += ' starred';
+      if (curQ && q.id === curQ.id) cls += ' current';
       html += '<div class="'+cls+'" data-qid="'+q.id+'" onclick="event.stopPropagation();jumpToQ('+q.id+')" title="第'+localNum+'题">'+localNum+'</div>';
     });
     html += '</div>';
@@ -750,13 +754,10 @@ function updateStats() {
   const right = allDone.filter(q => s.userAnswers[q.id] === true).length;
     $('rpDone').textContent = allDone.length;
   $('rpAcc').textContent = allDone.length > 0 ? Math.round(right/allDone.length*100)+'%' : '-';
-  const gDone0 = Object.keys(sets[0].userAnswers).length;
-  const gDone1 = Object.keys(sets[1].userAnswers).length;
-  const gTotal = gDone0 + gDone1;
-  $('rpGlobal').textContent = gTotal;
-  const gRight0 = Object.values(sets[0].userAnswers).filter(v=>v===true).length;
-  const gRight1 = Object.values(sets[1].userAnswers).filter(v=>v===true).length;
-  $('rpGlobalPct').textContent = gTotal > 0 ? '正确率 '+Math.round((gRight0+gRight1)/gTotal*100)+'%' : '-';
+  const gDone = Object.keys(sets[activeSet].userAnswers).length;
+  $('rpGlobal').textContent = gDone;
+  const gRight = Object.values(sets[activeSet].userAnswers).filter(v=>v===true).length;
+  $('rpGlobalPct').textContent = gDone > 0 ? '正确率 '+Math.round(gRight/gDone*100)+'%' : '-';
   const list = filteredQuestions();
   const fDone = list.filter(q => s.userAnswers[q.id] !== undefined).length;
   $('rpBarFill').style.width = list.length > 0 ? (fDone/list.length*100)+'%' : '0%';
@@ -769,7 +770,7 @@ function updateStats() {
     modHtml += '<div class="m-row"><div class="m-name">'+tt.short+' <span>'+done+'/'+qs.length+'</span></div><div class="m-bar"><div class="fill" style="width:'+pct+'%"></div></div></div>';
   });
   $('rpModules').innerHTML = modHtml;
-  const ms = $('mobileStats'); if (ms) ms.textContent = gTotal+'/200';
+  const ms = $('mobileStats'); if (ms) ms.textContent = gDone+'/100';
   saveData();
 }
 
@@ -820,6 +821,14 @@ function toggleRandom() {
   activeSetData().currentIdx = 0;
   renderSidebar();
   renderQuestion();
+}
+
+// ========== 自动显示答案 ==========
+let autoReveal = false;
+function toggleAutoReveal() {
+  autoReveal = !autoReveal;
+  $('autoRevealChip').classList.toggle('active', autoReveal);
+  if (autoReveal) renderQuestion();
 }
 
 // ========== 移动端侧边栏 ==========
@@ -908,6 +917,7 @@ function switchSetTab(idx) {
 
 function setFilter(f) {
   filter = f;
+  activeSetData().typeFilter = 'all';
   activeSetData().currentIdx = 0;
   saveData();
   renderSidebar();
@@ -916,7 +926,7 @@ function setFilter(f) {
 
 function setTypeFilter(t) {
   const s = activeSetData();
-  // Toggle: if clicking same type, go back to all; don't reset index for 'all'
+  filter = 'all';
   if (s.typeFilter === t) { s.typeFilter = 'all'; }
   else { s.typeFilter = t; s.currentIdx = 0; }
   saveData();
@@ -1292,6 +1302,7 @@ function renderQuestion() {
       rm.style.color = fb.every(h=>h.ok) ? '#2e7d32' : '#e65100';
     }
   }
+  if (autoReveal && !isAnswered(s, q)) showAnswerBox(q);
   renderSidebar();
 }
 

@@ -821,6 +821,64 @@ function setTypeFilter(t) {
   renderQuestion();
 }
 
+// ========== 转为简答题 ==========
+function toggleShortAnswer() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  if (s.shortAnswerBank[q.id]) {
+    if (!confirm('该题已转为简答题，确定删除？')) return;
+    delete s.shortAnswerBank[q.id];
+    saveData();
+    renderQuestion();
+    return;
+  }
+  let saQ = q.q;
+  let saA = '';
+  if (q.type === 'single' || q.type === 'multi') {
+    saQ = saQ.replace(/[（(]\s*[）)]\s*$/, '').trim();
+    if (!saQ.startsWith('简述')) saQ = '简述' + saQ;
+    saA = q.ans.map(i => q.opts[i].substring(3)).join('；');
+    if (q.exp) saA += '\\n' + q.exp;
+  } else if (q.type === 'fill') {
+    saA = q.ansText.replace(/\\|/g, '、');
+    if (q.exp) saA += '\\n' + q.exp;
+  } else if (q.type === 'short') {
+    saA = q.ansText;
+  }
+  const newQ = prompt('简答题题目（可编辑）：', saQ);
+  if (!newQ) return;
+  const newA = prompt('简答题答案（可编辑）：', saA);
+  if (!newA) return;
+  s.shortAnswerBank[q.id] = { q: newQ.trim(), a: newA.trim() };
+  saveData();
+  renderQuestion();
+}
+
+function exportShortAnswers() {
+  const all = {};
+  sets.forEach(setData => {
+    Object.entries(setData.shortAnswerBank || {}).forEach(([qid, sa]) => {
+      if (!all[qid]) all[qid] = sa;
+    });
+  });
+  const entries = Object.values(all);
+  if (entries.length === 0) { alert('还没有转为简答题的题目。\\n\\n在做题时点击题目旁的"转简答"按钮来收集。'); return; }
+  let md = '# 数据可视化简答题大全\\n\\n> 共 ' + entries.length + ' 道简答题，从选择题/填空题转换而来\\n\\n---\\n\\n';
+  entries.forEach((sa, i) => {
+    md += '## ' + (i+1) + '. ' + sa.q + '\\n\\n';
+    md += '**答案：**\\n\\n' + sa.a.replace(/\\n/g, '\\n\\n') + '\\n\\n---\\n\\n';
+  });
+  const blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '数据可视化简答题大全.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ========== ⭐ 标记 ==========
 function toggleStar() {
   const s = activeSetData();
@@ -918,6 +976,9 @@ function renderQuestion() {
   // Star button
   const starBtn = document.getElementById('starBtn');
   starBtn.textContent = s.stars[q.id] ? '★' : '☆';
+  const saBtn = document.getElementById('saBtn');
+  saBtn.textContent = s.shortAnswerBank[q.id] ? '✅ 已转简答' : '📝 转简答';
+  saBtn.className = 'sa-btn' + (s.shortAnswerBank[q.id] ? ' saved' : '');
   starBtn.className = 'star-btn' + (s.stars[q.id] ? ' starred' : '');
 
   const optDiv = document.getElementById('qOptions');

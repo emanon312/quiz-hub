@@ -1223,7 +1223,7 @@ function checkAnswer() {
   }
 
   s.userAnswers[q.id] = isCorrect;
-  // 连对逻辑 + 连续错2次自动显示答案
+  // 连对逻辑 + 答错1次自动显示答案
   if (isCorrect && !isShortLike(q.type)) {
     s.streak=(s.streak||0)+1;if(s.streak>(s.bestStreak||0))s.bestStreak=s.streak;
     setStreakBadge(s.streak,'🔥');
@@ -1236,7 +1236,7 @@ function checkAnswer() {
     setStreakBadge(0,'🧯');
     s._wrongRetry=(s._wrongRetry||{});s._wrongRetry[q.id]=(s._wrongRetry[q.id]||0)+1;
     playBeep(300, 0.12, 'triangle');
-    if(s._wrongRetry[q.id]>=2)showAnswerBox(q);
+    if(s._wrongRetry[q.id]>=1)showAnswerBox(q);
   } else { if(s._wrongRetry)s._wrongRetry[q.id]=0; }
   if (isCorrect) showAnswerBox(q);
   // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案

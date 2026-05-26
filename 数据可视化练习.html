@@ -256,7 +256,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
         • <b style="color:#bbb">乱序</b>：当前列表随机排序<br>
         • <b style="color:#bbb">🔍 答案模式</b>：开启后每题自动展开答案<br>
         • <b style="color:#bbb">🌙 / ☀</b>：切换暗 / 亮主题<br>
-        • <b style="color:#bbb">⚙ 工具栏</b>：答案模式 / 重置做题时间 / 导出简答题 / 错题分析 / 重新开始
+        • <b style="color:#bbb">⚙ 工具栏</b>：重置做题时间 / 导出简答题 / 错题分析 / 重新开始
       </div>
 
       <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">💡 小提示</div>
@@ -282,7 +282,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
     <div class="tools-dropdown" style="position:relative;display:inline-block">
       <button class="btn btn-nav" style="padding:6px 14px;font-size:12px" id="btnTools" onclick="this.parentElement.classList.toggle('open')">⚙ 工具栏</button>
       <div class="tools-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:150;min-width:160px;padding:4px 0;margin-top:4px">
-        <button class="tools-item" id="toolAutoReveal" onclick="toggleAutoReveal()">🔍 答案模式：关</button>
         <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetPracticeTimer()">⏱ 重置做题时间</button>
         <div style="height:1px;background:var(--border);margin:4px 8px"></div>
         <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">📥 导出简答题</button>
@@ -291,6 +290,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
         <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">🔄 重新开始</button>
       </div>
     </div>
+    <span class="filter-chip" id="autoRevealChip" onclick="toggleAutoReveal()" style="cursor:pointer;margin-left:4px">🔍 答案</span>
     <span class="filter-chip" id="randomChip" onclick="toggleRandom()" style="cursor:pointer;margin-left:4px">乱序</span>
     <span class="filter-chip" id="themeToggle" onclick="toggleTheme()" style="cursor:pointer;margin-left:4px">🌙</span>
   </div>
@@ -569,8 +569,11 @@ function toggleRandom() {
 let autoReveal = false;
 function toggleAutoReveal() {
   autoReveal = !autoReveal;
-  const btn = $('toolAutoReveal');
-  if (btn) btn.textContent = '🔍 答案模式：' + (autoReveal ? '开' : '关');
+  const chip = $('autoRevealChip');
+  if (chip) {
+    chip.classList.toggle('active', autoReveal);
+    chip.textContent = '🔍 答案' + (autoReveal ? ' ✓' : '');
+  }
   if (!autoReveal) {
     const s = activeSetData();
     // 清除未做题目被自动展开的答案

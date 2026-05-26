@@ -29,9 +29,11 @@ python -m http.server 8000
 
 ```
 .
-├── 数据可视化练习.html   # 主入口（UI + 业务逻辑）
+├── 数据可视化练习.html   # 主入口（UI 结构）
+├── css/app.css           # 样式表
 ├── config.js             # 学科/套题/题型/文案配置
 ├── questions.js          # 题库数据（window.QUIZ_QUESTIONS）
+├── js/                   # 业务模块（01-utils … 11-app）
 └── README.md
 ```
 

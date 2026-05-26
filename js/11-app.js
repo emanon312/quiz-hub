@@ -285,9 +285,6 @@
       window.Pool.invalidateShuffle();
       var chip = $('randomChip');
       chip.classList.toggle('random-on', this.randomMode);
-      chip.style.background = this.randomMode ? '#fff3e0' : '';
-      chip.style.color = this.randomMode ? '#e65100' : '';
-      chip.style.borderColor = this.randomMode ? '#ffcc02' : '';
       this.activeSetData().currentIdx = 0;
       this.renderSidebar();
       this.renderQuestion();

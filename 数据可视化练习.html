@@ -408,6 +408,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <script src="js/02-storage.js"></script>
 <script src="js/03-state.js"></script>
 <script src="js/04-pool.js"></script>
+<script src="js/05-streak.js"></script>
 <script>
 // ═══════════ 内联脚本（逐步移入 js/ 模块，目前仅保留暂未抽取的逻辑） ═══════════
 
@@ -740,74 +741,11 @@ function setTypeFilter(t) {
   renderQuestion();
 }
 
-// ========== 连对里程碑（随机文案） ==========
-// pick / playBeep 已挪到 js/01-utils.js
-
-// 分层连对图标：不同里程碑返回不同 emoji
-function getStreakIcon(st) {
-  if (st >= 30) return '👑';
-  if (st >= 20) return '💎';
-  if (st >= 10) return '🔥🔥';
-  if (st >= 5) return '🔥';
-  if (st >= 3) return '❤️‍🔥';
-  return '🔥';
-}
-
-// 连对徽章三态切换：streak 数字 + 火焰图标（🔥=活跃，🧯=熄灭）
-function setStreakBadge(streak, fire) {
-  const b = $('streakBadge'); if (!b) return;
-  $('streakNum').textContent = streak;
-  if (streak > 0) {
-    b.style.display = 'inline-flex';
-    b.classList.remove('dormant');
-    b.querySelector('.fire').textContent = getStreakIcon(streak);
-    b.classList.add('just-fired'); setTimeout(function(){ b.classList.remove('just-fired'); }, 500);
-  } else if (fire === '🧯') {
-    b.style.display = 'inline-flex';
-    b.classList.add('dormant');
-    b.querySelector('.fire').textContent = '🧯';
-  }
-  updateStreakProgress(streak);
-}
-
-function showBanner(emoji,txt,bg){
-  const b=$('milestoneBanner');
-  if(!b)return;
-  b.textContent=emoji+' '+txt;b.style.background=bg;
-  b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
-  setTimeout(function(){b.classList.remove('show')},3500);
-}
-function checkMilestone(s){
-  const m=MILESTONE_MSGS[s];if(!m)return;
-  showBanner(m.e,pick(m.t),m.b);
-}
-function showStreakBreak(s,best){
-  var msg=pick(BREAK_MSGS).replace('#BEST#',best);
-  showBanner('💔',msg,'linear-gradient(135deg,#6b7280,#4b5563)');
-}
-
-function updateStreakProgress(streak) {
-  const el = $('streakProgress');
-  if (!el) return;
-  if (streak <= 0) { el.style.display = 'none'; return; }
-  const next = STREAK_MILESTONES.find(function(m) { return m > streak; });
-  if (!next) {
-    // 全部里程碑达成
-    el.style.display = 'inline-flex';
-    $('streakProgressFill').style.width = '100%';
-    $('streakProgressLabel').textContent = '全部达成';
-    el.title = '所有里程碑已解锁！';
-    return;
-  }
-  const filtered = STREAK_MILESTONES.filter(function(m) { return m <= streak; });
-  const prev = filtered.length > 0 ? filtered[filtered.length - 1] : 0;
-  const pct = ((streak - prev) / (next - prev)) * 100;
-  const remain = next - streak;
-  el.style.display = 'inline-flex';
-  $('streakProgressFill').style.width = pct + '%';
-  $('streakProgressLabel').textContent = '差' + remain + '题';
-  el.title = '还差 ' + remain + ' 题解锁 ' + (STREAK_MILESTONE_EMOJI[next] || '') + ' ' + next + '连对';
-}
+// ========== 连对里程碑（已挪到 js/05-streak.js） ==========
+function setStreakBadge(streak, fire) { Streak.setBadge(streak, fire); }
+function checkMilestone(s) { Streak.checkMilestone(s); }
+function showStreakBreak(s, best) { Streak.showBreak(s, best); }
+function updateStreakProgress(streak) { Streak.updateProgress(streak); }
 
 // ========== 转为简答题 ==========
 function toggleShortAnswer() {

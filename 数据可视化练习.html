@@ -406,6 +406,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <script src="questions.js"></script>
 <script src="js/01-utils.js"></script>
 <script src="js/02-storage.js"></script>
+<script src="js/03-state.js"></script>
 <script>
 // ═══════════ 内联脚本（逐步移入 js/ 模块，目前仅保留暂未抽取的逻辑） ═══════════
 
@@ -457,23 +458,13 @@ function toggleTheme() {
 })();
 
 // ========== 应用状态 ==========
-let data = Storage.loadData();
+// 状态初始化逻辑已挪到 js/03-state.js（QuizState.initSets）
+const _init = QuizState.initSets();
+let data = _init.data;
 let activeSet = data.activeSet || 0;
 if (activeSet >= SET_COUNT || activeSet < 0) activeSet = 0;
 let filter = data.filter || 'all';  // 'all', 'wrong', 'star'
-let sets = data.sets || Array.from({length: SET_COUNT}, Storage.defaultSetData);
-// 兼容旧数据：若 sets 少于配置套数则补齐
-while (sets.length < SET_COUNT) sets.push(Storage.defaultSetData());
-// 兼容旧数据：补充缺失字段
-sets.forEach(s => {
-  if (!s.expandedTypes) s.expandedTypes = {};
-  if (!s.stars) s.stars = {};
-  if (!s.typeFilter) s.typeFilter = 'all';
-  if (!s.wrongBank) s.wrongBank = {};
-  if (!s.shortAnswerBank) s.shortAnswerBank = {};
-  if (s.streak === undefined) s.streak = 0;
-  if (s.bestStreak === undefined) s.bestStreak = 0;
-});
+let sets = _init.sets;
 let practiceSec = data.practiceSec || 0;
 let practiceTimer = setInterval(function(){
   practiceSec++;
@@ -485,13 +476,10 @@ let focusedOptIdx = -1; // ↑↓ navigation
 
 function activeSetData() { return sets[activeSet]; }
 
-// 判定一道题是否已"做完"（选择题判对/错、简答题已提交）
-function isAnswered(s, q) { const v = s.userAnswers[q.id]; return v === true || v === false || v === 'submitted'; }
-
-const TYPE_ORDER = Object.fromEntries(questionTypes.map((t, i) => [t.type, i]));
-// 简答类（提交即显示参考答案，不自动判对错）由 config.questionTypes[].shortLike 决定
-const SHORT_LIKE_TYPES = new Set(questionTypes.filter(t => t.shortLike).map(t => t.type));
-function isShortLike(t) { return SHORT_LIKE_TYPES.has(t); }
+// isAnswered / isShortLike / TYPE_ORDER 已挪到 js/03-state.js（QuizState）
+const TYPE_ORDER = QuizState.TYPE_ORDER;
+function isAnswered(s, q) { return QuizState.isAnswered(s, q); }
+function isShortLike(t) { return QuizState.isShortLike(t); }
 function getQuestionPool() {
   const indices = SETS[activeSet] || [];
   return indices.map(i => questions[i]).filter(Boolean).sort((a,b) => (TYPE_ORDER[a.type]||0) - (TYPE_ORDER[b.type]||0));

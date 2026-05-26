@@ -410,19 +410,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <script src="js/04-pool.js"></script>
 <script src="js/05-streak.js"></script>
 <script src="js/06-render.js"></script>
+<script src="js/07-actions.js"></script>
+<script src="js/08-tools.js"></script>
+<script src="js/09-keyboard.js"></script>
+<script src="js/10-init.js"></script>
 <script>
-// ═══════════ 内联脚本（逐步移入 js/ 模块，目前仅保留暂未抽取的逻辑） ═══════════
-
-// 以下常量由 js/02-storage.js 挂到 window 上，此处通过全局作用域直接引用：
-//   CONFIG, questionTypes, questions, MILESTONE_MSGS, BREAK_MSGS,
-//   STREAK_MILESTONES, STREAK_MILESTONE_EMOJI, SET_COUNT, SET_SIZE,
-//   STORAGE_KEY, SETS
-// 以下函数由 js/02-storage.js 挂到 window.Storage：
-//   Storage.defaultSetData(), Storage.loadData()
-// 以下函数由 js/01-utils.js 挂到 window：
-//   $, pick, playBeep, TYPE_LABELS, TYPE_CLASS
-
-// saveData 防抖：高频调用时合并写入（批次 3 移入 storage 模块）
+// ═══════════ 内联脚本 — 剩余的全局状态 + 模块间薄包装 ═══════════
+//
+// 模块分工（按加载顺序）：
+//   js/01-utils.js     — $, pick, playBeep, TYPE_LABELS, TYPE_CLASS
+//   js/02-storage.js   — CONFIG / questionTypes / questions / SETS / Storage
+//   js/03-state.js     — QuizState (isAnswered, isShortLike, TYPE_ORDER, initSets)
+//   js/04-pool.js      — Pool (getQuestionPool, filteredQuestions)
+//   js/05-streak.js    — Streak (setBadge, checkMilestone, showBreak, updateProgress)
+//   js/06-render.js    — Render (sidebar, stats, answerBox, toggleTypeExpand, jumpToQ)
+//   js/07-actions.js   — Actions (checkAnswer, toggleStar, switchSetTab, setFilter, ...)
+//   js/08-tools.js     — Tools (showWrongAnalysis, doResetProgress, exportShortAnswers, ...)
+//   js/09-keyboard.js  — Keyboard.handleKey
+//   js/10-init.js      — Init (setupSetTabs, initTheme)
+//
+// 本内联脚本仅保留：
+//   1. 全局 let 状态变量（activeSet / filter / sets / practiceSec / focusedOptIdx 等）
+//   2. saveData 防抖写入（依赖本地 let 变量）
+//   3. _ctx() 上下文工厂 —— 将本地变量打包传给各模块
+//   4. renderQuestion（因与本地变量耦合太深，暂存内联）
+//   5. 与本地变量直接交互的工具函数（toggleTheme / toggleRandom / toggleAutoReveal / onSearch 等）
+//   6. HTML onclick 的薄包装函数（每个函数 < 5 行，只做参数转发）
+//   7. 首次渲染入口
 let _saveTimer = null;
 function saveData() {
   if (_saveTimer) clearTimeout(_saveTimer);
@@ -450,15 +464,8 @@ function toggleTheme() {
   $('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
   localStorage.setItem('dataviz_theme', next);
 }
-// 初始化主题
-(function() {
-  const saved = localStorage.getItem('dataviz_theme');
-  if (saved === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    const el = $('themeToggle');
-    if (el) el.textContent = '☀️';
-  }
-})();
+// 初始化主题 — 薄包装 → Init
+Init.initTheme();
 
 // ========== 应用状态 ==========
 // 状态初始化逻辑已挪到 js/03-state.js（QuizState.initSets）
@@ -479,13 +486,29 @@ let focusedOptIdx = -1; // ↑↓ navigation
 
 function activeSetData() { return sets[activeSet]; }
 
-// isAnswered / isShortLike / TYPE_ORDER 已挪到 js/03-state.js（QuizState）
+// 类型判断 / 题库筛选薄包装
 const TYPE_ORDER = QuizState.TYPE_ORDER;
 function isAnswered(s, q) { return QuizState.isAnswered(s, q); }
 function isShortLike(t) { return QuizState.isShortLike(t); }
-// getQuestionPool / filteredQuestions 已挪到 js/04-pool.js
 function getQuestionPool() { return Pool.getQuestionPool(activeSet); }
 function filteredQuestions() { return Pool.filteredQuestions(activeSet, filter, randomMode, activeSetData); }
+
+// ═══ _ctx() — 将本地 let 变量打包传给各模块 ═══
+function _ctx() {
+  return {
+    activeSet: activeSet,
+    sets: sets,
+    activeSetData: activeSetData,
+    getQuestionPool: getQuestionPool,
+    filteredQuestions: filteredQuestions,
+    saveData: saveData,
+    renderSidebar: renderSidebar,
+    renderQuestion: renderQuestion,
+    focusedOptIdx: focusedOptIdx,
+    setActiveSet: function (v) { activeSet = v; },
+    setFilter: function (v) { filter = v; }
+  };
+}
 
 // ========== 渲染侧边栏 ==========
 // renderSidebar / updateStats 已挪到 js/06-render.js
@@ -592,81 +615,16 @@ function onSearch(val) {
   }
 }
 
-function showWrongAnalysis() {
-  const s = activeSetData();
-  const pool = getQuestionPool();
-  const wrong = pool.filter(q => s.userAnswers[q.id] === false);
-  if (wrong.length === 0) { alert('当前题组没有错题，太棒了！'); return; }
-  const byType = {};
-  wrong.forEach(q => {
-    const label = q.type==='single'?'单选题':q.type==='multi'?'多选题':q.type==='fill'?'填空题':'简答题';
-    if (!byType[label]) byType[label] = [];
-    byType[label].push(q);
-  });
-  let waHtml = '<p style="color:var(--text-muted);margin-bottom:12px">共 '+wrong.length+' 道错题</p>';
-  for (const [label, qs] of Object.entries(byType)) {
-    waHtml += '<div class="wa-mod"><div class="wa-mod-name" onclick="this.nextElementSibling.classList.toggle(\'open\')">'+label+' ('+qs.length+'题) \u25b8</div>';
-    waHtml += '<div class="wa-qlist">';
-    qs.forEach(q => {
-      waHtml += '<span class="wa-qdot" onclick="document.getElementById(\'wrongModal\').classList.remove(\'show\');jumpToQ('+q.id+')">#'+q.id+'</span>';
-    });
-    waHtml += '</div></div>';
-  }
-  $('wrongAnalysis').innerHTML = waHtml;
-  $('wrongModal').classList.add('show');
-}
+function showWrongAnalysis() { Tools.showWrongAnalysis(_ctx()); }
 
-function showResetModal() {
-  $('resetModal').classList.add('show');
-  $('resetConfirmInput').value = '';
-  $('resetConfirmBtn').disabled = true;
-  $('resetConfirmBtn').style.opacity = '.4';
-}
+function showResetModal() { Tools.showResetModal(); }
 
-function doResetProgress() {
-  const s = activeSetData();
-  const bank = s.wrongBank; // 保留错题库
-  s.userAnswers = {};
-  s.revealedIds = {};
-  s.currentIdx = 0;
-  s.typeFilter = 'all';
-  s.stars = {};
-  s.expandedTypes = {};
-  s.wrongBank = bank;
-  s.streak = 0; $('streakNum').textContent = 0;
-  filter = 'all';
-  saveData();
-  renderSidebar();
-  renderQuestion();
-}
+function doResetProgress() { Tools.doResetProgress(_ctx()); }
 
-// ========== 套题/筛选切换 ==========
-function switchSetTab(idx) {
-  activeSet = idx;
-  filter = 'all';
-  saveData();
-  renderSidebar();
-  renderQuestion();
-}
-
-function setFilter(f) {
-  filter = f;
-  activeSetData().typeFilter = 'all';
-  activeSetData().currentIdx = 0;
-  saveData();
-  renderSidebar();
-  renderQuestion();
-}
-
-function setTypeFilter(t) {
-  const s = activeSetData();
-  filter = 'all';
-  if (s.typeFilter === t) { s.typeFilter = 'all'; }
-  else { s.typeFilter = t; s.currentIdx = 0; }
-  saveData();
-  renderSidebar();
-  renderQuestion();
-}
+// ========== 套题/筛选切换 — 薄包装 → Actions ==========
+function switchSetTab(idx) { Actions.switchSetTab(_ctx(), idx); }
+function setFilter(f) { Actions.setFilter(_ctx(), f); }
+function setTypeFilter(t) { Actions.setTypeFilter(_ctx(), t); }
 
 // ========== 连对里程碑（已挪到 js/05-streak.js） ==========
 function setStreakBadge(streak, fire) { Streak.setBadge(streak, fire); }
@@ -675,92 +633,15 @@ function showStreakBreak(s, best) { Streak.showBreak(s, best); }
 function updateStreakProgress(streak) { Streak.updateProgress(streak); }
 
 // ========== 转为简答题 ==========
-function toggleShortAnswer() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  if (s.shortAnswerBank[q.id]) {
-    if (!confirm('该题已转为简答题，确定删除？')) return;
-    delete s.shortAnswerBank[q.id];
-    saveData();
-    renderQuestion();
-    return;
-  }
-  let saQ = q.q;
-  let saA = '';
-  if (q.type === 'single' || q.type === 'multi') {
-    saQ = saQ.replace(/[（(]\s*[）)]\s*$/, '').trim();
-    if (!saQ.startsWith('简述')) saQ = '简述' + saQ;
-    saA = q.ans.map(i => q.opts[i].substring(3)).join('；');
-    if (q.exp) saA += '\\n' + q.exp;
-  } else if (q.type === 'fill') {
-    saA = q.ansText.replace(/\\|/g, '、');
-    if (q.exp) saA += '\\n' + q.exp;
-  } else if (q.type === 'short') {
-    saA = q.ansText;
-  }
-  const newQ = prompt('简答题题目（可编辑）：', saQ);
-  if (!newQ) return;
-  const newA = prompt('简答题答案（可编辑）：', saA);
-  if (!newA) return;
-  s.shortAnswerBank[q.id] = { q: newQ.trim(), a: newA.trim() };
-  saveData();
-  renderQuestion();
-}
+function toggleShortAnswer() { Tools.toggleShortAnswer(_ctx()); }
 
-function exportShortAnswers() {
-  const all = {};
-  sets.forEach(setData => {
-    Object.entries(setData.shortAnswerBank || {}).forEach(([qid, sa]) => {
-      if (!all[qid]) all[qid] = sa;
-    });
-  });
-  const entries = Object.values(all);
-  if (entries.length === 0) { alert('还没有转为简答题的题目。\n\n在做题时点击题目旁的"转简答"按钮来收集。'); return; }
-  let md = '# ' + CONFIG.subjectName + '简答题大全\n\n> 共 ' + entries.length + ' 道简答题，从选择题/填空题转换而来\n\n---\n\n';
-  entries.forEach((sa, i) => {
-    md += '## ' + (i+1) + '. ' + sa.q + '\n\n';
-    md += '**答案：**\n\n' + sa.a.replace(/\n/g, '\n\n') + '\n\n---\n\n';
-  });
-  const blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = CONFIG.subjectName + '简答题大全.md';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+function exportShortAnswers() { Tools.exportShortAnswers(_ctx()); }
 
 // ========== 音效反馈（已挪到 js/01-utils.js） ==========
 
-// ========== ⭐ 标记 ==========
-function toggleStar() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  s.stars[q.id] = !s.stars[q.id];
-  saveData();
-  renderQuestion();
-}
-
-// ===== 重做本题 — 清空当前题的作答状态，允许重新选择 =====
-function redoCurrentQuestion() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  // 未作答则无需重置
-  if (s.userAnswers[q.id] === undefined) return;
-  if (!confirm('确认重做本题吗？将清空本题的作答与判定结果。')) return;
-  delete s.userAnswers[q.id];
-  delete s.revealedIds[q.id];
-  if (s._fillFeedback) delete s._fillFeedback[q.id];
-  focusedOptIdx = -1;
-  saveData();
-  renderQuestion();
-}
+// ⭐ 标记 / ↻ 重做 — 薄包装 → Actions
+function toggleStar() { Actions.toggleStar(_ctx()); }
+function redoCurrentQuestion() { Actions.redoCurrentQuestion(_ctx()); }
 
 // ===== renderQuestion — 渲染当前题目到主区域 =====
 // 流程: 获取筛选列表 → 检查空状态 → 构建选项DOM → 设置正确/错误/提交状态 → 显示答案区/结果消息 → 填空逐词反馈 → 更新侧边栏
@@ -915,116 +796,16 @@ function renderQuestion() {
   renderSidebar();
 }
 
-function checkAnswer() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  if (isAnswered(s, q)) return;
-
-  let isCorrect = null;
-  let fillFeedback = null; // 填空题逐词反馈
-  if (q.type === 'single' || q.type === 'multi') {
-    const selected = s.userAnswers[q.id] || [];
-    if (!Array.isArray(selected) || selected.length === 0) { alert('请先选择答案'); return; }
-    const corr = new Set(q.ans), sel = new Set(selected);
-    isCorrect = corr.size === sel.size && [...corr].every(v => sel.has(v));
-  } else if (q.type === 'fill') {
-    const input = $('fillInput').value.trim();
-    if (!input) { alert('请输入你的答案'); return; }
-    s.userAnswers[q.id] = input;
-    // 逐词检查并生成反馈
-    const normalized = input.replace(/\s+/g,'').toLowerCase();
-    const keywords = q.ansText.split('|');
-    const hits = keywords.map(kw => {
-      const nkw = kw.trim().replace(/\s+/g,'').toLowerCase();
-      const ok = normalized.includes(nkw);
-      if (ok) return { kw: kw.trim(), ok: true };
-      // 搜索输入中与关键词最接近的子串
-      let hint = '未找到';
-      const minOverlap = Math.max(2, Math.floor(nkw.length * 0.5));
-      for (let i = 0; i <= normalized.length - minOverlap; i++) {
-        const sub = normalized.substring(i, i + nkw.length);
-        let match = 0;
-        for (let j = 0; j < Math.min(sub.length, nkw.length); j++) {
-          if (sub[j] === nkw[j]) match++;
-        }
-        if (match >= minOverlap) {
-          hint = '接近：' + sub + ' → 差' + (nkw.length - match) + '字';
-          break;
-        }
-      }
-      return { kw: kw.trim(), ok: false, hint: hint };
-    });
-    isCorrect = hits.every(h => h.ok);
-    fillFeedback = hits;
-  } else if (isShortLike(q.type)) {
-    const input = $('shortInput').value.trim();
-    if (!input) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
-    s.userAnswers[q.id] = 'submitted';
-    showAnswerBox(q);
-    saveData();
-    renderQuestion();
-    return;
-  }
-
-  s.userAnswers[q.id] = isCorrect;
-  // 连对逻辑 + 答错1次自动显示答案
-  if (isCorrect && !isShortLike(q.type)) {
-    s.streak=(s.streak||0)+1;if(s.streak>(s.bestStreak||0))s.bestStreak=s.streak;
-    setStreakBadge(s.streak,'🔥');
-    checkMilestone(s.streak);
-    playBeep(800, 0.08, 'sine'); setTimeout(function(){ playBeep(1200, 0.1, 'sine'); }, 80);
-  } else if (!isCorrect && !isShortLike(q.type)) {
-    s.wrongBank[q.id]=true;
-    if(s.streak>0)showStreakBreak(s.streak,s.bestStreak||s.streak);
-    s.streak=0;
-    setStreakBadge(0,'🧯');
-    s._wrongRetry=(s._wrongRetry||{});s._wrongRetry[q.id]=(s._wrongRetry[q.id]||0)+1;
-    playBeep(300, 0.12, 'triangle');
-    if(s._wrongRetry[q.id]>=1)showAnswerBox(q);
-  } else { if(s._wrongRetry)s._wrongRetry[q.id]=0; }
-  if (isCorrect) showAnswerBox(q);
-  // 填空答错：显示逐词反馈(关键词匹配状态)，不暴露完整答案
-  if (!isCorrect && q.type === 'fill' && fillFeedback) {
-    const ab = $('answerBox');
-    $('ansContent').textContent = '关键词匹配：'+fillFeedback.map(h=> (h.ok?'✓':'✗')+h.kw).join('  ');
-    $('ansExplanation').textContent = '';
-    ab.classList.add('show');
-    activeSetData().revealedIds[q.id] = true;
-  }
-  // 存储填空反馈供 renderQuestion 使用
-  if (q.type === 'fill' && fillFeedback) s._fillFeedback = fillFeedback;
-  saveData();
-  renderQuestion();
-}
-
-function toggleAnswer() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  const q = list[s.currentIdx];
-  if (!q) return;
-  if ($('answerBox').classList.contains('show')) {
-    $('answerBox').classList.remove('show');
-    s.revealedIds[q.id] = false;
-  } else {
-    showAnswerBox(q);
-  }
-  saveData();
-}
+// checkAnswer / toggleAnswer 已挪到 js/07-actions.js
+function checkAnswer() { Actions.checkAnswer(_ctx()); }
+function toggleAnswer() { Actions.toggleAnswer(_ctx()); }
 
 // showAnswerBox 已挪到 js/06-render.js
 function showAnswerBox(q) { Render.answerBox({ activeSetData: activeSetData }, q); }
 
-function prevQuestion() {
-  const s = activeSetData();
-  if (s.currentIdx > 0) { s.currentIdx--; saveData(); renderQuestion(); }
-}
-function nextQuestion() {
-  const s = activeSetData();
-  const list = filteredQuestions();
-  if (s.currentIdx < list.length-1) { s.currentIdx++; saveData(); renderQuestion(); }
-}
+// prev/next 导航 — 薄包装 → Actions
+function prevQuestion() { Actions.prevQuestion(_ctx()); }
+function nextQuestion() { Actions.nextQuestion(_ctx()); }
 
 // ═══════════ SECTION: 全局事件 ═══════════
 document.addEventListener('click', function(e) {
@@ -1033,98 +814,15 @@ document.addEventListener('click', function(e) {
 });
 
 // ═══════════ SECTION: 键盘快捷键 ═══════════
-document.addEventListener('keydown', function(e) {
-  if (e.target.tagName === 'TEXTAREA') return;
-  if (e.key === 'ArrowLeft') { prevQuestion(); return; }
-  if (e.key === 'ArrowRight') { nextQuestion(); return; }
-  if (e.key === 'Enter' && e.target.tagName !== 'INPUT') {
-    const s = activeSetData();
-    const list = filteredQuestions();
-    const q = list[s.currentIdx];
-    if (q && (q.type === 'single' || q.type === 'multi') && focusedOptIdx >= 0) {
-      // 已判定（对/错）则锁定，Enter 走查看答案逻辑
-      if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) {
-        checkAnswer();
-        return;
-      }
-      const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-      // If single-choice and focused option already selected → check answer
-      if (q.type === 'single' && cur.length === 1 && cur[0] === focusedOptIdx) {
-        checkAnswer();
-      } else if (q.type === 'multi' && cur.includes(focusedOptIdx) && cur.length > 0) {
-        // Multi-choice: pressing already-selected option toggles it off
-        e.preventDefault();
-        s.userAnswers[q.id] = cur.filter(v => v !== focusedOptIdx);
-        if (s.userAnswers[q.id].length === 0) focusedOptIdx = -1;
-        saveData();
-        renderQuestion();
-      } else {
-        e.preventDefault();
-        if (q.type === 'single') s.userAnswers[q.id] = [focusedOptIdx];
-        else s.userAnswers[q.id] = [...cur, focusedOptIdx];
-        saveData();
-        renderQuestion();
-      }
-      // Don't return — keep focus for ↑↓ navigation
-    } else {
-      checkAnswer();
-    }
-    return;
-  }
-  if (e.key === ' ') { e.preventDefault(); toggleAnswer(); return; }
-  // ↑↓ 选项导航
-  if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && $('qOptions').style.display !== 'none') {
-    e.preventDefault();
-    const opts = document.querySelectorAll('#qOptions .opt');
-    if (opts.length === 0) return;
-    opts[focusedOptIdx].classList.remove('focused');
-    if (e.key === 'ArrowUp') focusedOptIdx = Math.max(0, focusedOptIdx - 1);
-    else focusedOptIdx = Math.min(opts.length - 1, focusedOptIdx + 1);
-    opts[focusedOptIdx].classList.add('focused');
-    opts[focusedOptIdx].scrollIntoView({block:'nearest'});
-    return;
-  }
-  // 1-4 对应 ABCD
-  if (['1','2','3','4'].includes(e.key)) {
-    const s = activeSetData();
-    const list = filteredQuestions();
-    const q = list[s.currentIdx];
-    if (q && (q.type === 'single' || q.type === 'multi')) {
-      // 已判定（对/错）则锁定，不允许通过数字键更改答案
-      if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) return;
-      e.preventDefault();
-      const idx = parseInt(e.key) - 1;
-      if (idx < q.opts.length) {
-                if (q.type === 'single') {
-          const cur1 = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-          if (cur1.length === 1 && cur1[0] === idx) s.userAnswers[q.id] = [];
-          else s.userAnswers[q.id] = [idx];
-        } else {
-          const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-          if (cur.includes(idx)) { s.userAnswers[q.id] = cur.filter(v => v !== idx); }
-          else { s.userAnswers[q.id] = [...cur, idx]; }
-        }
-        saveData();
-        renderQuestion();
-      }
-    }
-  }
-});
+document.addEventListener("keydown", function(e) { Keyboard.handleKey(e, _ctx()); });
 
 // ═══════════ SECTION: 初始化 ═══════════
-// 从 CONFIG 注入标题、题组数、套题按钮
+// 标题/套题/主题初始化 — 薄包装 → Init
 document.title = CONFIG.pageTitle;
 { const el = $('sidebarTitle'); if (el) el.textContent = CONFIG.sidebarTitle; }
 { const el = $('mobileTitle');  if (el) el.textContent = CONFIG.mobileTitle; }
 { const el = $('setSizeLabel'); if (el) el.textContent = SET_SIZE; }
-{
-  const tabs = $('setTabs');
-  if (tabs) {
-    tabs.innerHTML = CONFIG.setNames.map((name, i) =>
-      '<button class="set-tab'+(i===activeSet?' active':'')+'" onclick="switchSetTab('+i+')">'+name+'</button>'
-    ).join('');
-  }
-}
+Init.setupSetTabs(activeSet, CONFIG.setNames);
 renderSidebar();
 renderQuestion();
 </script>

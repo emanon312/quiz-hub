@@ -28,12 +28,9 @@
         var cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
         if (q.type === 'single' && cur.length === 1 && cur[0] === ctx.focusedOptIdx) {
           Actions.checkAnswer(ctx);
-        } else if (q.type === 'multi' && cur.indexOf(ctx.focusedOptIdx) !== -1 && cur.length > 0) {
-          e.preventDefault();
-          s.userAnswers[q.id] = cur.filter(function (v) { return v !== ctx.focusedOptIdx; });
-          if (s.userAnswers[q.id].length === 0) ctx.setFocusedOptIdx(-1);
-          ctx.saveData();
-          ctx.renderQuestion();
+        } else if (q.type === 'multi' && cur.indexOf(ctx.focusedOptIdx) !== -1) {
+          // 多选：Enter 在已选选项上 → 提交答案（不再切换取消）
+          Actions.checkAnswer(ctx);
         } else {
           e.preventDefault();
           if (q.type === 'single') s.userAnswers[q.id] = [ctx.focusedOptIdx];
@@ -55,8 +52,21 @@
       e.preventDefault();
       var opts = document.querySelectorAll('#qOptions .opt');
       if (opts.length === 0) return;
-      opts[ctx.focusedOptIdx].classList.remove('focused');
-      var newIdx = ctx.focusedOptIdx;
+      var oldIdx = ctx.focusedOptIdx;
+      // 多选初始焦点：上键从最顶已选开始，下键从最底已选开始
+      if (oldIdx < 0) {
+        var s3 = ctx.activeSetData();
+        var list3 = ctx.filteredQuestions();
+        var q3 = list3[s3.currentIdx];
+        if (q3 && q3.type === 'multi') {
+          var sel = (s3.userAnswers[q3.id] && Array.isArray(s3.userAnswers[q3.id])) ? s3.userAnswers[q3.id] : [];
+          oldIdx = e.key === 'ArrowUp' ? (sel.length > 0 ? sel[0] : 0) : (sel.length > 0 ? sel[sel.length - 1] : opts.length - 1);
+        } else {
+          oldIdx = 0;
+        }
+      }
+      opts[oldIdx].classList.remove('focused');
+      var newIdx = oldIdx;
       if (e.key === 'ArrowUp') newIdx = Math.max(0, newIdx - 1);
       else newIdx = Math.min(opts.length - 1, newIdx + 1);
       ctx.setFocusedOptIdx(newIdx);

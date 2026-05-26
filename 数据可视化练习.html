@@ -670,12 +670,18 @@ function renderQuestion() {
   if (s.currentIdx >= list.length) s.currentIdx = 0;
   const q = list[s.currentIdx];
 
-    // Keep focusedOptIdx at last selected option, or first option
+    // 选项焦点初始化：单选指向已选；多选不预设，由方向键首次决定起点
   if (q.type === 'single' || q.type === 'multi') {
     const curSel = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-    if (curSel.length > 0) focusedOptIdx = curSel[0];
-    else if (focusedOptIdx < 0 || focusedOptIdx >= q.opts.length) focusedOptIdx = 0;
-    else focusedOptIdx = Math.min(focusedOptIdx, q.opts.length - 1);
+    if (q.type === 'multi') {
+      focusedOptIdx = curSel.length > 0 ? -1 : 0;
+    } else if (curSel.length > 0) {
+      focusedOptIdx = curSel[0];
+    } else if (focusedOptIdx < 0 || focusedOptIdx >= q.opts.length) {
+      focusedOptIdx = 0;
+    } else {
+      focusedOptIdx = Math.min(focusedOptIdx, q.opts.length - 1);
+    }
   } else {
     focusedOptIdx = -1;
   }

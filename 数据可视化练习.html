@@ -75,6 +75,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .star-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:0 6px;color:#ccc;transition:.15s;line-height:1}
 .star-btn.starred{color:#f9a825}
 .star-btn:hover{color:#f9a825}
+.redo-btn{background:none;border:none;cursor:pointer;padding:4px 8px;color:#aaa;transition:.15s;font-size:14px;border-radius:4px;line-height:1}
+.redo-btn:hover{color:#26a69a;background:rgba(38,166,154,.1)}
 .sa-btn{background:none;border:none;cursor:pointer;padding:4px 8px;color:#aaa;transition:.15s;font-size:12px;border-radius:4px}
 .sa-btn:hover{color:#7c4dff;background:rgba(124,77,255,.1)}
 .sa-btn.saved{color:#7c4dff}
@@ -299,6 +301,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
       <span class="q-type single" id="qType">单选题</span>
       <span class="q-origin" id="qOrigin" title="来自语雀知识库的考试原题">⭐ 原题</span>
       <span style="flex:1"></span>
+      <button class="redo-btn" id="redoBtn" onclick="redoCurrentQuestion()" title="重做本题（重置本题作答）">↻ 重做</button>
       <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">☆</button>
       <button class="sa-btn" id="saBtn" onclick="toggleShortAnswer()" title="转为简答题">📝 转简答</button>
     </div>
@@ -994,6 +997,23 @@ function toggleStar() {
   renderQuestion();
 }
 
+// ===== 重做本题 — 清空当前题的作答状态，允许重新选择 =====
+function redoCurrentQuestion() {
+  const s = activeSetData();
+  const list = filteredQuestions();
+  const q = list[s.currentIdx];
+  if (!q) return;
+  // 未作答则无需重置
+  if (s.userAnswers[q.id] === undefined) return;
+  if (!confirm('确认重做本题吗？将清空本题的作答与判定结果。')) return;
+  delete s.userAnswers[q.id];
+  delete s.revealedIds[q.id];
+  if (s._fillFeedback) delete s._fillFeedback[q.id];
+  focusedOptIdx = -1;
+  saveData();
+  renderQuestion();
+}
+
 // ===== renderQuestion — 渲染当前题目到主区域 =====
 // 流程: 获取筛选列表 → 检查空状态 → 构建选项DOM → 设置正确/错误/提交状态 → 显示答案区/结果消息 → 填空逐词反馈 → 更新侧边栏
 function renderQuestion() {
@@ -1079,6 +1099,8 @@ function renderQuestion() {
       div.setAttribute('data-opt-idx', i);
       div.addEventListener('click', function(e) {
         if (e.target.tagName === 'INPUT') return;
+        // 已判定（对/错）则锁定，不允许更改答案
+        if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) return;
         const inp = div.querySelector('input');
         if (inputType === 'radio') {
           inp.checked = true;
@@ -1291,6 +1313,11 @@ document.addEventListener('keydown', function(e) {
     const list = filteredQuestions();
     const q = list[s.currentIdx];
     if (q && (q.type === 'single' || q.type === 'multi') && focusedOptIdx >= 0) {
+      // 已判定（对/错）则锁定，Enter 走查看答案逻辑
+      if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) {
+        checkAnswer();
+        return;
+      }
       const cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
       // If single-choice and focused option already selected → check answer
       if (q.type === 'single' && cur.length === 1 && cur[0] === focusedOptIdx) {
@@ -1334,6 +1361,8 @@ document.addEventListener('keydown', function(e) {
     const list = filteredQuestions();
     const q = list[s.currentIdx];
     if (q && (q.type === 'single' || q.type === 'multi')) {
+      // 已判定（对/错）则锁定，不允许通过数字键更改答案
+      if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) return;
       e.preventDefault();
       const idx = parseInt(e.key) - 1;
       if (idx < q.opts.length) {

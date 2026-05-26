@@ -94,6 +94,11 @@
     });
     $('rpModules').innerHTML = modHtml;
     var ms = $('mobileStats'); if (ms) ms.textContent = gDone + '/' + SET_SIZE;
+    var accPct = allDone.length > 0 ? Math.round(right / allDone.length * 100) + '%' : '-';
+    var listPct = list.length > 0 ? Math.round(fDone / list.length * 100) + '%' : '0%';
+    var mbDone = $('mbDone'); if (mbDone) mbDone.textContent = gDone;
+    var mbAcc = $('mbAcc'); if (mbAcc) mbAcc.textContent = accPct;
+    var mbProgress = $('mbProgress'); if (mbProgress) mbProgress.textContent = listPct;
     ctx.saveData();
   }
 

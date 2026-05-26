@@ -315,6 +315,8 @@
       this.practiceSec = 0;
       var el = $('rpTimer');
       if (el) el.textContent = '00:00';
+      var mb = $('mbTimer');
+      if (mb) mb.textContent = '00:00';
       this.saveData();
     },
 
@@ -369,12 +371,18 @@
 
     _startPracticeTimer: function () {
       var self = this;
+      var formatTime = function (sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      };
       setInterval(function () {
         self.practiceSec++;
-        var m = Math.floor(self.practiceSec / 60);
-        var sec = self.practiceSec % 60;
+        var t = formatTime(self.practiceSec);
         var el = $('rpTimer');
-        if (el) el.textContent = String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        if (el) el.textContent = t;
+        var mb = $('mbTimer');
+        if (mb) mb.textContent = t;
       }, 1000);
     },
 
@@ -405,6 +413,8 @@
       });
 
       this._startPracticeTimer();
+      var t0 = String(Math.floor(this.practiceSec / 60)).padStart(2, '0') + ':' + String(this.practiceSec % 60).padStart(2, '0');
+      var mb = $('mbTimer'); if (mb) mb.textContent = t0;
       this.renderSidebar();
       this.renderQuestion();
     }

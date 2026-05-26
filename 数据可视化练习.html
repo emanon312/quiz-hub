@@ -227,14 +227,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
     <div class="shortcuts-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      快捷键 <span class="arrow">▶</span>
+      使用指南 <span class="arrow">▶</span>
     </div>
     <div class="shortcuts-body open">
-      <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上下题</span></div>
-      <div class="row"><span class="kbd">Enter</span><span class="label">检查/确认</span></div>
-      <div class="row"><span class="kbd">Space</span><span class="label">显示答案</span></div>
-      <div class="row"><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span><span class="label">选ABCD</span></div>
-      <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项切换</span></div>
+      <div style="color:#ccc;font-size:11px;margin:4px 0 4px;font-weight:600">⌨ 键盘快捷键</div>
+      <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上一题 / 下一题</span></div>
+      <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项焦点上下移</span></div>
+      <div class="row"><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span><span class="label">选 A/B/C/D</span></div>
+      <div class="row"><span class="kbd">Enter</span><span class="label">选中聚焦项 / 提交</span></div>
+      <div class="row"><span class="kbd">Enter</span><span style="font-size:10px;color:#888;margin-right:4px">×2</span><span class="label">单选：连按 2 次确认</span></div>
+      <div class="row"><span class="kbd">Space</span><span class="label">显示 / 收起答案</span></div>
+
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">📝 答题说明</div>
+      <div style="color:#999;line-height:1.6;font-size:11px">
+        • <b style="color:#bbb">单选</b>：1-4 或 ↑↓+Enter 选项；同键再按一次 = 确认<br>
+        • <b style="color:#bbb">多选</b>：1-4 反复切换，再按 Enter 提交判分<br>
+        • <b style="color:#bbb">填空</b>：输入后按 Enter 或点"检查"<br>
+        • <b style="color:#bbb">简答/作图/综合</b>：点"显示参考答案"即可（不判对错）
+      </div>
+
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">🎯 顶部工具</div>
+      <div style="color:#999;line-height:1.6;font-size:11px">
+        • <b style="color:#bbb">🔍 搜索</b>：按题干 / 选项关键词<br>
+        • <b style="color:#bbb">乱序</b>：当前列表随机排序<br>
+        • <b style="color:#bbb">显示答案</b>：开启后每题自动展开答案<br>
+        • <b style="color:#bbb">🌙 / ☀</b>：切换暗 / 亮主题<br>
+        • <b style="color:#bbb">⚙ 工具</b>：导出简答题 / 错题分析 / 重置
+      </div>
+
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">💡 小提示</div>
+      <div style="color:#999;line-height:1.6;font-size:11px">
+        • 进度自动保存到浏览器，关闭 / 刷新不会丢<br>
+        • 连对里程碑（1/3/5/10/20/30/50/100）会有彩蛋<br>
+        • 侧边栏题号点击可直接跳转；⭐ 收藏题目<br>
+        • 顶部胶囊可筛选 全部 / 错题 / 收藏 / 题型
+      </div>
     </div>
   </div>
 </nav>

@@ -31,7 +31,7 @@
         } else if (q.type === 'multi' && cur.indexOf(ctx.focusedOptIdx) !== -1 && cur.length > 0) {
           e.preventDefault();
           s.userAnswers[q.id] = cur.filter(function (v) { return v !== ctx.focusedOptIdx; });
-          if (s.userAnswers[q.id].length === 0) ctx.focusedOptIdx = -1;
+          if (s.userAnswers[q.id].length === 0) ctx.setFocusedOptIdx(-1);
           ctx.saveData();
           ctx.renderQuestion();
         } else {
@@ -56,8 +56,8 @@
       var opts = document.querySelectorAll('#qOptions .opt');
       if (opts.length === 0) return;
       opts[ctx.focusedOptIdx].classList.remove('focused');
-      if (e.key === 'ArrowUp') ctx.focusedOptIdx = Math.max(0, ctx.focusedOptIdx - 1);
-      else ctx.focusedOptIdx = Math.min(opts.length - 1, ctx.focusedOptIdx + 1);
+      if (e.key === 'ArrowUp') ctx.setFocusedOptIdx(Math.max(0, ctx.focusedOptIdx - 1));
+      else ctx.setFocusedOptIdx(Math.min(opts.length - 1, ctx.focusedOptIdx + 1));
       opts[ctx.focusedOptIdx].classList.add('focused');
       opts[ctx.focusedOptIdx].scrollIntoView({ block: 'nearest' });
       return;

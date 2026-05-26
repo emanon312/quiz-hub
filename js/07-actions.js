@@ -173,7 +173,7 @@
     delete s.userAnswers[q.id];
     delete s.revealedIds[q.id];
     if (s._fillFeedback) delete s._fillFeedback[q.id];
-    if (ctx.focusedOptIdx !== undefined) ctx.focusedOptIdx = -1;
+    if (ctx.focusedOptIdx !== undefined) ctx.setFocusedOptIdx(-1);
     ctx.saveData();
     ctx.renderQuestion();
   }

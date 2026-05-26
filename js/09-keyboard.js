@@ -56,10 +56,12 @@
       var opts = document.querySelectorAll('#qOptions .opt');
       if (opts.length === 0) return;
       opts[ctx.focusedOptIdx].classList.remove('focused');
-      if (e.key === 'ArrowUp') ctx.setFocusedOptIdx(Math.max(0, ctx.focusedOptIdx - 1));
-      else ctx.setFocusedOptIdx(Math.min(opts.length - 1, ctx.focusedOptIdx + 1));
-      opts[ctx.focusedOptIdx].classList.add('focused');
-      opts[ctx.focusedOptIdx].scrollIntoView({ block: 'nearest' });
+      var newIdx = ctx.focusedOptIdx;
+      if (e.key === 'ArrowUp') newIdx = Math.max(0, newIdx - 1);
+      else newIdx = Math.min(opts.length - 1, newIdx + 1);
+      ctx.setFocusedOptIdx(newIdx);
+      opts[newIdx].classList.add('focused');
+      opts[newIdx].scrollIntoView({ block: 'nearest' });
       return;
     }
 

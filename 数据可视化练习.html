@@ -407,6 +407,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <script src="js/01-utils.js"></script>
 <script src="js/02-storage.js"></script>
 <script src="js/03-state.js"></script>
+<script src="js/04-pool.js"></script>
 <script>
 // ═══════════ 内联脚本（逐步移入 js/ 模块，目前仅保留暂未抽取的逻辑） ═══════════
 
@@ -480,27 +481,9 @@ function activeSetData() { return sets[activeSet]; }
 const TYPE_ORDER = QuizState.TYPE_ORDER;
 function isAnswered(s, q) { return QuizState.isAnswered(s, q); }
 function isShortLike(t) { return QuizState.isShortLike(t); }
-function getQuestionPool() {
-  const indices = SETS[activeSet] || [];
-  return indices.map(i => questions[i]).filter(Boolean).sort((a,b) => (TYPE_ORDER[a.type]||0) - (TYPE_ORDER[b.type]||0));
-}
-
-function filteredQuestions() {
-  const s = activeSetData();
-  let pool = getQuestionPool();
-  // Type filter
-  if (s.typeFilter !== 'all') pool = pool.filter(q => q.type === s.typeFilter);
-  // Wrong/star filter
-  if (filter === 'wrong') pool = pool.filter(q => s.wrongBank[q.id]);
-  if (filter === 'star') pool = pool.filter(q => s.stars[q.id]);
-  if (randomMode && pool.length > 1) {
-    const curQ = pool[activeSetData().currentIdx];
-    for (let i = pool.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
-    const newIdx = curQ ? pool.findIndex(q=>q.id===curQ.id) : 0;
-    activeSetData().currentIdx = Math.max(0, newIdx);
-  }
-  return pool;
-}
+// getQuestionPool / filteredQuestions 已挪到 js/04-pool.js
+function getQuestionPool() { return Pool.getQuestionPool(activeSet); }
+function filteredQuestions() { return Pool.filteredQuestions(activeSet, filter, randomMode, activeSetData); }
 
 // ========== 渲染侧边栏 ==========
 function renderSidebar() {

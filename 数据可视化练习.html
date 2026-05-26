@@ -493,7 +493,7 @@ const TYPE_ORDER = QuizState.TYPE_ORDER;
 function isAnswered(s, q) { return QuizState.isAnswered(s, q); }
 function isShortLike(t) { return QuizState.isShortLike(t); }
 function getQuestionPool() { return Pool.getQuestionPool(activeSet); }
-function filteredQuestions() { return Pool.filteredQuestions(activeSet, filter, randomMode, activeSetData); }
+function filteredQuestions() { return Pool.filteredQuestions(activeSet, filter, randomMode, activeSetData, searchQuery); }
 
 // ═══ _ctx() — 将本地 let 变量打包传给各模块 ═══
 function _ctx() {
@@ -517,7 +517,7 @@ function _ctx() {
 // renderSidebar / updateStats 已挪到 js/06-render.js
 function renderSidebar() {
   Render.sidebar({
-    activeSet: activeSet, filter: filter, sets: sets,
+    activeSet: activeSet, filter: filter, searchQuery: searchQuery, sets: sets,
     activeSetData: activeSetData, getQuestionPool: getQuestionPool,
     filteredQuestions: filteredQuestions, saveData: saveData
   });
@@ -548,6 +548,7 @@ function jumpToQ(qid) {
 let randomMode = false;
 function toggleRandom() {
   randomMode = !randomMode;
+  Pool.invalidateShuffle();
   $('randomChip').classList.toggle('random-on', randomMode);
   $('randomChip').style.background = randomMode ? '#fff3e0' : '';
   $('randomChip').style.color = randomMode ? '#e65100' : '';
@@ -596,21 +597,10 @@ function toggleMobileSidebar() {
 let searchQuery = '';
 function onSearch(val) {
   searchQuery = val.trim().toLowerCase();
+  activeSetData().currentIdx = 0;
+  Pool.invalidateShuffle();
   renderSidebar();
-  if (searchQuery) {
-    // 高亮匹配的题号格
-    const pool = getQuestionPool();
-    const matched = new Set();
-    pool.forEach(q => {
-      if (q.q.toLowerCase().includes(searchQuery)) matched.add(q.id);
-      else if (q.opts && q.opts.some(o => o.toLowerCase().includes(searchQuery))) matched.add(q.id);
-    });
-    document.querySelectorAll('.qnum-dot').forEach(dot => {
-      const qid = parseInt(dot.getAttribute('data-qid'));
-      if (!matched.has(qid)) dot.style.opacity = '0.25';
-      else dot.classList.add('search-hit');
-    });
-  }
+  renderQuestion();
 }
 
 function showWrongAnalysis() { Tools.showWrongAnalysis(_ctx()); }
@@ -647,7 +637,7 @@ function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (list.length === 0) {
-    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : filter==='origin' ? '当前题组没有原题' : '暂无题目';
+    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : filter==='origin' ? '当前题组没有原题' : searchQuery ? '没有匹配「'+searchQuery+'」的题目' : '暂无题目';
     $('qOptions').style.display = 'none';
     $('fillArea').style.display = 'none';
     $('shortArea').style.display = 'none';

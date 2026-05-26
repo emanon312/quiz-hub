@@ -22,6 +22,7 @@
     if (ctx.filter === 'wrong') pool = pool.filter(function (q) { return s.wrongBank[q.id]; });
     else if (ctx.filter === 'star') pool = pool.filter(function (q) { return s.stars[q.id]; });
     else if (ctx.filter === 'origin') pool = pool.filter(function (q) { return q.yq; });
+    if (ctx.searchQuery) pool = pool.filter(function (q) { return window.Pool.matchesSearch(q, ctx.searchQuery); });
     var curQ = ctx.filteredQuestions()[s.currentIdx];
     var nav = $('moduleNav');
     var eid = 'qt_';

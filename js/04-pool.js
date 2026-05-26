@@ -25,9 +25,10 @@
     // 题型筛选
     if (s.typeFilter !== 'all') pool = pool.filter(function (q) { return q.type === s.typeFilter; });
 
-    // 错题 / 收藏筛选
+    // 错题 / 收藏 / 原题筛选
     if (filter === 'wrong') pool = pool.filter(function (q) { return s.wrongBank[q.id]; });
     if (filter === 'star') pool = pool.filter(function (q) { return s.stars[q.id]; });
+    if (filter === 'origin') pool = pool.filter(function (q) { return q.yq; });
 
     // 乱序模式
     if (randomMode && pool.length > 1) {

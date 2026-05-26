@@ -21,6 +21,7 @@
     // 应用错题/收藏筛选
     if (ctx.filter === 'wrong') pool = pool.filter(function (q) { return s.wrongBank[q.id]; });
     else if (ctx.filter === 'star') pool = pool.filter(function (q) { return s.stars[q.id]; });
+    else if (ctx.filter === 'origin') pool = pool.filter(function (q) { return q.yq; });
     var curQ = ctx.filteredQuestions()[s.currentIdx];
     var nav = $('moduleNav');
     var eid = 'qt_';
@@ -60,6 +61,9 @@
     fw.classList.toggle('active', ctx.filter === 'wrong');
     if (ctx.filter === 'wrong') fw.classList.add('wrong-mode'); else fw.classList.remove('wrong-mode');
     $('filterStar').classList.toggle('active', ctx.filter === 'star');
+    var fo = $('filterOrigin');
+    fo.classList.toggle('active', ctx.filter === 'origin');
+    if (ctx.filter === 'origin') fo.classList.add('origin-mode'); else fo.classList.remove('origin-mode');
 
     updateStats(ctx);
   }

@@ -84,6 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-chip{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid #ddd;background:var(--card-bg);color:#666;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
+.filter-chip.origin-mode{background:#FFF8E1;color:#B7791F;border-color:#FFE082}
 .tools-dropdown.open .tools-menu{display:block!important}
 .tools-item{display:block;width:100%;text-align:left;padding:6px 14px;border:none;background:none;color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .tools-item:hover{background:var(--bg-page)}
@@ -225,6 +226,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
       <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
       <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
       <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
+      <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">📋 仅原题</button>
     </div>
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
@@ -650,7 +652,7 @@ function renderQuestion() {
   const s = activeSetData();
   const list = filteredQuestions();
   if (list.length === 0) {
-    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : '暂无题目';
+    const msg = filter==='wrong' ? '历史错题库为空，太棒了！' : filter==='star' ? '没有已标记的题目' : filter==='origin' ? '当前题组没有原题' : '暂无题目';
     $('qOptions').style.display = 'none';
     $('fillArea').style.display = 'none';
     $('shortArea').style.display = 'none';

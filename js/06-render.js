@@ -130,14 +130,9 @@
     }
   }
 
-  // ═══ 跳转到指定题号 ═══
+  // ═══ 跳转到指定题号（保留当前筛选） ═══
   function jumpToQ(ctx, qid) {
     var s = ctx.activeSetData();
-    var pool = ctx.getQuestionPool();
-    var q = pool.find(function (x) { return x.id === qid; });
-    if (!q) return;
-    ctx.setFilter('all');
-    s.typeFilter = 'all';
     var list = ctx.filteredQuestions();
     var idx = list.findIndex(function (x) { return x.id === qid; });
     if (idx >= 0) {

@@ -531,16 +531,8 @@ function toggleTypeExpand(type, btn) { Render.toggleTypeExpand({ activeSetData: 
 
 function jumpToQ(qid) {
   const s = activeSetData();
-  const pool = getQuestionPool();
-  const q = pool.find(q => q.id === qid);
-  if (!q) return;
-  // Switch to all filter and all types
-  filter = 'all';
-  s.typeFilter = 'all';
-  // Find index in full pool
+  // 在当前筛选列表内查找，保留 filter 和 typeFilter
   const list = filteredQuestions();
-  // But first, we need filter to be 'all' and typeFilter to be 'all' for filteredQuestions to return all
-  // Since we just set both, proceed
   const idx = list.findIndex(x => x.id === qid);
   if (idx >= 0) {
     s.currentIdx = idx;

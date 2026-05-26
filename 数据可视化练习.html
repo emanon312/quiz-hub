@@ -404,97 +404,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 <!-- ═══════ JavaScript ═══════ -->
 <script src="config.js"></script>
 <script src="questions.js"></script>
+<script src="js/01-utils.js"></script>
+<script src="js/02-storage.js"></script>
 <script>
-// ========== 配置与题库桥接（来自 config.js / questions.js） ==========
-const CONFIG = window.QUIZ_CONFIG;
-const questionTypes = CONFIG.questionTypes;
-const questions = window.QUIZ_QUESTIONS;
-const MILESTONE_MSGS = CONFIG.milestoneMsgs;
-const BREAK_MSGS = CONFIG.breakMsgs;
-const STREAK_MILESTONES = CONFIG.streakMilestones;
-const STREAK_MILESTONE_EMOJI = CONFIG.streakMilestoneEmoji;
-const SET_COUNT = CONFIG.setNames.length;
-const SET_SIZE = CONFIG.setSize;
+// ═══════════ 内联脚本（逐步移入 js/ 模块，目前仅保留暂未抽取的逻辑） ═══════════
 
+// 以下常量由 js/02-storage.js 挂到 window 上，此处通过全局作用域直接引用：
+//   CONFIG, questionTypes, questions, MILESTONE_MSGS, BREAK_MSGS,
+//   STREAK_MILESTONES, STREAK_MILESTONE_EMOJI, SET_COUNT, SET_SIZE,
+//   STORAGE_KEY, SETS
+// 以下函数由 js/02-storage.js 挂到 window.Storage：
+//   Storage.defaultSetData(), Storage.loadData()
+// 以下函数由 js/01-utils.js 挂到 window：
+//   $, pick, playBeep, TYPE_LABELS, TYPE_CLASS
 
-
-// ========== DOM helper ==========
-const $ = id => document.getElementById(id);
-
-// ========== localStorage 持久化 ==========
-const STORAGE_KEY = CONFIG.storageKey;
-// 套题索引：第 i 套 = 题库的 [i*SET_SIZE, (i+1)*SET_SIZE)
-const SETS = Array.from({length: SET_COUNT}, (_, i) => {
-  const base = i * SET_SIZE;
-  return questions.slice(base, base + SET_SIZE).map((_q, k) => base + k);
-});
-
-// 启动期 schema 校验（异常仅打印 console.error，不阻塞渲染）
-(function validateQuestions() {
-  if (!Array.isArray(questions) || questions.length === 0) {
-    console.error('[题库校验] questions 数组为空或类型错误');
-    return;
-  }
-  const validTypes = new Set(questionTypes.map(t => t.type));
-  const seenIds = new Set();
-  const issues = [];
-  questions.forEach((q, idx) => {
-    if (!q || typeof q !== 'object') { issues.push(`#${idx} 非对象`); return; }
-    if (q.id == null) issues.push(`#${idx} 缺少 id`);
-    else if (seenIds.has(q.id)) issues.push(`id=${q.id} 重复`);
-    else seenIds.add(q.id);
-    if (!validTypes.has(q.type)) issues.push(`id=${q.id} 未知题型 ${q.type}`);
-    if (!q.q) issues.push(`id=${q.id} 缺少题干`);
-    if (q.type === 'single' || q.type === 'multi') {
-      if (!Array.isArray(q.opts) || q.opts.length === 0) issues.push(`id=${q.id} 选择题缺少 opts`);
-      if (!Array.isArray(q.ans) || q.ans.length === 0) issues.push(`id=${q.id} 选择题缺少 ans`);
-      else if (q.ans.some(i => i < 0 || i >= (q.opts||[]).length)) issues.push(`id=${q.id} ans 越界`);
-      if (q.type === 'single' && Array.isArray(q.ans) && q.ans.length !== 1) issues.push(`id=${q.id} 单选 ans 应为单值`);
-    } else if (q.type === 'fill') {
-      if (!q.ansText) issues.push(`id=${q.id} 填空题缺少 ansText`);
-    } else if (q.type === 'short' || q.type === 'draw' || q.type === 'compre') {
-      if (!q.ansText) issues.push(`id=${q.id} 简答类缺少 ansText`);
-    }
-  });
-  if (issues.length) console.error('[题库校验]', issues.length, '条问题:\n' + issues.join('\n'));
-  if (questions.length < SET_COUNT * SET_SIZE) {
-    console.warn(`[题库校验] 题数 ${questions.length} 少于 ${SET_COUNT} 套 × ${SET_SIZE} 题 = ${SET_COUNT*SET_SIZE}`);
-  }
-})();
-
-function defaultSetData() {
-  return { userAnswers:{}, revealedIds:{}, currentIdx:0, typeFilter:'all', stars:{}, expandedTypes:{}, wrongBank:{}, shortAnswerBank:{}, streak:0, bestStreak:0 };
-}
-
-function loadData() {
-  // 收集当前 key 和所有旧 key 中的数据，挑"已答题最多"的那份
-  const candidates = [];
-  function tryParse(key) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) candidates.push({ key, data: JSON.parse(raw) });
-    } catch(e) { console.error('[loadData] 解析失败', key, e); }
-  }
-  tryParse(STORAGE_KEY);
-  for (const oldKey of (CONFIG.legacyStorageKeys || [])) tryParse(oldKey);
-
-  if (candidates.length === 0) {
-    return { activeSet:0, filter:'all', sets: Array.from({length: SET_COUNT}, defaultSetData) };
-  }
-
-  function countAnswered(d) {
-    if (!d || !Array.isArray(d.sets)) return 0;
-    return d.sets.reduce((sum, s) => sum + (s && s.userAnswers ? Object.keys(s.userAnswers).length : 0), 0);
-  }
-  candidates.sort((a, b) => countAnswered(b.data) - countAnswered(a.data));
-  const best = candidates[0];
-  if (best.key !== STORAGE_KEY) {
-    console.info('[迁移] 从', best.key, '加载数据（已答', countAnswered(best.data), '题）到', STORAGE_KEY);
-  }
-  return best.data;
-}
-
-// saveData 防抖：高频调用时合并写入
+// saveData 防抖：高频调用时合并写入（批次 3 移入 storage 模块）
 let _saveTimer = null;
 function saveData() {
   if (_saveTimer) clearTimeout(_saveTimer);
@@ -533,13 +457,13 @@ function toggleTheme() {
 })();
 
 // ========== 应用状态 ==========
-let data = loadData();
+let data = Storage.loadData();
 let activeSet = data.activeSet || 0;
 if (activeSet >= SET_COUNT || activeSet < 0) activeSet = 0;
 let filter = data.filter || 'all';  // 'all', 'wrong', 'star'
-let sets = data.sets || Array.from({length: SET_COUNT}, defaultSetData);
+let sets = data.sets || Array.from({length: SET_COUNT}, Storage.defaultSetData);
 // 兼容旧数据：若 sets 少于配置套数则补齐
-while (sets.length < SET_COUNT) sets.push(defaultSetData());
+while (sets.length < SET_COUNT) sets.push(Storage.defaultSetData());
 // 兼容旧数据：补充缺失字段
 sets.forEach(s => {
   if (!s.expandedTypes) s.expandedTypes = {};
@@ -846,7 +770,7 @@ function setTypeFilter(t) {
 }
 
 // ========== 连对里程碑（随机文案） ==========
-function pick(a){return a[Math.floor(Math.random()*a.length)];}
+// pick / playBeep 已挪到 js/01-utils.js
 
 // 分层连对图标：不同里程碑返回不同 emoji
 function getStreakIcon(st) {
@@ -972,22 +896,7 @@ function exportShortAnswers() {
   URL.revokeObjectURL(url);
 }
 
-// ========== 音效反馈（Web Audio API 极简振荡器） ==========
-function playBeep(freq, dur, type) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type || 'sine';
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + dur);
-  } catch(e) {}
-}
+// ========== 音效反馈（已挪到 js/01-utils.js） ==========
 
 // ========== ⭐ 标记 ==========
 function toggleStar() {
@@ -1050,11 +959,9 @@ function renderQuestion() {
   } else {
     focusedOptIdx = -1;
   }
-  const typeLabels = {single:'单选题', multi:'多选题', fill:'填空题', short:'简答题', draw:'作图题', compre:'综合题'};
-  const typeClass = {single:'single', multi:'multi', fill:'fill', short:'short', draw:'draw', compre:'compre'};
   $('qNum').textContent = '第 '+(list.indexOf(q)+1)+' 题';
-  $('qType').textContent = typeLabels[q.type];
-  $('qType').className = 'q-type '+typeClass[q.type];
+  $('qType').textContent = TYPE_LABELS[q.type];
+  $('qType').className = 'q-type '+TYPE_CLASS[q.type];
   $('qOrigin').className = 'q-origin' + (q.yq ? ' show' : '');
   $('qText').textContent = q.q;
   $('navInfo').textContent = (s.currentIdx+1)+' / '+list.length;

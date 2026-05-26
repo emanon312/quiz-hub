@@ -593,7 +593,10 @@ function filteredQuestions() {
 // ========== 渲染侧边栏 ==========
 function renderSidebar() {
   const s = activeSetData();
-  const pool = getQuestionPool();
+  let pool = getQuestionPool();
+  // 应用错题/收藏筛选，与主区域保持一致
+  if (filter === 'wrong') pool = pool.filter(q => s.wrongBank[q.id]);
+  else if (filter === 'star') pool = pool.filter(q => s.stars[q.id]);
   const curQ = filteredQuestions()[s.currentIdx];
   const nav = $('moduleNav');
   const eid = 'qt_';

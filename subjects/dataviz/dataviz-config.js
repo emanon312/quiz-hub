@@ -2,6 +2,12 @@
 // 加载顺序：本文件必须先于 questions.js 与主 HTML 内 <script> 块加载
 
 window.QUIZ_CONFIG = {
+  // —— 学科切换 ——
+  subjects: [
+    { name: '数据可视化', icon: '📊', href: '../dataviz/dataviz.html', active: true },
+    { name: '电子技术基础', icon: '⚡', href: '../electronics/electronics.html' }
+  ],
+
   // —— 学科信息 ——
   subjectName: '数据可视化',
   pageTitle: '数据可视化期末复习 100 题',

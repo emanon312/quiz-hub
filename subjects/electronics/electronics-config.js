@@ -1,5 +1,12 @@
 // 电子技术基础题库配置
 window.QUIZ_CONFIG = {
+  // —— 学科切换 ——
+  subjects: [
+    { name: '数据可视化', icon: '📊', href: '../dataviz/dataviz.html' },
+    { name: '电子技术基础', icon: '⚡', href: '../electronics/electronics.html', active: true }
+  ],
+
+  // —— 学科信息 ——
   subjectName: '电子技术基础',
   pageTitle: '电子技术基础 A卷 答案解析',
   sidebarTitle: '电子技术基础',

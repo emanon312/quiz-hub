@@ -217,3 +217,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .btn:focus-visible,.filter-chip:focus-visible,.module-btn:focus-visible,.qnum-dot:focus-visible,.opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.opt:hover,.opt.selected,.qnum-dot:hover{transform:none}}
 .answer-box.show{max-height:70vh}
+
+/* ═══════ 学科切换器 ═══════ */
+.subject-switcher{padding:0 20px 8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
+.subject-switcher-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;font-size:12px;color:#aaa;user-select:none}
+.subject-switcher-toggle:hover{color:#fff}
+.subject-switcher-toggle .arrow{transition:transform .2s;font-size:10px}
+.subject-switcher-toggle.open .arrow{transform:rotate(90deg)}
+.subject-switcher-body{display:none;padding:4px 0}
+.subject-switcher-body.open{display:block}
+.subject-switcher-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:#999;font-size:13px;transition:.15s;text-decoration:none}
+.subject-switcher-item:hover{background:rgba(255,255,255,.08);color:#ddd}
+.subject-switcher-item.active{background:rgba(108,140,255,.15);color:#6c8cff;font-weight:600}
+.subject-switcher-item .icon{font-size:16px;width:22px;text-align:center}

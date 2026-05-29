@@ -25,6 +25,12 @@
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
   <h2 id="sidebarTitle">题库练习</h2>
+  <div class="subject-switcher" id="subjectSwitcher">
+    <div class="subject-switcher-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+      📚 学科切换 <span class="arrow">▶</span>
+    </div>
+    <div class="subject-switcher-body open" id="subjectNav"></div>
+  </div>
   <div id="moduleNav"></div>
   <div class="shortcuts" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.1)">
     <div style="font-size:12px;color:#aaa;margin-bottom:6px">套题切换</div>
@@ -225,6 +231,21 @@
 <script src="../../js/09-keyboard.js"></script>
 <script src="../../js/10-init.js"></script>
 <script src="../../js/11-app.js"></script>
+<script>
+// 渲染学科切换器
+(function(){
+  var cfg = window.QUIZ_CONFIG;
+  if (!cfg || !cfg.subjects) return;
+  var nav = document.getElementById('subjectNav');
+  if (!nav) return;
+  var html = '';
+  cfg.subjects.forEach(function(s) {
+    html += '<a class="subject-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
+      + '<span class="icon">' + s.icon + '</span>' + s.name + '</a>';
+  });
+  nav.innerHTML = html;
+})();
+</script>
 <script>QuizApp.boot();</script>
 </body>
 </html>

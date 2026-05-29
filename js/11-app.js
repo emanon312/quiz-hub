@@ -158,7 +158,7 @@
       $('qType').textContent = TYPE_LABELS[q.type];
       $('qType').className = 'q-type ' + TYPE_CLASS[q.type];
       $('qOrigin').className = 'q-origin' + (q.yq ? ' show' : '');
-      $('qText').textContent = q.q;
+      $('qText').innerHTML = q.q;
       $('navInfo').textContent = (s.currentIdx + 1) + ' / ' + list.length;
       $('moduleLabel').textContent = s.typeFilter === 'all' ? '全部题目'
         : (questionTypes.find(function (t) { return t.type === s.typeFilter; }) || {}).label || '';

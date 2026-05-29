@@ -158,7 +158,8 @@
       $('qType').textContent = TYPE_LABELS[q.type];
       $('qType').className = 'q-type ' + TYPE_CLASS[q.type];
       $('qOrigin').className = 'q-origin' + (q.yq ? ' show' : '');
-      $('qText').innerHTML = q.q;
+      var _tq = q.q;
+      $('qText')[_tq.indexOf('<') !== -1 && _tq.indexOf('>') !== -1 ? 'innerHTML' : 'textContent'] = _tq;
       $('navInfo').textContent = (s.currentIdx + 1) + ' / ' + list.length;
       $('moduleLabel').textContent = s.typeFilter === 'all' ? '全部题目'
         : (questionTypes.find(function (t) { return t.type === s.typeFilter; }) || {}).label || '';

@@ -120,19 +120,20 @@
     ctx.activeSetData().revealedIds[q.id] = true;
     var ab = $('answerBox');
     ab.classList.add('show');
+    function _set(el, s) { el[s.indexOf('<') !== -1 && s.indexOf('>') !== -1 ? 'innerHTML' : 'textContent'] = s; }
     if (q.type === 'single' || q.type === 'multi') {
       var letters = q.ans.map(function (i) { return String.fromCharCode(65 + i); });
-      $('ansContent').textContent = '正确答案：' + letters.join(' + ') + ' — ' + q.ans.map(function (i) { return q.opts[i].substring(3); }).join('；');
+      _set($('ansContent'), '正确答案：' + letters.join(' + ') + ' — ' + q.ans.map(function (i) { return q.opts[i].substring(3); }).join('；'));
     } else if (q.type === 'fill') {
-      $('ansContent').textContent = '参考答案：' + q.ansText.replace(/\|/g, '、');
+      _set($('ansContent'), '参考答案：' + q.ansText.replace(/\|/g, '、'));
     } else {
-      $('ansContent').textContent = q.ansText;
+      _set($('ansContent'), q.ansText);
     }
-    $('ansExplanation').textContent = q.exp ? '解析：' + q.exp : '';
+    _set($('ansExplanation'), q.exp ? '解析：' + q.exp : '');
     // 填空反馈也显示在答案区
     if (q.type === 'fill' && ctx.activeSetData()._fillFeedback) {
       var fb = ctx.activeSetData()._fillFeedback;
-      $('ansContent').textContent += ' | 你的匹配：' + fb.map(function (h) { return (h.ok ? '✓' : '✗') + h.kw; }).join(' ');
+      $('ansContent').innerHTML += ' | 你的匹配：' + fb.map(function (h) { return (h.ok ? '✓' : '✗') + h.kw; }).join(' ');
     }
   }
 

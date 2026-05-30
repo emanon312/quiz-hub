@@ -25,11 +25,7 @@
 
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
-  <h2 id="sidebarTitle">题库练习</h2>
-  <div style="padding:0 20px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px">
-    <span style="font-size:12px;color:#888">主题</span>
-    <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button>
-  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:16px;margin:0;padding:0;border:none">题库练习</h2><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div>
   <div class="subject-switcher" id="subjectSwitcher">
     <div class="subject-switcher-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
       📚 学科切换 <span class="arrow">▶</span>
@@ -49,10 +45,10 @@
     </div>
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
-    <div class="shortcuts-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+    <div class="shortcuts-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
       使用指南 <span class="arrow">▶</span>
     </div>
-    <div class="shortcuts-body open">
+    <div class="shortcuts-body">
       <div style="color:#ccc;font-size:11px;margin:4px 0 4px;font-weight:600">⌨ 键盘快捷键</div>
       <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上一题 / 下一题</span></div>
       <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项焦点上下移</span></div>
@@ -111,7 +107,6 @@
     </div>
     <span class="filter-chip topbar-chip" id="autoRevealChip" onclick="toggleAutoReveal()">🔍 答案</span>
     <span class="filter-chip topbar-chip" id="randomChip" onclick="toggleRandom()">乱序</span>
-    <span class="filter-chip topbar-chip" id="themeToggle" onclick="toggleTheme()">🌙</span>
   </div>
 
   

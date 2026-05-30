@@ -28,7 +28,7 @@
     var saved = localStorage.getItem('quiz-hub-theme') || 'orange';
     document.documentElement.setAttribute('data-theme', saved);
     var el = $('themeToggle');
-    if (el) el.textContent = saved === 'orange' ? '🥦' : '🍊';
+    if (el) el.textContent = saved === 'orange' ? '🥦' : '🥕';
   }
 
   // ═══ 暴露辅助（供 HTML 内联调用） ═══

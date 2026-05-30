@@ -10,9 +10,9 @@ window.QUIZ_CONFIG = {
 
   // —— 学科信息 ——
   subjectName: '数据可视化',
-  pageTitle: '数据可视化期末复习 100 题',
-  sidebarTitle: '数据可视化 100 题',
-  mobileTitle: '数据可视化 100 题',
+  pageTitle: '数据可视化',
+  sidebarTitle: '数据可视化',
+  mobileTitle: '数据可视化',
 
   // —— 套题设置 ——
   // setNames 长度 = 套题数；setSize 决定每套题数（题库总题数应 ≥ setNames.length * setSize）

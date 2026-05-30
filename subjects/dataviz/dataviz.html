@@ -25,7 +25,7 @@
 
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:16px;margin:0;padding:0;border:none">题库练习</h2><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:16px;margin:0;padding:0;border:none">题库练习</h2><a href="../../index.html" class="theme-toggle-btn" style="text-decoration:none" title="返回首页">🏠</a><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div>
 
   <!-- 题型 -->
   <div class="sidebar-section open" id="secType">
@@ -258,7 +258,7 @@
 <script>
 // 主题切换
 (function(){
-  var themes=['orange','green'],icons={orange:'🥦',green:'🍊'};
+  var themes=['orange','green'],icons={orange:'🥦',green:'🥕'};
   var t=localStorage.getItem('quiz-hub-theme')||'orange';
   document.documentElement.setAttribute('data-theme',t);
   window.toggleTheme=function(){

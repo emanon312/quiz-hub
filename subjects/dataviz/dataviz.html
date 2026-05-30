@@ -27,16 +27,34 @@
 <nav class="sidebar" id="sidebar">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:16px;margin:0;padding:0;border:none">题库练习</h2><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div>
 
-  <div id="moduleNav"></div>
-  <div class="shortcuts" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.1)">
-    
-    <div class="set-tabs" id="setTabs"></div>
-    
-    <div class="filter-bar" style="display:block">
-      <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
-      <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
-      <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
-      <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">📋 仅原题</button>
+  <!-- 题型 -->
+  <div class="sidebar-section open" id="secType">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secType')">
+      <span>📋 题型</span><span class="arrow">▶</span>
+    </div>
+    <div class="sidebar-section-body" id="moduleNav"></div>
+  </div>
+  <!-- 题组 -->
+  <div class="sidebar-section open" id="secSet">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secSet')">
+      <span>📚 题组</span><span class="arrow">▶</span>
+    </div>
+    <div class="sidebar-section-body">
+      <div class="set-tabs" id="setTabs"></div>
+    </div>
+  </div>
+  <!-- 筛选 -->
+  <div class="sidebar-section" id="secFilter">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secFilter')">
+      <span>🔍 筛选</span><span class="arrow">▶</span>
+    </div>
+    <div class="sidebar-section-body">
+      <div class="filter-bar" style="display:block">
+        <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
+        <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
+        <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
+        <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">📋 仅原题</button>
+      </div>
     </div>
   </div>
   <div class="shortcuts" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1)">
@@ -266,6 +284,9 @@
   });
   body.innerHTML = html;
 })();
+window.toggleSidebarSection = function(id) {
+  document.getElementById(id).classList.toggle('open');
+};
 window.toggleSubjPanel = function() {
   var panel = document.getElementById('subjPanel');
   var overlay = document.getElementById('subjOverlay');

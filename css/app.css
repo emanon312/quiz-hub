@@ -355,3 +355,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .subj-pill .sp-icon{font-size:18px}
 .subj-pill .sp-arrow{font-size:12px;opacity:.6;transition:.15s}
 .subj-pill:hover .sp-arrow{opacity:1;transform:translateX(2px)}
+
+/* —— 侧边栏可折叠分组 —— */
+.sidebar-section{border-bottom:1px solid rgba(255,255,255,.06)}
+.sidebar-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;cursor:pointer;font-size:13px;font-weight:600;
+  color:rgba(255,255,255,.7);transition:.15s;user-select:none;
+}
+.sidebar-section-header:hover{color:#fff}
+.sidebar-section-header .arrow{
+  font-size:9px;transition:transform .2s;opacity:.5;
+}
+.sidebar-section.open .sidebar-section-header .arrow{
+  transform:rotate(90deg);opacity:1;
+}
+.sidebar-section-body{
+  display:none;padding:0 0 6px;
+}
+.sidebar-section.open .sidebar-section-body{display:block}
+/* 筛选按钮在section里不需要额外margin */
+.sidebar-section .filter-bar{margin:0}
+.sidebar-section .filter-chip{margin:0}

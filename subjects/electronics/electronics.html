@@ -26,12 +26,7 @@
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:16px;margin:0;padding:0;border:none">题库练习</h2><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div>
-  <div class="subject-switcher" id="subjectSwitcher">
-    <div class="subject-switcher-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      📚 学科切换 <span class="arrow">▶</span>
-    </div>
-    <div class="subject-switcher-body open" id="subjectNav"></div>
-  </div>
+
   <div id="moduleNav"></div>
   <div class="shortcuts" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.1)">
     <div style="font-size:12px;color:#aaa;margin-bottom:6px">套题切换</div>
@@ -89,16 +84,8 @@
 <!-- ═══════ 主区域 ═══════ -->
 <div class="main">
   <div class="main-inner">
-  <!-- 学科切换按钮 -->
-  <div class="subj-switcher" id="subjSwitcher">
-    <div class="subj-switcher-btn" onclick="toggleSubjSwitcher()">
-      <span class="subj-switcher-icon" id="subjCurrentIcon">⚡</span>
-      <span class="subj-switcher-name" id="subjCurrentName">电子技术基础</span>
-      <span class="subj-switcher-arrow" id="subjArrow">▼</span>
-    </div>
-    <div class="subj-switcher-list" id="subjList"></div>
-  </div>
   <div class="topbar">
+    <span class="subj-btn" id="subjBtn" onclick="toggleSubjPanel()" title="切换学科">⚡ 电子技术基础 ▸</span>
     <span class="module-title" id="moduleLabel">全部题目</span>
     <input type="text" id="searchInput" class="search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
     <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
@@ -193,7 +180,17 @@
   </div>
   <div class="rp-divider"></div>
   <div class="rp-modules" id="rpModules"></div>
-</aside>
+  </aside>
+
+  <!-- 学科切换右侧面板 -->
+  <div class="subj-panel-overlay" id="subjOverlay" onclick="closeSubjPanel()"></div>
+  <aside class="subj-panel" id="subjPanel">
+    <div class="subj-panel-header">
+      <span>切换学科</span>
+      <button class="subj-panel-close" onclick="closeSubjPanel()">✕</button>
+    </div>
+    <div class="subj-panel-body" id="subjPanelBody"></div>
+  </aside>
 
 
 <div class="modal-overlay" id="wrongModal" onclick="if(event.target===this)this.classList.remove('show')">
@@ -254,41 +251,31 @@
   };
   document.getElementById('themeToggle').textContent=icons[t];
 })();
-// 渲染学科切换器
+// 渲染学科面板
 (function(){
   var cfg = window.QUIZ_CONFIG;
   if (!cfg || !cfg.subjects) return;
-
-  // 侧边栏学科列表
-  var nav = document.getElementById('subjectNav');
-  if (nav) {
-    var html = '';
-    cfg.subjects.forEach(function(s) {
-      html += '<a class="subject-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
-        + '<span class="icon">' + s.icon + '</span>' + s.name + '</a>';
-    });
-    nav.innerHTML = html;
-  }
-
-  // 主区域学科切换器
-  var list = document.getElementById('subjList');
-  if (list) {
-    var lhtml = '';
-    cfg.subjects.forEach(function(s) {
-      lhtml += '<a class="subj-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
-        + '<span class="si-icon">' + s.icon + '</span>' + s.name + '</a>';
-    });
-    list.innerHTML = lhtml;
-  }
+  var body = document.getElementById('subjPanelBody');
+  if (!body) return;
+  var html = '';
+  cfg.subjects.forEach(function(s) {
+    html += '<a class="subj-card' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
+      + '<span class="sc-icon">' + s.icon + '</span>'
+      + '<div class="sc-info"><div class="sc-name">' + s.name + '</div></div>'
+      + '<span class="sc-arrow">→</span></a>';
+  });
+  body.innerHTML = html;
 })();
-window.toggleSubjSwitcher = function() {
-  document.getElementById('subjSwitcher').classList.toggle('open');
+window.toggleSubjPanel = function() {
+  var panel = document.getElementById('subjPanel');
+  var overlay = document.getElementById('subjOverlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('show');
 };
-// 点击外部关闭
-document.addEventListener('click', function(e) {
-  var sw = document.getElementById('subjSwitcher');
-  if (sw && !sw.contains(e.target)) sw.classList.remove('open');
-});
+window.closeSubjPanel = function() {
+  document.getElementById('subjPanel').classList.remove('open');
+  document.getElementById('subjOverlay').classList.remove('show');
+};
 </script>
 <script>QuizApp.boot();</script>
 </body>

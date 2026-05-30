@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="orange">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>腿毛人的练习网站</title>
+<style>
+/* ═══ 橙色暖色调（默认） ═══ */
+[data-theme="orange"]{
+  --bg:#fffbf7;--bg-card:#fff;--bg-card-hover:#fff;--bg-nav-item:#fff4eb;
+  --border:#f0e6d9;--border-hover:#fdba74;--shadow:rgba(249,115,22,.08);
+  --accent:#f97316;--accent-dark:#c2410c;--accent-light:#fff7ed;
+  --text:#1a1a1a;--text-sub:#777;--text-muted:#999;--text-footer:#bbb;
+  --icon-bg:linear-gradient(135deg,#f97316,#fb923c);--icon-text:#fff;
+}
+/* ═══ 黑+西兰花绿 ═══ */
+[data-theme="green"]{
+  --bg:#0a0f0a;--bg-card:#0f1a0f;--bg-card-hover:#0f1a0f;--bg-nav-item:#132a13;
+  --border:#1a2e1a;--border-hover:#16a34a;--shadow:rgba(22,163,74,.1);
+  --accent:#22c55e;--accent-dark:#4ade80;--accent-light:#132a13;
+  --text:#e8e8e8;--text-sub:#666;--text-muted:#555;--text-footer:#333;
+  --icon-bg:linear-gradient(135deg,#16a34a,#22c55e);--icon-text:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;transition:background .3s,color .3s;
+}
+/* 导航 */
+.topnav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;max-width:960px;width:100%;margin:0 auto;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--text)}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--icon-bg);display:flex;align-items:center;
+  justify-content:center;font-size:18px;color:var(--icon-text);
+  transition:background .3s;
+}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:6px}
+.nav-links a{
+  padding:6px 14px;border-radius:8px;font-size:13px;color:var(--text-muted);
+  text-decoration:none;transition:.15s;
+}
+.nav-links a:hover{background:var(--bg-nav-item);color:var(--accent-dark)}
+.nav-links a.active{background:var(--bg-nav-item);color:var(--accent-dark);font-weight:600}
+/* 主题切换按钮 */
+.theme-toggle{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg-card);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:16px;transition:.2s;
+}
+.theme-toggle:hover{border-color:var(--accent);transform:scale(1.05)}
+/* Hero */
+.hero{
+  text-align:center;padding:60px 20px 40px;max-width:960px;margin:0 auto;width:100%;
+}
+.hero-badge{
+  display:inline-block;padding:4px 14px;border-radius:20px;
+  background:var(--accent-light);color:var(--accent-dark);
+  font-size:12px;font-weight:600;border:1px solid var(--border);
+  transition:all .3s;
+}
+h1{
+  font-size:42px;font-weight:900;letter-spacing:-0.5px;
+  line-height:1.2;margin-bottom:12px;color:var(--text);
+}
+h1 .accent{color:var(--accent);transition:color .3s}
+.subtitle{color:var(--text-sub);font-size:16px;line-height:1.7;max-width:480px;margin:0 auto}
+.stats{display:flex;gap:32px;justify-content:center;margin-top:32px}
+.stat{text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:var(--accent);transition:color .3s}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:2px}
+/* 学科卡片 */
+.section-label{
+  font-size:13px;color:var(--text-muted);letter-spacing:1px;margin-bottom:16px;
+  max-width:960px;margin:0 auto;width:100%;padding:0 20px;
+  display:flex;align-items:center;gap:10px;margin-top:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:16px;max-width:960px;margin:0 auto;padding:0 20px 20px;width:100%;
+}
+.card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+  padding:24px;cursor:pointer;transition:.2s;text-decoration:none;
+  color:var(--text);display:flex;flex-direction:column;
+}
+.card:hover{
+  transform:translateY(-2px);border-color:var(--border-hover);
+  box-shadow:0 8px 24px var(--shadow);
+}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.card-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  background:var(--accent-light);transition:background .3s;
+}
+.card-name{font-size:17px;font-weight:700}
+.card-desc{font-size:13px;color:var(--text-sub);line-height:1.7;margin-bottom:14px;flex:1}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tag{
+  padding:2px 9px;border-radius:6px;font-size:11px;
+  background:var(--accent-light);color:var(--accent-dark);transition:all .3s;
+}
+.card-go{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--accent);font-weight:600;transition:color .3s;
+}
+.card-go .arrow{transition:.15s}
+.card:hover .card-go .arrow{transform:translateX(3px)}
+/* Footer */
+.footer{
+  margin-top:auto;padding:24px;text-align:center;
+  font-size:12px;color:var(--text-footer);border-top:1px solid var(--border);
+  transition:all .3s;
+}
+/* 响应式 */
+@media(max-width:600px){
+  h1{font-size:28px}
+  .stats{gap:20px}
+  .topnav{padding:12px 16px}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+  <div class="topnav">
+    <div class="logo">
+      <div class="logo-icon">🦵</div>
+      腿毛人的练习网站
+    </div>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a class="active" href="#">首页</a>
+        <a href="subjects/dataviz/dataviz.html">数据可视化</a>
+        <a href="subjects/electronics/electronics.html">电子技术</a>
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换主题">🥦</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-badge">QUIZ HUB</div>
+    <h1>刷题不息<br><span class="accent">腿毛不止</span></h1>
+    <p class="subtitle">每一次刷题，都是一根腿毛的觉醒。<br>选一门学科，开始今天的练习。</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">学科</div></div>
+      <div class="stat"><div class="stat-num">107</div><div class="stat-label">题目</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">套卷</div></div>
+    </div>
+  </div>
+
+  <div class="section-label">选择学科</div>
+  <div class="cards">
+    <a class="card" href="subjects/dataviz/dataviz.html">
+      <div class="card-head">
+        <div class="card-icon">📊</div>
+        <div class="card-name">数据可视化</div>
+      </div>
+      <div class="card-desc">期末复习 100 题，覆盖可视化概述、感知认知、设计美学、数据通道、Tableau。</div>
+      <div class="card-tags">
+        <span class="tag">单选</span><span class="tag">多选</span><span class="tag">填空</span><span class="tag">简答</span>
+      </div>
+      <div class="card-go">开始练习 <span class="arrow">→</span></div>
+    </a>
+    <a class="card" href="subjects/electronics/electronics.html">
+      <div class="card-head">
+        <div class="card-icon">⚡</div>
+        <div class="card-name">电子技术基础</div>
+      </div>
+      <div class="card-desc">24-25 学年 A/B 两套真卷，含填空、判断、计算题，附电路图详细解析。</div>
+      <div class="card-tags">
+        <span class="tag">判断</span><span class="tag">填空</span><span class="tag">计算</span><span class="tag">电路图</span>
+      </div>
+      <div class="card-go">开始练习 <span class="arrow">→</span></div>
+    </a>
+  </div>
+
+  <div class="footer">© 2025 腿毛人 · Quiz Hub</div>
+
+<script>
+// 主题切换
+var themes = ['orange', 'green'];
+var icons = {orange: '🥦', green: '🍊'};
+var current = localStorage.getItem('quiz-hub-theme') || 'orange';
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeToggle').textContent = icons[t];
+  localStorage.setItem('quiz-hub-theme', t);
+  current = t;
+}
+function toggleTheme() {
+  applyTheme(current === 'orange' ? 'green' : 'orange');
+}
+applyTheme(current);
+</script>
+</body>
+</html>

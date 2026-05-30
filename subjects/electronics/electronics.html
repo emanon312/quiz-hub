@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="orange">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,6 +25,10 @@
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
   <h2 id="sidebarTitle">题库练习</h2>
+  <div style="padding:0 20px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px">
+    <span style="font-size:12px;color:#888">主题</span>
+    <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button>
+  </div>
   <div class="subject-switcher" id="subjectSwitcher">
     <div class="subject-switcher-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
       📚 学科切换 <span class="arrow">▶</span>
@@ -232,6 +236,19 @@
 <script src="../../js/10-init.js"></script>
 <script src="../../js/11-app.js"></script>
 <script>
+// 主题切换
+(function(){
+  var themes=['orange','green'],icons={orange:'🥦',green:'🍊'};
+  var t=localStorage.getItem('quiz-hub-theme')||'orange';
+  document.documentElement.setAttribute('data-theme',t);
+  window.toggleTheme=function(){
+    t=t==='orange'?'green':'orange';
+    document.documentElement.setAttribute('data-theme',t);
+    document.getElementById('themeToggle').textContent=icons[t];
+    localStorage.setItem('quiz-hub-theme',t);
+  };
+  document.getElementById('themeToggle').textContent=icons[t];
+})();
 // 渲染学科切换器
 (function(){
   var cfg = window.QUIZ_CONFIG;

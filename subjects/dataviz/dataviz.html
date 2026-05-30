@@ -29,9 +29,9 @@
 
   <div id="moduleNav"></div>
   <div class="shortcuts" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.1)">
-    <div style="font-size:12px;color:#aaa;margin-bottom:6px">套题切换</div>
+    
     <div class="set-tabs" id="setTabs"></div>
-    <div style="font-size:12px;color:#aaa;margin-top:10px;margin-bottom:6px">筛选</div>
+    
     <div class="filter-bar" style="display:block">
       <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
       <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
@@ -101,8 +101,8 @@
         <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">🔄 重新开始</button>
       </div>
     </div>
-    <span class="filter-chip topbar-chip" id="autoRevealChip" onclick="toggleAutoReveal()">🔍 答案</span>
-    <span class="filter-chip topbar-chip" id="randomChip" onclick="toggleRandom()">乱序</span>
+    <button class="btn btn-nav btn-sm" id="autoRevealChip" onclick="toggleAutoReveal()">答案模式</button>
+    <button class="btn btn-nav btn-sm" id="randomChip" onclick="toggleRandom()">乱序</button>
   </div>
 
   

@@ -32,6 +32,9 @@
     <div class="sidebar-section-header" onclick="toggleSidebarSection('secType')">
       <span>📋 题型</span><span class="arrow">▶</span>
     </div>
+    <div class="sidebar-section-body">
+      <input type="text" id="searchInput" class="sidebar-search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
+    </div>
     <div class="sidebar-section-body" id="moduleNav"></div>
   </div>
   <!-- 题组 -->
@@ -104,8 +107,7 @@
   <div class="main-inner">
   <div class="topbar">
     <span class="subj-btn" id="subjBtn" onclick="toggleSubjPanel()" title="切换学科">📊 数据可视化 ▸</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
-    <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
+        <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
     <span class="topbar-spacer"></span>
     <div class="tools-dropdown">
       <button class="btn btn-nav btn-sm" id="btnTools" onclick="this.parentElement.classList.toggle('open')">⚙ 工具栏</button>

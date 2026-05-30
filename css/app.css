@@ -8,13 +8,13 @@ html:not([data-theme="green"]) .shortcuts{color:#f5e8d0}
 html:not([data-theme="green"]) .shortcuts .kbd{background:rgba(255,255,255,.18);color:rgba(255,255,255,.85)}
 html:not([data-theme="green"]) .shortcuts-toggle{color:#f5e8d0}
 html:not([data-theme="green"]) .set-tab{border-color:rgba(255,255,255,.2);color:#f5e8d0}
-html:not([data-theme="green"]) .set-tab.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.95)}
+html:not([data-theme="green"]) .set-tab.active{background:#fff;color:#ea580c;border-color:#fff}
 html:not([data-theme="green"]) .qnum-dot{background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.2)}
 html:not([data-theme="green"]) .qnum-dot.done-right{background:rgba(255,255,255,.25);border-color:#4caf50;color:#c8e6c9}
 html:not([data-theme="green"]) .qnum-dot.done-wrong{background:rgba(255,255,255,.2);border-color:#f44336;color:#ffcdd2}
 html:not([data-theme="green"]) .qnum-dot.current{border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,.4);color:#fff}
 html:not([data-theme="green"]) .filter-chip{border-color:rgba(255,255,255,.15);color:#f5e8d0;background:rgba(255,255,255,.05)}
-html:not([data-theme="green"]) .filter-chip.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.95)}
+html:not([data-theme="green"]) .filter-chip.active{background:#fff;color:#ea580c;border-color:#fff}
 html:not([data-theme="green"]) .subject-switcher{border-color:rgba(255,255,255,.15)}
 html:not([data-theme="green"]) .subject-switcher-toggle{color:#f5e8d0}
 html:not([data-theme="green"]) .subject-switcher-item{color:#f5e8d0}
@@ -37,7 +37,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 
 .module-btn{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:#f5e8d0;font-size:14px;cursor:pointer;transition:.2s;position:relative}
 .module-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
-.module-btn.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.95)}
+.module-btn.active{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
 .module-btn .badge{float:right;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
 .module-btn .done-badge{float:right;font-size:11px;color:var(--primary)}
 .module-btn .expand-arrow{float:left;font-size:9px;margin-right:4px;transition:transform .2s;opacity:.5}
@@ -57,7 +57,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .set-tabs{margin-bottom:0}
 .set-tab{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;transition:.2s}
 .set-tab:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
-.set-tab.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.95)}
+.set-tab.active{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
 
 .qnum-grid{display:none;flex-wrap:wrap;gap:3px;padding:6px 0 6px 16px}
 .qnum-grid.open{display:flex}
@@ -72,7 +72,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 .filter-bar{}
 .filter-chip{display:block;width:100%;text-align:left;padding:10px 20px;border:none;background:none;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;transition:.2s}
 .filter-chip:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
-.filter-chip.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.95)}
+.filter-chip.active{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
 .filter-chip.wrong-mode{background:#ffebee;color:#c62828;border-color:#ef9a9a}
 [data-theme="green"] .filter-chip.wrong-mode{background:#3a1b1b;color:#ef9a9a;border-color:#5a2a2a}
 .filter-chip.origin-mode{background:#FFF8E1;color:#B7791F;border-color:#FFE082}

@@ -26,7 +26,7 @@
     var curQ = ctx.filteredQuestions()[s.currentIdx];
     var nav = $('moduleNav');
     var eid = 'qt_';
-    var html = '<button class="module-btn' + (s.typeFilter === 'all' ? ' active' : '') + '" onclick="setTypeFilter(&apos;all&apos;)">全部</button>';
+    var html = '';
     questionTypes.forEach(function (tt) {
       var qs = pool.filter(function (q) { return q.type === tt.type; });
       var done = qs.filter(function (q) { return s.userAnswers[q.id] !== undefined; });

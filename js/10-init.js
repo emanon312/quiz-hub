@@ -23,14 +23,12 @@
     }).join('');
   }
 
-  // ═══ 深色模式初始化 ═══
+  // ═══ 主题初始化 ═══
   function initTheme() {
-    var saved = localStorage.getItem('dataviz_theme');
-    if (saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      var el = $('themeToggle');
-      if (el) el.textContent = '☀️';
-    }
+    var saved = localStorage.getItem('quiz-hub-theme') || 'orange';
+    document.documentElement.setAttribute('data-theme', saved);
+    var el = $('themeToggle');
+    if (el) el.textContent = saved === 'orange' ? '🥦' : '🍊';
   }
 
   // ═══ 暴露辅助（供 HTML 内联调用） ═══

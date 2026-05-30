@@ -277,7 +277,7 @@
       var cur = document.documentElement.getAttribute('data-theme') || 'orange';
       var next = cur === 'orange' ? 'green' : 'orange';
       document.documentElement.setAttribute('data-theme', next);
-      $('themeToggle').textContent = next === 'orange' ? '🥦' : '🍊';
+      $('themeToggle').textContent = next === 'orange' ? '🥦' : '🥕';
       localStorage.setItem('quiz-hub-theme', next);
     },
 

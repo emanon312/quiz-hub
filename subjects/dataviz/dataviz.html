@@ -89,6 +89,15 @@
 <!-- ═══════ 主区域 ═══════ -->
 <div class="main">
   <div class="main-inner">
+  <!-- 学科切换按钮 -->
+  <div class="subj-switcher" id="subjSwitcher">
+    <div class="subj-switcher-btn" onclick="toggleSubjSwitcher()">
+      <span class="subj-switcher-icon" id="subjCurrentIcon">📊</span>
+      <span class="subj-switcher-name" id="subjCurrentName">数据可视化</span>
+      <span class="subj-switcher-arrow" id="subjArrow">▼</span>
+    </div>
+    <div class="subj-switcher-list" id="subjList"></div>
+  </div>
   <div class="topbar">
     <span class="module-title" id="moduleLabel">全部题目</span>
     <input type="text" id="searchInput" class="search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
@@ -249,15 +258,37 @@
 (function(){
   var cfg = window.QUIZ_CONFIG;
   if (!cfg || !cfg.subjects) return;
+
+  // 侧边栏学科列表
   var nav = document.getElementById('subjectNav');
-  if (!nav) return;
-  var html = '';
-  cfg.subjects.forEach(function(s) {
-    html += '<a class="subject-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
-      + '<span class="icon">' + s.icon + '</span>' + s.name + '</a>';
-  });
-  nav.innerHTML = html;
+  if (nav) {
+    var html = '';
+    cfg.subjects.forEach(function(s) {
+      html += '<a class="subject-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
+        + '<span class="icon">' + s.icon + '</span>' + s.name + '</a>';
+    });
+    nav.innerHTML = html;
+  }
+
+  // 主区域学科切换器
+  var list = document.getElementById('subjList');
+  if (list) {
+    var lhtml = '';
+    cfg.subjects.forEach(function(s) {
+      lhtml += '<a class="subj-switcher-item' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
+        + '<span class="si-icon">' + s.icon + '</span>' + s.name + '</a>';
+    });
+    list.innerHTML = lhtml;
+  }
 })();
+window.toggleSubjSwitcher = function() {
+  document.getElementById('subjSwitcher').classList.toggle('open');
+};
+// 点击外部关闭
+document.addEventListener('click', function(e) {
+  var sw = document.getElementById('subjSwitcher');
+  if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+});
 </script>
 <script>QuizApp.boot();</script>
 </body>

@@ -10,7 +10,13 @@
   var SET_COUNT = window.SET_COUNT;
   var SET_SIZE = window.SET_SIZE;
   var questionTypes = window.questionTypes;
-  var TYPE_LABELS = window.TYPE_LABELS;
+  // 题型显示名优先取学科配置的 label（如电子技术把 single 复用为"判断题"、short 复用为"计算题"），
+  // 回退到通用 TYPE_LABELS，避免卡片顶部标签与侧边栏 short 名不一致
+  var TYPE_LABELS = (function () {
+    var m = {};
+    (questionTypes || []).forEach(function (t) { m[t.type] = t.label; });
+    return Object.assign({}, window.TYPE_LABELS, m);
+  })();
   var TYPE_CLASS = window.TYPE_CLASS;
 
   var _init = window.QuizState.initSets();

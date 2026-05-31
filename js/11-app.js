@@ -8,7 +8,7 @@
   var CONFIG = window.CONFIG;
   var STORAGE_KEY = window.STORAGE_KEY;
   var SET_COUNT = window.SET_COUNT;
-  var SET_SIZE = window.SET_SIZE;
+  var SET_SIZES = window.SET_SIZES;
   var questionTypes = window.questionTypes;
   // 题型显示名优先取学科配置的 label（如电子技术把 single 复用为"判断题"、short 复用为"计算题"），
   // 回退到通用 TYPE_LABELS，避免卡片顶部标签与侧边栏 short 名不一致
@@ -398,7 +398,7 @@
       var el;
       el = $('sidebarTitle'); if (el) el.textContent = CONFIG.sidebarTitle;
       el = $('mobileTitle'); if (el) el.textContent = CONFIG.mobileTitle;
-      el = $('setSizeLabel'); if (el) el.textContent = SET_SIZE;
+      el = $('setSizeLabel'); if (el) el.textContent = SET_SIZES[this.activeSet];
       window.Init.setupSetTabs(this.activeSet, CONFIG.setNames);
 
       var self = this;

@@ -13,7 +13,7 @@
   <button class="hamburger" onclick="toggleMobileSidebar()">☰</button>
   <span class="mobile-topbar__title" id="mobileTitle">题库练习</span>
   <span class="topbar-spacer"></span>
-  <span class="mobile-topbar__stats" id="mobileStats">0/200</span>
+  <span class="mobile-topbar__stats" id="mobileStats">0/0</span>
 </div>
 <div class="mobile-bottom-bar" id="mobileBottomBar">
   <div class="mb-item"><span class="mb-val" id="mbDone">0</span><span class="mb-lbl">已完成</span></div>
@@ -257,19 +257,7 @@
 <script src="../../js/10-init.js"></script>
 <script src="../../js/11-app.js"></script>
 <script>
-// 主题切换
-(function(){
-  var themes=['orange','green'],icons={orange:'🥦',green:'🥕'};
-  var t=localStorage.getItem('quiz-hub-theme')||'orange';
-  document.documentElement.setAttribute('data-theme',t);
-  window.toggleTheme=function(){
-    t=t==='orange'?'green':'orange';
-    document.documentElement.setAttribute('data-theme',t);
-    document.getElementById('themeToggle').textContent=icons[t];
-    localStorage.setItem('quiz-hub-theme',t);
-  };
-  document.getElementById('themeToggle').textContent=icons[t];
-})();
+// 主题切换由 ../../js/11-app.js 的 window.toggleTheme 统一提供，初始图标由 boot()→initTheme() 设置
 // 渲染学科面板
 (function(){
   var cfg = window.QUIZ_CONFIG;

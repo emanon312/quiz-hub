@@ -13,6 +13,7 @@ window.QUIZ_CONFIG = {
   mobileTitle: '电子技术基础 A卷',
 
   setSize: 37,
+  setSizes: [37, 35],
   setNames: ['24-25A卷', '24-25B卷'],
 
   questionTypes: [

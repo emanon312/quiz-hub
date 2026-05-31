@@ -16,22 +16,31 @@ window.STREAK_MILESTONES = window.QUIZ_CONFIG.streakMilestones;
 window.STREAK_MILESTONE_EMOJI = window.QUIZ_CONFIG.streakMilestoneEmoji;
 window.SET_COUNT = window.QUIZ_CONFIG.setNames.length;
 window.SET_SIZE = window.QUIZ_CONFIG.setSize;
+// 每套题数：优先用 config.setSizes（适配每卷题数不同的真卷，如 A卷37/B卷35），
+// 缺省则按 setSize 等分。长度须与 setNames 一致才生效
+window.SET_SIZES = (function () {
+  var cfg = window.QUIZ_CONFIG;
+  var n = cfg.setNames.length;
+  if (Array.isArray(cfg.setSizes) && cfg.setSizes.length === n) return cfg.setSizes.slice();
+  var out = [];
+  for (var i = 0; i < n; i++) out.push(cfg.setSize);
+  return out;
+})();
 
 // ═══ localStorage key ═══
 window.STORAGE_KEY = window.QUIZ_CONFIG.storageKey;
 
 // ═══ 套题索引 ═══
-// 第 i 套 = 题库的 [i*SET_SIZE, (i+1)*SET_SIZE)，存储 index 引用
+// 按 SET_SIZES 累积偏移切分：第 i 套占题库中连续的 SET_SIZES[i] 道题，存储 index 引用
 window.SETS = (function () {
-  var count = window.SET_COUNT;
-  var size = window.SET_SIZE;
-  var qs = window.questions;
+  var sizes = window.SET_SIZES;
   var result = [];
-  for (var i = 0; i < count; i++) {
-    var base = i * size;
+  var offset = 0;
+  for (var i = 0; i < sizes.length; i++) {
     var indices = [];
-    for (var k = 0; k < size; k++) indices.push(base + k);
+    for (var k = 0; k < sizes[i]; k++) indices.push(offset + k);
     result.push(indices);
+    offset += sizes[i];
   }
   return result;
 })();
@@ -66,8 +75,9 @@ window.SETS = (function () {
     }
   });
   if (issues.length) console.error('[题库校验] ' + issues.length + ' 条问题:\n' + issues.join('\n'));
-  if (qs.length < window.SET_COUNT * window.SET_SIZE) {
-    console.warn('[题库校验] 题数 ' + qs.length + ' 少于 ' + window.SET_COUNT + ' 套 × ' + window.SET_SIZE + ' 题 = ' + (window.SET_COUNT * window.SET_SIZE));
+  var needed = window.SET_SIZES.reduce(function (a, b) { return a + b; }, 0);
+  if (qs.length < needed) {
+    console.warn('[题库校验] 题数 ' + qs.length + ' 少于各套题数之和 ' + needed + '（' + window.SET_SIZES.join('+') + '）');
   }
 })();
 

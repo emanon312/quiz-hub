@@ -5,15 +5,7 @@
 
 (function () {
   var $ = window.$;
-  var CONFIG = window.CONFIG;
-  var SET_SIZE = window.SET_SIZE;
-  var Render = window.Render;
-
-  // ═══ 从 CONFIG 注入标题、题组数、套题按钮 ═══
-  document.title = CONFIG.pageTitle;
-  var sidebarTitle = $('sidebarTitle'); if (sidebarTitle) sidebarTitle.textContent = CONFIG.sidebarTitle;
-  var mobileTitle = $('mobileTitle'); if (mobileTitle) mobileTitle.textContent = CONFIG.mobileTitle;
-  var setSizeLabel = $('setSizeLabel'); if (setSizeLabel) setSizeLabel.textContent = SET_SIZE;
+  // 标题/题组数注入与首次渲染统一由 11-app.js 的 boot() 负责，此处仅提供初始化辅助函数
 
   function setupSetTabs(activeSet, setNames) {
     var tabs = $('setTabs');

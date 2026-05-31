@@ -1,6 +1,6 @@
 // ===== 模块: render =====
 // 职责: DOM 渲染 —— 侧边栏题型导航、右侧进度面板、答案区展开、题型折叠切换
-// 依赖: 01-utils ($, TYPE_LABELS, TYPE_CLASS), 02-storage (CONFIG, questionTypes, SET_COUNT, SET_SIZE), 03-state (QuizState)
+// 依赖: 01-utils ($, TYPE_LABELS, TYPE_CLASS), 02-storage (CONFIG, questionTypes, SET_COUNT, SET_SIZES), 03-state (QuizState)
 // 暴露: window.Render = { sidebar, stats, answerBox, toggleTypeExpand, jumpToQ }
 // 注意: renderQuestion 仍留在 HTML 内联（依赖 let 变量太多），后续批次逐步移入
 
@@ -9,7 +9,7 @@
   var CONFIG = window.CONFIG;
   var questionTypes = window.questionTypes;
   var SET_COUNT = window.SET_COUNT;
-  var SET_SIZE = window.SET_SIZE;
+  var SET_SIZES = window.SET_SIZES;
   var TYPE_LABELS = window.TYPE_LABELS;
   var isAnswered = window.QuizState.isAnswered;
 
@@ -53,7 +53,7 @@
       btn.classList.toggle('active', i === ctx.activeSet);
       var sData = ctx.sets[i];
       var done = Object.keys(sData.userAnswers).length;
-      btn.textContent = (CONFIG.setNames[i] || ('题组' + (i + 1))) + ' (' + done + '/' + SET_SIZE + ')';
+      btn.textContent = (CONFIG.setNames[i] || ('题组' + (i + 1))) + ' (' + done + '/' + SET_SIZES[i] + ')';
     });
 
     // 筛选按钮状态
@@ -93,7 +93,8 @@
       modHtml += '<div class="m-row"><div class="m-name">' + tt.short + ' <span>' + done + '/' + qs.length + '</span></div><div class="m-bar"><div class="fill" style="width:' + pct + '%"></div></div></div>';
     });
     $('rpModules').innerHTML = modHtml;
-    var ms = $('mobileStats'); if (ms) ms.textContent = gDone + '/' + SET_SIZE;
+    var ssl = $('setSizeLabel'); if (ssl) ssl.textContent = SET_SIZES[ctx.activeSet];
+    var ms = $('mobileStats'); if (ms) ms.textContent = gDone + '/' + SET_SIZES[ctx.activeSet];
     var accPct = allDone.length > 0 ? Math.round(right / allDone.length * 100) + '%' : '-';
     var listPct = list.length > 0 ? Math.round(fDone / list.length * 100) + '%' : '0%';
     var mbDone = $('mbDone'); if (mbDone) mbDone.textContent = gDone;

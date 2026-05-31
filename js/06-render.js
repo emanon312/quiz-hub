@@ -1,7 +1,7 @@
 // ===== 模块: render =====
 // 职责: DOM 渲染 —— 侧边栏题型导航、右侧进度面板、答案区展开、题型折叠切换
 // 依赖: 01-utils ($, TYPE_LABELS, TYPE_CLASS), 02-storage (CONFIG, questionTypes, SET_COUNT, SET_SIZES), 03-state (QuizState)
-// 暴露: window.Render = { sidebar, stats, answerBox, toggleTypeExpand, jumpToQ }
+// 暴露: window.Render = { sidebar, answerBox, toggleTypeExpand }
 // 注意: renderQuestion 仍留在 HTML 内联（依赖 let 变量太多），后续批次逐步移入
 
 (function () {
@@ -138,26 +138,10 @@
     }
   }
 
-  // ═══ 跳转到指定题号（保留当前筛选） ═══
-  function jumpToQ(ctx, qid) {
-    var s = ctx.activeSetData();
-    var list = ctx.filteredQuestions();
-    var idx = list.findIndex(function (x) { return x.id === qid; });
-    if (idx >= 0) {
-      s.currentIdx = idx;
-      ctx.saveData();
-      ctx.renderSidebar();
-      ctx.renderQuestion();
-      if (window.innerWidth <= 768) toggleMobileSidebar();
-    }
-  }
-
   // ═══ 暴露 ═══
   window.Render = {
     sidebar: renderSidebar,
-    stats: updateStats,
     answerBox: showAnswerBox,
-    toggleTypeExpand: toggleTypeExpand,
-    jumpToQ: jumpToQ
+    toggleTypeExpand: toggleTypeExpand
   };
 })();

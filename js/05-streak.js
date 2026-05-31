@@ -1,7 +1,7 @@
 // ===== 模块: streak =====
 // 职责: 连对里程碑视觉反馈 —— 徽章 / banner 弹幕 / 进度条 / 断连提示
 // 依赖: 01-utils ($, pick), config (MILESTONE_MSGS, BREAK_MSGS, STREAK_MILESTONES, STREAK_MILESTONE_EMOJI)
-// 暴露: window.Streak = { setBadge, checkMilestone, showBreak, updateProgress }
+// 暴露: window.Streak = { setBadge, checkMilestone, showBreak }
 
 (function () {
   var $ = window.$;
@@ -95,7 +95,6 @@
   window.Streak = {
     setBadge: setStreakBadge,
     checkMilestone: checkMilestone,
-    showBreak: showStreakBreak,
-    updateProgress: updateStreakProgress
+    showBreak: showStreakBreak
   };
 })();

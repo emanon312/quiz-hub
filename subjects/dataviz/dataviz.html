@@ -243,50 +243,8 @@
 
 
 <!-- ═══════ JavaScript ═══════ -->
-<script src="dataviz-config.js"></script>
-<script src="dataviz-questions.js"></script>
-<script src="../../js/01-utils.js"></script>
-<script src="../../js/02-storage.js"></script>
-<script src="../../js/03-state.js"></script>
-<script src="../../js/04-pool.js"></script>
-<script src="../../js/05-streak.js"></script>
-<script src="../../js/06-render.js"></script>
-<script src="../../js/07-actions.js"></script>
-<script src="../../js/08-tools.js"></script>
-<script src="../../js/09-keyboard.js"></script>
-<script src="../../js/10-init.js"></script>
-<script src="../../js/11-app.js"></script>
-<script>
-// 主题切换由 ../../js/11-app.js 的 window.toggleTheme 统一提供，初始图标由 boot()→initTheme() 设置
-// 渲染学科面板
-(function(){
-  var cfg = window.QUIZ_CONFIG;
-  if (!cfg || !cfg.subjects) return;
-  var body = document.getElementById('subjPanelBody');
-  if (!body) return;
-  var html = '';
-  cfg.subjects.forEach(function(s) {
-    html += '<a class="subj-card' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
-      + '<span class="sc-icon">' + s.icon + '</span>'
-      + '<div class="sc-info"><div class="sc-name">' + s.name + '</div></div>'
-      + '<span class="sc-arrow">→</span></a>';
-  });
-  body.innerHTML = html;
-})();
-window.toggleSidebarSection = function(id) {
-  document.getElementById(id).classList.toggle('open');
-};
-window.toggleSubjPanel = function() {
-  var panel = document.getElementById('subjPanel');
-  var overlay = document.getElementById('subjOverlay');
-  panel.classList.toggle('open');
-  overlay.classList.toggle('show');
-};
-window.closeSubjPanel = function() {
-  document.getElementById('subjPanel').classList.remove('open');
-  document.getElementById('subjOverlay').classList.remove('show');
-};
-</script>
-<script>QuizApp.boot();</script>
+<script type="module" src="dataviz-config.js"></script>
+<script type="module" src="dataviz-questions.js"></script>
+<script type="module" src="dataviz-init.js"></script>
 </body>
 </html>

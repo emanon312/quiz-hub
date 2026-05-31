@@ -4,13 +4,13 @@
 // 暴露: window.$  / window.pick / window.playBeep / window.TYPE_LABELS / window.TYPE_CLASS
 
 // DOM 速查
-window.$ = function (id) { return document.getElementById(id); };
+export function $(id) { return document.getElementById(id); }
 
 // 数组随机取一项
-window.pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // Web Audio API 极简振荡器；失败静默（部分浏览器 file:// 下首次需用户手势）
-window.playBeep = function (freq, dur, type) {
+export function playBeep(freq, dur, type) {
   try {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
@@ -26,14 +26,21 @@ window.playBeep = function (freq, dur, type) {
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + dur);
   } catch (e) { /* 静默 */ }
-};
+}
 
 // 题型展示常量：渲染层只读，不放配置文件（这是 UI 显示规则，不是用户可配置项）
-window.TYPE_LABELS = {
+export const TYPE_LABELS = {
   single: '单选题', multi: '多选题', fill: '填空题',
   short: '简答题', draw: '作图题', compre: '综合题'
 };
-window.TYPE_CLASS = {
+export const TYPE_CLASS = {
   single: 'single', multi: 'multi', fill: 'fill',
   short: 'short', draw: 'draw', compre: 'compre'
 };
+
+// 全局引用（兼容 onclick 等内联事件）
+window.$ = $;
+window.pick = pick;
+window.playBeep = playBeep;
+window.TYPE_LABELS = TYPE_LABELS;
+window.TYPE_CLASS = TYPE_CLASS;

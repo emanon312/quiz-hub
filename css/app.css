@@ -389,3 +389,4 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",s
 }
 .sidebar-search-input::placeholder{color:rgba(255,255,255,.4)}
 .sidebar-search-input:focus{background:rgba(255,255,255,.12)}
+.opt,.qnum-dot,.btn,.filter-chip,.module-btn,.set-tab,.star-btn,.redo-btn,.sa-btn{touch-action:manipulation}

@@ -1,7 +1,7 @@
 // ===== 模块: storage =====
 // 职责: 配置桥接（CONFIG/questionTypes/questions 等常量）、题库 schema 校验、套题索引构建、localStorage 数据加载（含多版本迁移）
 // 依赖: config.js (window.QUIZ_CONFIG), questions.js (window.QUIZ_QUESTIONS)
-// 暴露: window.CONFIG / window.questionTypes / window.questions / window.SET_COUNT / window.SET_SIZE
+// 暴露: window.CONFIG / window.questionTypes / window.questions / window.SET_COUNT
 //       window.SETS / window.STORAGE_KEY / window.MILESTONE_MSGS 等配置常量
 //       window.Storage = { defaultSetData, loadData }
 // 注意: saveData 暂留在 HTML 内联脚本，批次 3（state 模块）建立 QuizState 后移入本模块
@@ -15,7 +15,6 @@ window.BREAK_MSGS = window.QUIZ_CONFIG.breakMsgs;
 window.STREAK_MILESTONES = window.QUIZ_CONFIG.streakMilestones;
 window.STREAK_MILESTONE_EMOJI = window.QUIZ_CONFIG.streakMilestoneEmoji;
 window.SET_COUNT = window.QUIZ_CONFIG.setNames.length;
-window.SET_SIZE = window.QUIZ_CONFIG.setSize;
 // 每套题数：优先用 config.setSizes（适配每卷题数不同的真卷，如 A卷37/B卷35），
 // 缺省则按 setSize 等分。长度须与 setNames 一致才生效
 window.SET_SIZES = (function () {

@@ -1,7 +1,7 @@
 // ===== 模块: actions =====
 // 职责: 用户答题操作 —— 判题 / 选项切换 / 导航 / 标记 / 重做 / 套题筛选切换
 // 依赖: 01-utils ($, playBeep), 05-streak (Streak), 06-render (Render)
-// 暴露: window.Actions = { checkAnswer, toggleAnswer, prevQuestion, nextQuestion, toggleStar, redoCurrentQuestion, switchSetTab, setFilter, setTypeFilter, selectOption }
+// 暴露: window.Actions = { checkAnswer, toggleAnswer, prevQuestion, nextQuestion, toggleStar, redoCurrentQuestion, switchSetTab, setFilter, setTypeFilter }
 
 (function () {
   var $ = window.$;
@@ -10,38 +10,6 @@
   var Render = window.Render;
   var isAnswered = window.QuizState.isAnswered;
   var isShortLike = window.QuizState.isShortLike;
-
-  // ═══ 选项选择（统一入口） ═══
-  // 由选项点击 / Enter / 数字键共享，替代散弹式 s.userAnswers[q.id] = ...
-  // ctx: { activeSetData, saveData, renderQuestion, focusedOptIdx }
-  function selectOption(ctx, mode, idx) {
-    var s = ctx.activeSetData();
-    var list = ctx.filteredQuestions();
-    var q = list[s.currentIdx];
-    if (!q) return;
-    // 已判定则锁定
-    if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) return;
-    var cur = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
-    if (mode === 'radio') {
-      s.userAnswers[q.id] = [idx];
-    } else if (mode === 'check') {
-      // checkbox toggle from click
-      var isChecked = cur.includes(idx);
-      if (isChecked) s.userAnswers[q.id] = cur.filter(function (v) { return v !== idx; });
-      else s.userAnswers[q.id] = cur.concat([idx]);
-    } else if (mode === 'digit') {
-      // 数字键：单选题同键取消选中，多选题切换
-      if (q.type === 'single') {
-        if (cur.length === 1 && cur[0] === idx) s.userAnswers[q.id] = [];
-        else s.userAnswers[q.id] = [idx];
-      } else {
-        if (cur.includes(idx)) s.userAnswers[q.id] = cur.filter(function (v) { return v !== idx; });
-        else s.userAnswers[q.id] = cur.concat([idx]);
-      }
-    }
-    ctx.saveData();
-    ctx.renderQuestion();
-  }
 
   // ═══ 检查答案 ═══
   function checkAnswer(ctx) {
@@ -208,7 +176,6 @@
 
   // ═══ 暴露 ═══
   window.Actions = {
-    selectOption: selectOption,
     checkAnswer: checkAnswer,
     toggleAnswer: toggleAnswer,
     prevQuestion: prevQuestion,

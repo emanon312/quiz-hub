@@ -1,8 +1,7 @@
 // ===== 模块: state =====
 // 职责: 封装状态初始化逻辑 + 快捷方法（类型判断、活跃数据获取）；实际状态变量暂由 HTML 内联脚本持有（let activeSet/filter/sets 等），后续批次逐步迁移到 QuizState 属性
-// 依赖: 02-storage.js (window.Storage, window.SET_COUNT, window.SET_SIZE, window.SETS, window.questionTypes)
-// 暴露: window.QuizState = { isAnswered, isShortLike, s, TYPE_ORDER, initSets }
-//       window.S = window.QuizState（便捷别名）
+// 依赖: 02-storage.js (window.Storage, window.SET_COUNT, window.questionTypes)
+// 暴露: window.QuizState = { isAnswered, isShortLike, TYPE_ORDER, initSets }
 
 (function () {
   var SET_COUNT = window.SET_COUNT;
@@ -51,5 +50,4 @@
     isAnswered: isAnswered,
     initSets: initSets
   };
-  window.S = window.QuizState; // 便捷别名
 })();

@@ -1,2 +1,137 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+build/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Secret keys and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.secret
+*.credentials
+*.token
+*.apikey
+*.api_key
+*.password
+*.passwd
+*.pwd
+
+# API keys (common patterns)
+**/api_key.js
+**/api_key.ts
+**/apikey.js
+**/apikey.ts
+**/secrets.js
+**/secrets.ts
+**/credentials.js
+**/credentials.ts
+
+# Private keys
+*.pvt
+*.private
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# Certificate files
+*.crt
+*.cer
+*.der
+
+# AWS credentials
+.aws/credentials
+.aws/config
+
+# Google Cloud
+service-account.json
+service_account.json
+*-service-account.json
+
+# Azure
+.azure/
+
+# Heroku
+.heroku/
+
+# Docker
+docker-compose.override.yml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+.nyc_output/
+
+# Optional npm cache
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test

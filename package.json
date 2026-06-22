@@ -2,9 +2,11 @@
   "name": "quiz-hub",
   "version": "1.0.0",
   "description": "腿毛人的学科练习网站",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",
+    "validate": "node scripts/validate-quiz-data.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

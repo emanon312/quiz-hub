@@ -1,12 +1,11 @@
+import { getSubjectLinks } from '../subjects.js';
+
 // 题库应用配置 — 修改本文件即可替换学科 / 调整套题 / 自定义题型与文案
 // 加载顺序：本文件必须先于 questions.js 与主 HTML 内 <script> 块加载
 
 window.QUIZ_CONFIG = {
   // —— 学科切换 ——
-  subjects: [
-    { name: '数据可视化', icon: '📊', href: '../dataviz/dataviz.html', active: true },
-    { name: '电子技术基础', icon: '⚡', href: '../electronics/electronics.html' }
-  ],
+  subjects: getSubjectLinks('dataviz'),
 
   // —— 学科信息 ——
   subjectName: '数据可视化',

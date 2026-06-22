@@ -11,6 +11,7 @@ export default defineConfig({
         main: 'index.html',
         electronics: 'subjects/electronics/electronics.html',
         dataviz: 'subjects/dataviz/dataviz.html',
+        machineLearning: 'subjects/machine-learning/machine-learning.html',
       }
     }
   }

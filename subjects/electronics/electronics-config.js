@@ -1,10 +1,9 @@
+import { getSubjectLinks } from '../subjects.js';
+
 // 电子技术基础题库配置
 window.QUIZ_CONFIG = {
   // —— 学科切换 ——
-  subjects: [
-    { name: '数据可视化', icon: '📊', href: '../dataviz/dataviz.html' },
-    { name: '电子技术基础', icon: '⚡', href: '../electronics/electronics.html', active: true }
-  ],
+  subjects: getSubjectLinks('electronics'),
 
   // —— 学科信息 ——
   subjectName: '电子技术基础',

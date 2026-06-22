@@ -1,10 +1,10 @@
 # Quiz Hub · 多学科题库练习平台
 
-一个**配置驱动**的题库刷题应用，零依赖、零构建、`file://` 直接打开即可使用。支持多学科多卷子，换学科只需在 `subjects/` 下新增目录。
+一个**配置驱动**的题库刷题应用，静态优先、可直接打开，也支持用 Vite 构建部署。支持多学科多卷子，换学科只需在 `subjects/` 下新增目录并登记到学科清单。
 
 ## ✨ 特性
 
-- **零依赖**：纯 HTML + 原生 JS，无需 npm/node/构建
+- **静态优先**：纯 HTML + 原生 JS 运行时，构建工具只用于本地开发、校验和部署
 - **配置驱动**：学科名、套题数、题型、连对文案全在各自的 config 文件中
 - **多学科支持**：`subjects/` 下每个子目录独立一个学科
 - **6 种题型**：单选、多选、填空、简答、作图、综合
@@ -26,6 +26,15 @@ python -m http.server 8000
 # 浏览器访问 http://localhost:8000/subjects/electronics/electronics.html
 ```
 
+开发 / 校验 / 构建：
+
+```bash
+npm install
+npm run validate
+npm run build
+npm run preview
+```
+
 ## 📁 文件结构
 
 ```
@@ -34,12 +43,18 @@ quiz-hub/
 ├── css/
 │   └── app.css                      # 共享样式表
 ├── subjects/
+│   ├── subjects.js                 # 学科清单（首页/切换/校验共用）
 │   ├── dataviz/                     # 📊 数据可视化
 │   │   ├── dataviz.html             #    入口页面
 │   │   ├── dataviz-config.js        #    学科配置
 │   │   ├── dataviz-questions.js     #    题库数据（300题，3套×100）
 │   │   └── images/                  #    题目图片（按卷子分目录）
 │   │       └── A卷/
+│   ├── machine-learning/            # 🤖 机器学习
+│   │   ├── machine-learning.html
+│   │   ├── machine-learning-config.js
+│   │   ├── machine-learning-questions.js # 题库数据（160题，4套×40）
+│   │   └── images/
 │   └── electronics/                 # ⚡ 电子技术基础
 │       ├── electronics.html
 │       ├── electronics-config.js
@@ -58,10 +73,29 @@ quiz-hub/
 mkdir -p subjects/新学科名/images/A卷
 ```
 
+并在 `subjects/subjects.js` 中登记新学科：
+
+```js
+{
+  slug: '新学科名',
+  name: '学科名',
+  icon: '📘',
+  href: '../新学科名/新学科名.html',
+  homeHref: 'subjects/新学科名/新学科名.html',
+  dir: 'subjects/新学科名',
+  config: 'subjects/新学科名/新学科名-config.js',
+  questions: 'subjects/新学科名/新学科名-questions.js',
+  html: 'subjects/新学科名/新学科名.html',
+}
+```
+
 ### 2. 创建配置文件 `新学科名-config.js`
 
 ```js
+import { getSubjectLinks } from '../subjects.js';
+
 window.QUIZ_CONFIG = {
+  subjects: getSubjectLinks('新学科名'),
   subjectName: '学科名',
   pageTitle:   '期末复习',
   sidebarTitle:'学科名 题库',
@@ -109,6 +143,14 @@ window.QUIZ_QUESTIONS = [
 ### 5. 图片存放
 
 将图片放入 `subjects/新学科名/images/卷子名/` 目录，题库中引用路径为 `images/卷子名/文件名.ext`。
+
+### 6. 校验题库
+
+```bash
+npm run validate
+```
+
+校验会检查题型、题数、重复 id、选择题答案下标、必填答案字段以及本地图片路径。
 
 ## 🧩 题目 Schema
 

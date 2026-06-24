@@ -1,5 +1,4 @@
 // 学科页面初始化入口
-import { QuizApp } from '../../js/11-app.js';
 
 // 根据 QUIZ_CONFIG 动态设置学科按钮文字
 (function setSubjBtn() {
@@ -46,5 +45,7 @@ window.closeSubjPanel = function () {
   document.getElementById('subjOverlay').classList.remove('show');
 };
 
-// 启动应用
-QuizApp.boot();
+// 启动应用：动态加载 app，避免 Vite 打包后在 QUIZ_CONFIG 赋值前执行 storage 模块
+import('../../js/11-app.js').then(function (mod) {
+  mod.QuizApp.boot();
+});

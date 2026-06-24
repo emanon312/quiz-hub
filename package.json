@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "validate": "node scripts/validate-quiz-data.mjs",
+    "check:startup": "node scripts/check-built-startup-order.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

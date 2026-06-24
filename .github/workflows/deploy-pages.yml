@@ -39,6 +39,9 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Check built startup order
+        run: npm run check:startup
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

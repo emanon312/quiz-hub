@@ -45,6 +45,9 @@ jobs:
       - name: Test homepage progress
         run: npm run test:home
 
+      - name: Test quiz UI CSS
+        run: npm run test:quiz-ui
+
       - name: Build site
         run: npm run build
 

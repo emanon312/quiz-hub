@@ -15,6 +15,9 @@ const requiredSnippets = [
   '.opt.wrong::before',
   '.right-panel .rp-divider',
   '.answer-box.show',
+  '.empty-state__icon',
+  '.empty-state__actions',
+  '.empty-state__btn',
   '#autoRevealChip.active',
   'scrollbar-gutter:stable',
   '::-webkit-scrollbar-thumb',
@@ -58,6 +61,10 @@ assert.ok(
 assert.ok(
   /\.modal-box\{[^}]*max-height:min\(80vh,640px\)[^}]*overflow-y:auto/s.test(css),
   'Modal content should scroll internally with a viewport-aware height limit',
+);
+assert.ok(
+  /\.empty-state\{[^}]*border:1px solid var\(--border\)[^}]*background:var\(--surface-paper\)/s.test(css),
+  'Empty states should look like designed paper surfaces, not inline placeholder text',
 );
 assert.ok(
   /\.subj-switcher-list\{[^}]*max-height:min\(56vh,360px\)[^}]*overflow-y:auto/s.test(css) &&

@@ -10,7 +10,10 @@
     "test:state": "node scripts/test-runtime-state.mjs",
     "test:icons": "node scripts/test-ui-icons.mjs",
     "test:home": "node scripts/test-home-progress.mjs",
+    "test:learning-data": "node scripts/test-learning-data-tools.mjs",
+    "test:workflow": "node scripts/test-workflow-surface.mjs",
     "test:quiz-ui": "node scripts/test-quiz-ui-css.mjs",
+    "capture:visuals": "node scripts/capture-visuals.mjs",
     "check:startup": "node scripts/check-built-startup-order.mjs",
     "build": "vite build",
     "preview": "vite preview"

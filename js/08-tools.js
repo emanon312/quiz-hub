@@ -4,7 +4,96 @@
 // 暴露: window.Tools = { showWrongAnalysis, showResetModal, doResetProgress, toggleShortAnswer, exportShortAnswers }
 
 import { $ } from './01-utils.js';
-import { CONFIG } from './02-storage.js';
+import { CONFIG, STORAGE_KEY } from './02-storage.js';
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+export function createLearningDataExport(ctx, now = () => Date.now()) {
+  const exportedAt = now();
+  return {
+    app: 'quiz-hub',
+    version: 1,
+    exportedAt,
+    subject: {
+      name: CONFIG.subjectName,
+      storageKey: STORAGE_KEY,
+    },
+    data: {
+      updatedAt: exportedAt,
+      activeSet: ctx.activeSet || 0,
+      filter: ctx.filter || 'all',
+      sets: cloneJson(ctx.sets || []),
+      practiceSec: ctx.practiceSec || 0,
+    },
+  };
+}
+
+export function parseLearningDataImport(raw, expectedStorageKey = STORAGE_KEY) {
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    throw new Error('Import file must be valid JSON');
+  }
+  if (!payload || payload.app !== 'quiz-hub' || payload.version !== 1) {
+    throw new Error('Import file is not a Quiz Hub backup');
+  }
+  if (!payload.subject || payload.subject.storageKey !== expectedStorageKey) {
+    throw new Error('Import storage key mismatch');
+  }
+  if (!payload.data || !Array.isArray(payload.data.sets)) {
+    throw new Error('Import file is missing quiz progress data');
+  }
+  return payload;
+}
+
+function downloadText(filename, text, type) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportLearningData(ctx) {
+  const payload = createLearningDataExport(ctx);
+  const stamp = new Date(payload.exportedAt).toISOString().slice(0, 10);
+  const name = (CONFIG.subjectName || 'quiz-hub').replace(/[\\/:*?"<>|]/g, '-');
+  downloadText(name + '-learning-data-' + stamp + '.json', JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+}
+
+function importLearningDataText(ctx, raw, options = {}) {
+  const payload = parseLearningDataImport(raw);
+  const confirmFn = options.confirmFn || window.confirm;
+  const storage = options.storage || localStorage;
+  const reloadFn = options.reloadFn || (() => window.location.reload());
+  const ok = confirmFn('导入会覆盖当前学科在本浏览器里的做题进度，确认继续吗？');
+  if (!ok) return false;
+  storage.setItem(STORAGE_KEY, JSON.stringify(payload.data));
+  reloadFn();
+  return true;
+}
+
+function importLearningDataFile(ctx, event) {
+  const input = event && event.target;
+  const file = input && input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      importLearningDataText(ctx, String(reader.result || ''));
+    } catch (err) {
+      alert(err && err.message ? err.message : '导入失败，请检查文件。');
+    } finally {
+      input.value = '';
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
 
 // ═══ 错题分析弹窗 ═══
 function showWrongAnalysis(ctx) {
@@ -123,5 +212,8 @@ window.Tools = {
   showResetModal,
   doResetProgress,
   toggleShortAnswer,
-  exportShortAnswers
+  exportShortAnswers,
+  exportLearningData,
+  importLearningDataFile,
+  importLearningDataText
 };

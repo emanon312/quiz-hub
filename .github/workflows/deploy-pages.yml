@@ -45,6 +45,12 @@ jobs:
       - name: Test homepage progress
         run: npm run test:home
 
+      - name: Test learning data tools
+        run: npm run test:learning-data
+
+      - name: Test workflow surface
+        run: npm run test:workflow
+
       - name: Test quiz UI CSS
         run: npm run test:quiz-ui
 

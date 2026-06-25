@@ -171,7 +171,7 @@ h1 .accent{color:var(--accent);transition:color .3s}
   .continue-action{justify-content:center}
 }
 </style>
-<script>var _t=localStorage.getItem('quiz-hub-theme')||'orange';document.documentElement.setAttribute('data-theme',_t);</script>
+<script>var _q=new URLSearchParams(location.search).get('theme');var _t=(_q==='green'||_q==='orange')?_q:(localStorage.getItem('quiz-hub-theme')||'orange');document.documentElement.setAttribute('data-theme',_t);</script>
 </head>
 <body>
   <div class="topnav">
@@ -207,7 +207,8 @@ h1 .accent{color:var(--accent);transition:color .3s}
   <div class="footer">© 2025 腿毛人 · Quiz Hub</div>
 
 <script>
-var current = localStorage.getItem('quiz-hub-theme') || 'orange';
+var themeFromQuery = new URLSearchParams(location.search).get('theme');
+var current = (themeFromQuery === 'green' || themeFromQuery === 'orange') ? themeFromQuery : (localStorage.getItem('quiz-hub-theme') || 'orange');
 </script>
 <script type="module">
 import { SUBJECTS } from './subjects/subjects.js';

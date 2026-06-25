@@ -58,6 +58,8 @@ const app = {
     const self = this;
     return {
       activeSet: self.activeSet,
+      filter: self.filter,
+      practiceSec: self.practiceSec,
       sets: self.sets,
       activeSetData() { return self.activeSetData(); },
       getQuestionPool() { return self.getQuestionPool(); },
@@ -137,7 +139,7 @@ const app = {
       $('resultMsg').classList.remove('show', 'right', 'wrong');
       $('qNum').textContent = '';
       $('qType').textContent = '';
-      $('qText').innerHTML = '<div class="empty-state" style="padding:60px 0;text-align:center"><h3>' + msg + '</h3></div>';
+      $('qText').innerHTML = '<div class="empty-state"><div class="empty-state__icon">' + iconMarkup('emptyBox') + '</div><h3>' + msg + '</h3><p>可以调整筛选或搜索条件，继续回到题目列表。</p><div class="empty-state__actions"><button class="empty-state__btn" onclick="setFilter(&apos;all&apos;)">查看全部题目</button></div></div>';
       $('navInfo').textContent = '0 / 0';
       self.renderSidebar();
       return;
@@ -384,6 +386,8 @@ const app = {
   doResetProgress() { window.Tools.doResetProgress(this.ctx()); },
   toggleShortAnswer() { window.Tools.toggleShortAnswer(this.ctx()); },
   exportShortAnswers() { window.Tools.exportShortAnswers(this.ctx()); },
+  exportLearningData() { window.Tools.exportLearningData(this.ctx()); },
+  importLearningDataFile(event) { window.Tools.importLearningDataFile(this.ctx(), event); },
 
   _startPracticeTimer() {
     const self = this;
@@ -470,6 +474,8 @@ window.setFilter = (f) => { app.setFilter(f); };
 window.setTypeFilter = (t) => { app.setTypeFilter(t); };
 window.toggleShortAnswer = () => { app.toggleShortAnswer(); };
 window.exportShortAnswers = () => { app.exportShortAnswers(); };
+window.exportLearningData = () => { app.exportLearningData(); };
+window.importLearningDataFile = (event) => { app.importLearningDataFile(event); };
 window.toggleStar = () => { app.toggleStar(); };
 window.redoCurrentQuestion = () => { app.redoCurrentQuestion(); };
 window.checkAnswer = () => { app.checkAnswer(); };

@@ -310,7 +310,9 @@ const app = {
     const chip = $('autoRevealChip');
     if (chip) {
       chip.classList.toggle('active', this.autoReveal);
-      chip.textContent = '答案模式' + (this.autoReveal ? ' 已开' : '');
+      chip.textContent = '答案模式';
+      chip.setAttribute('aria-pressed', this.autoReveal ? 'true' : 'false');
+      chip.setAttribute('title', this.autoReveal ? '关闭答案模式' : '开启答案模式');
     }
     if (!this.autoReveal) {
       const s = this.activeSetData();

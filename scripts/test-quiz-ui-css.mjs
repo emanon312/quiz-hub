@@ -16,6 +16,8 @@ const requiredSnippets = [
   '.right-panel .rp-divider',
   '.answer-box.show',
   '#autoRevealChip.active',
+  'scrollbar-gutter:stable',
+  '::-webkit-scrollbar-thumb',
   '@media(prefers-reduced-motion:reduce)',
 ];
 
@@ -32,6 +34,23 @@ assert.ok(
   /\.answer-box\{[^}]*transform:translateY\(-6px\)/s.test(css) &&
     /\.answer-box\.show\{[^}]*transform:translateY\(0\)/s.test(css),
   'Answer reveal should ease in from a slightly collapsed position',
+);
+assert.ok(
+  /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:rgba\(184,95,36,\.28\) transparent/s.test(css),
+  'Global scrollbars should use a thin brand-colored treatment',
+);
+assert.ok(
+  /\.tools-menu\{[^}]*max-height:min\(60vh,320px\)[^}]*overflow-y:auto/s.test(css),
+  'Tools menu should scroll internally instead of lengthening the page',
+);
+assert.ok(
+  /\.modal-box\{[^}]*max-height:min\(80vh,640px\)[^}]*overflow-y:auto/s.test(css),
+  'Modal content should scroll internally with a viewport-aware height limit',
+);
+assert.ok(
+  /\.subj-switcher-list\{[^}]*max-height:min\(56vh,360px\)[^}]*overflow-y:auto/s.test(css) &&
+    /\.subj-panel-body\{[^}]*scrollbar-gutter:stable/s.test(css),
+  'Subject popups and panels should keep their scrolling stable and internal',
 );
 assert.ok(!appJs.includes("答案模式' +"), 'Answer mode label should not change when toggled');
 assert.ok(!appJs.includes('已开'), 'Answer mode enabled state should be shown with color, not label text');

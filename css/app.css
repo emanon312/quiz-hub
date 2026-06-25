@@ -1,6 +1,15 @@
 /* ═══════ 双主题系统 ═══════ */
 html:not([data-theme="green"]){--primary:#E87536;--primary-dark:#B95B24;--danger:#D8482E;--warning:#D99A17;--success:#2F8B57;--sidebar-bg:#B85F24;--sidebar-text:#fff;--bg-page:#FFF8F0;--text:#302216;--text-muted:#806E5B;--card-bg:#FFF7EF;--surface-paper:#FFFCF8;--surface-panel:#FFF4E8;--border:#EED8BF;--radius:8px;--shadow:0 14px 42px rgba(126,62,19,.07);--accent-light:#FFF0E2;--accent-dark:#9A4A1E;--qnum-bg:rgba(255,255,255,.13);--qnum-text:rgba(255,255,255,.76);--qnum-border:rgba(255,255,255,.18);--opt-hover-bg:#FFF4E8;--input-bg:#FFFCF8;--input-border:#E9C8A5;--answer-bg:#FFF7EA;--answer-border:#E9C8A5;--option-state-selected:#E87536;--option-state-correct:#2F8B57;--option-state-wrong:#D8482E}
 [data-theme="green"]{--primary:#22c55e;--primary-dark:#16a34a;--danger:#ef4444;--warning:#eab308;--success:#22c55e;--sidebar-bg:#0c150d;--sidebar-text:#e8e8e8;--bg-page:#0a0f0a;--text:#e8e8e8;--text-muted:#8a978a;--card-bg:#111c12;--surface-paper:#101911;--surface-panel:#0f1a10;--border:#233323;--shadow:0 16px 44px rgba(0,0,0,.24);--accent-light:#152915;--accent-dark:#4ade80;--qnum-bg:#182718;--qnum-text:#a7b4a7;--qnum-border:#2b3e2b;--opt-hover-bg:#142414;--input-bg:#101911;--input-border:#2d422d;--answer-bg:#122111;--answer-border:#2d422d;--option-state-selected:#22c55e;--option-state-correct:#4ade80;--option-state-wrong:#ef4444}
+html{scrollbar-gutter:stable}
+*{scrollbar-width:thin;scrollbar-color:rgba(184,95,36,.28) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(184,95,36,.22);border-radius:999px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(184,95,36,.38);background-clip:content-box}
+[data-theme="green"] *{scrollbar-color:rgba(34,197,94,.32) transparent}
+[data-theme="green"] ::-webkit-scrollbar-thumb{background:rgba(34,197,94,.24);background-clip:content-box}
+[data-theme="green"] ::-webkit-scrollbar-thumb:hover{background:rgba(34,197,94,.42);background-clip:content-box}
 
 /* —— 橙色主题侧边栏元素修正 —— */
 html:not([data-theme="green"]) .module-btn .type-q-count{color:rgba(255,255,255,.5)}
@@ -175,7 +184,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
 /* —— 工具栏 —— */
 .tools-dropdown{position:relative;display:inline-block}
 .tools-dropdown.open .tools-menu{display:block!important}
-.tools-menu{display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:150;min-width:160px;padding:4px 0;margin-top:4px;transition:background .3s}
+.tools-menu{display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:150;min-width:160px;max-height:min(60vh,320px);overflow-y:auto;scrollbar-gutter:stable;padding:4px 0;margin-top:4px;transition:background .3s}
 .tools-item{display:block;width:100%;text-align:left;padding:6px 14px;border:none;background:none;color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .tools-item:hover{background:var(--opt-hover-bg)}
 .tools-item.danger{color:#f44336}
@@ -216,7 +225,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
 /* —— 弹窗 —— */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
-.modal-box{background:var(--card-bg);border-radius:12px;padding:24px;max-width:600px;max-height:80vh;overflow-y:auto;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);color:var(--text);transition:background .3s}
+.modal-box{background:var(--card-bg);border-radius:12px;padding:24px;max-width:600px;max-height:min(80vh,640px);overflow-y:auto;scrollbar-gutter:stable;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);color:var(--text);transition:background .3s}
 .modal-box h3{font-size:20px;margin-bottom:12px}
 .modal-box .close-btn{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)}
 .modal-box .wa-mod{margin-bottom:12px}
@@ -286,7 +295,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
 .subj-switcher-list{
   display:none;margin-top:6px;
   background:var(--card-bg);border:1px solid var(--border);
-  border-radius:10px;overflow:hidden;
+  border-radius:10px;max-height:min(56vh,360px);overflow-y:auto;scrollbar-gutter:stable;
   box-shadow:0 4px 16px var(--shadow);
 }
 .subj-switcher.open .subj-switcher-list{display:block}
@@ -337,7 +346,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
   transition:.15s;
 }
 .subj-panel-close:hover{background:var(--border);color:var(--text)}
-.subj-panel-body{flex:1;overflow-y:auto;padding:12px}
+.subj-panel-body{flex:1;overflow-y:auto;scrollbar-gutter:stable;padding:12px}
 /* 卡片式学科项 */
 .subj-card{
   display:flex;align-items:center;gap:12px;

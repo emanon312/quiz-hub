@@ -116,11 +116,14 @@
         <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetPracticeTimer()">重置做题时间</button>
         <div class="tools-divider"></div>
         <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">导出简答题</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportLearningData()">导出学习数据</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');document.getElementById('learningDataImport').click()">导入学习数据</button>
         <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showWrongAnalysis()">错题分析</button>
         <div class="tools-divider"></div>
         <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">重新开始</button>
       </div>
     </div>
+    <input type="file" id="learningDataImport" accept="application/json,.json" hidden onchange="importLearningDataFile(event)">
     <button class="btn btn-nav btn-sm" id="autoRevealChip" onclick="toggleAutoReveal()">答案模式</button>
     <button class="btn btn-nav btn-sm" id="randomChip" onclick="toggleRandom()">乱序</button>
   </div>

@@ -16,7 +16,8 @@ function setupSetTabs(activeSet, setNames) {
 
 // ═══ 主题初始化 ═══
 function initTheme() {
-  const saved = localStorage.getItem('quiz-hub-theme') || 'orange';
+  const requested = new URLSearchParams(window.location.search).get('theme');
+  const saved = (requested === 'green' || requested === 'orange') ? requested : (localStorage.getItem('quiz-hub-theme') || 'orange');
   document.documentElement.setAttribute('data-theme', saved);
   const el = $('themeToggle');
   if (el) {

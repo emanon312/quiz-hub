@@ -20,6 +20,7 @@ for (const subject of SUBJECTS) {
 const requiredIcons = [
   'brandMark',
   'siteMark',
+  'emptyBox',
   'themePaper',
   'themeLeaf',
   'themeCarrot',

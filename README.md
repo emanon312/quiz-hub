@@ -1,10 +1,10 @@
 # Quiz Hub · 多学科题库练习平台
 
-一个**配置驱动**的题库刷题应用，静态优先、可直接打开，也支持用 Vite 构建部署。支持多学科多卷子，换学科只需在 `subjects/` 下新增目录并登记到学科清单。
+一个**配置驱动**的题库刷题应用，静态优先、使用 Vite 本地开发并构建到 GitHub Pages。支持多学科多卷子，换学科只需在 `subjects/` 下新增目录并登记到学科清单。
 
 ## ✨ 特性
 
-- **静态优先**：纯 HTML + 原生 JS 运行时，构建工具只用于本地开发、校验和部署
+- **静态优先**：构建后是纯静态资源，可部署到 GitHub Pages
 - **配置驱动**：学科名、套题数、题型、连对文案全在各自的 config 文件中
 - **多学科支持**：`subjects/` 下每个子目录独立一个学科
 - **6 种题型**：单选、多选、填空、简答、作图、综合
@@ -15,25 +15,28 @@
 
 ## 🚀 使用
 
-```
-双击 subjects/ 下对应学科的 .html 文件即可，不要用 IE。
-```
+线上使用：
 
-或本地起个静态服务器（可选）：
+打开 GitHub Pages 地址即可做题，做题记录保存在当前设备当前浏览器的 localStorage 中。
 
-```bash
-python -m http.server 8000
-# 浏览器访问 http://localhost:8000/subjects/electronics/electronics.html
-```
-
-开发 / 校验 / 构建：
+本地开发：
 
 ```bash
 npm install
+npm run dev
+# 浏览器访问 http://localhost:3000/
+```
+
+校验 / 构建 / 本地预览生产包：
+
+```bash
 npm run validate
+npm run test:state
 npm run build
 npm run preview
 ```
+
+不要直接双击学科 `.html` 文件运行。当前页面使用 ES module，`file://` 打开时浏览器可能阻止模块加载，导致只有 UI 没有题目。
 
 ## 📁 文件结构
 
@@ -58,7 +61,7 @@ quiz-hub/
 │   └── electronics/                 # ⚡ 电子技术基础
 │       ├── electronics.html
 │       ├── electronics-config.js
-│       ├── electronics-questions.js #    题库数据（37题：15填空+15判断+7计算）
+│       ├── electronics-questions.js #    题库数据（110题，3套卷）
 │       └── images/
 │           └── A卷/                 #    13张电路图
 ├── README.md
@@ -86,6 +89,10 @@ mkdir -p subjects/新学科名/images/A卷
   config: 'subjects/新学科名/新学科名-config.js',
   questions: 'subjects/新学科名/新学科名-questions.js',
   html: 'subjects/新学科名/新学科名.html',
+  questionCount: 50,
+  setCount: 1,
+  description: '首页卡片描述',
+  tags: ['单选', '多选'],
 }
 ```
 
@@ -134,11 +141,14 @@ window.QUIZ_QUESTIONS = [
 复制任一已有学科的 `.html` 文件，修改前两行脚本引用：
 
 ```html
-<script src="新学科名-config.js"></script>
-<script src="新学科名-questions.js"></script>
+<script type="module" src="新学科名-config.js"></script>
+<script type="module" src="新学科名-questions.js"></script>
+<script type="module" src="新学科名-init.js"></script>
 ```
 
 其余 `../../js/` 和 `../../css/` 引用保持不变。
+
+同时复制任一已有学科的 `*-init.js`，将其中的学科名、图标、清单 slug 改成新学科。Vite 构建入口和首页卡片会从 `subjects/subjects.js` 自动读取。
 
 ### 5. 图片存放
 

@@ -2,12 +2,9 @@
 
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { SUBJECTS } from '../subjects/subjects.js';
 
-const subjectPages = [
-  'dist/subjects/dataviz/dataviz.html',
-  'dist/subjects/electronics/electronics.html',
-  'dist/subjects/machine-learning/machine-learning.html',
-];
+const subjectPages = SUBJECTS.map((subject) => 'dist/' + subject.html);
 
 function extractEntryAsset(html) {
   const match = html.match(/<script type="module"[^>]+src="([^"]+)"/);

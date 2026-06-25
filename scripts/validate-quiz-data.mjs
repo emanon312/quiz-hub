@@ -50,6 +50,12 @@ async function validateSubjectData(subject, config, questions) {
   if (needed > questions.length) {
     issues.push(`${prefix} 题数 ${questions.length} 少于配置需要 ${needed}`);
   }
+  if (subject.questionCount != null && subject.questionCount !== questions.length) {
+    issues.push(`${prefix} 学科清单 questionCount=${subject.questionCount} 与实际题数 ${questions.length} 不一致`);
+  }
+  if (subject.setCount != null && subject.setCount !== (config.setNames?.length || 0)) {
+    issues.push(`${prefix} 学科清单 setCount=${subject.setCount} 与实际套题数 ${config.setNames?.length || 0} 不一致`);
+  }
 
   const seenIds = new Set();
   for (let i = 0; i < questions.length; i++) {

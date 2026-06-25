@@ -6,6 +6,7 @@
 
 import { $ } from './01-utils.js';
 import { CONFIG, questionTypes, SET_COUNT, SET_SIZES } from './02-storage.js';
+import { countAnswered, getFillFeedback, isAnswered } from './03-state.js';
 
 // ═══ 渲染侧边栏 ═══
 // ctx: { activeSetData, filter, getQuestionPool, filteredQuestions, saveData }
@@ -23,7 +24,7 @@ function renderSidebar(ctx) {
   let html = '';
   questionTypes.forEach(tt => {
     const qs = pool.filter(q => q.type === tt.type);
-    const done = qs.filter(q => s.userAnswers[q.id] !== undefined);
+    const done = qs.filter(q => isAnswered(s, q));
     const active = s.typeFilter === tt.type ? ' active' : '';
     const isOpen = s.expandedTypes[tt.type] || s.typeFilter === tt.type;
     s.expandedTypes[tt.type] = isOpen;
@@ -46,7 +47,7 @@ function renderSidebar(ctx) {
   document.querySelectorAll('.set-tab').forEach((btn, i) => {
     btn.classList.toggle('active', i === ctx.activeSet);
     const sData = ctx.sets[i];
-    const done = Object.keys(sData.userAnswers).length;
+    const done = countAnswered(sData, window.Pool.getQuestionPool(i));
     btn.textContent = (CONFIG.setNames[i] || ('题组' + (i + 1))) + ' (' + done + '/' + SET_SIZES[i] + ')';
   });
 
@@ -67,22 +68,22 @@ function renderSidebar(ctx) {
 function updateStats(ctx) {
   const s = ctx.activeSetData();
   const pool = ctx.getQuestionPool();
-  const allDone = pool.filter(q => s.userAnswers[q.id] !== undefined);
+  const allDone = pool.filter(q => isAnswered(s, q));
   const right = allDone.filter(q => s.userAnswers[q.id] === true).length;
   $('rpDone').textContent = allDone.length;
   $('rpAcc').textContent = allDone.length > 0 ? Math.round(right / allDone.length * 100) + '%' : '-';
-  const gDone = Object.keys(ctx.sets[ctx.activeSet].userAnswers).length;
+  const gDone = countAnswered(ctx.sets[ctx.activeSet], pool);
   $('rpGlobal').textContent = gDone;
   const gRight = Object.values(ctx.sets[ctx.activeSet].userAnswers).filter(v => v === true).length;
   $('rpGlobalPct').textContent = gDone > 0 ? '正确率 ' + Math.round(gRight / gDone * 100) + '%' : '-';
   const list = ctx.filteredQuestions();
-  const fDone = list.filter(q => s.userAnswers[q.id] !== undefined).length;
+  const fDone = countAnswered(s, list);
   $('rpBarFill').style.width = list.length > 0 ? (fDone / list.length * 100) + '%' : '0%';
   $('rpLabel').textContent = fDone + ' / ' + list.length;
   let modHtml = '';
   questionTypes.forEach(tt => {
     const qs = pool.filter(q => q.type === tt.type);
-    const done = qs.filter(q => s.userAnswers[q.id] !== undefined).length;
+    const done = countAnswered(s, qs);
     const pct = qs.length > 0 ? Math.round(done / qs.length * 100) : 0;
     modHtml += '<div class="m-row"><div class="m-name">' + tt.short + ' <span>' + done + '/' + qs.length + '</span></div><div class="m-bar"><div class="fill" style="width:' + pct + '%"></div></div></div>';
   });
@@ -126,8 +127,9 @@ export function showAnswerBox(ctx, q) {
   }
   _set($('ansExplanation'), q.exp ? '解析：' + q.exp : '');
   // 填空反馈也显示在答案区
-  if (q.type === 'fill' && ctx.activeSetData()._fillFeedback) {
-    const fb = ctx.activeSetData()._fillFeedback;
+  const fillFeedback = getFillFeedback(ctx.activeSetData(), q.id);
+  if (q.type === 'fill' && fillFeedback) {
+    const fb = fillFeedback;
     $('ansContent').innerHTML += ' | 你的匹配：' + fb.map(h => (h.ok ? '✓' : '✗') + h.kw).join(' ');
   }
 }

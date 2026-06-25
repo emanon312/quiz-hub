@@ -6,14 +6,12 @@
 import { $, pick } from './01-utils.js';
 import { MILESTONE_MSGS, BREAK_MSGS, STREAK_MILESTONES, STREAK_MILESTONE_EMOJI } from './02-storage.js';
 
-// ═══ 分层连对图标 ═══
+// ═══ 分层连对标记 ═══
 function getStreakIcon(st) {
-  if (st >= 30) return '👑';
-  if (st >= 20) return '💎';
-  if (st >= 10) return '🔥🔥';
-  if (st >= 5) return '🔥';
-  if (st >= 3) return '❤️‍🔥';
-  return '🔥';
+  if (st >= 30) return 'MAX';
+  if (st >= 10) return 'HOT';
+  if (st >= 3) return 'UP';
+  return 'OK';
 }
 
 // ═══ 连对徽章三态切换 ═══
@@ -26,19 +24,19 @@ export function setStreakBadge(streak, fire) {
     b.querySelector('.fire').textContent = getStreakIcon(streak);
     b.classList.add('just-fired');
     setTimeout(() => { b.classList.remove('just-fired'); }, 500);
-  } else if (fire === '🧯') {
+  } else if (fire === 'break') {
     b.style.display = 'inline-flex';
     b.classList.add('dormant');
-    b.querySelector('.fire').textContent = '🧯';
+    b.querySelector('.fire').textContent = 'RESET';
   }
   updateStreakProgress(streak);
 }
 
 // ═══ Banner 弹幕 ═══
-function showBanner(emoji, txt, bg) {
+function showBanner(label, txt, bg) {
   const b = $('milestoneBanner');
   if (!b) return;
-  b.textContent = emoji + ' ' + txt;
+  b.textContent = label ? label + ' ' + txt : txt;
   b.style.background = bg;
   b.classList.remove('show');
   void b.offsetWidth;
@@ -49,12 +47,12 @@ function showBanner(emoji, txt, bg) {
 export function checkMilestone(s) {
   const m = MILESTONE_MSGS[s];
   if (!m) return;
-  showBanner(m.e, pick(m.t), m.b);
+  showBanner('连对', pick(m.t), m.b);
 }
 
 export function showStreakBreak(s, best) {
   const msg = pick(BREAK_MSGS).replace('#BEST#', best);
-  showBanner('💔', msg, 'linear-gradient(135deg,#6b7280,#4b5563)');
+  showBanner('断连', msg, 'linear-gradient(135deg,#6b7280,#4b5563)');
 }
 
 // ═══ 进度条 ═══
@@ -83,7 +81,7 @@ function updateStreakProgress(streak) {
   el.style.display = 'inline-flex';
   $('streakProgressFill').style.width = pct + '%';
   $('streakProgressLabel').textContent = '差' + remain + '题';
-  el.title = '还差 ' + remain + ' 题解锁 ' + (STREAK_MILESTONE_EMOJI[next] || '') + ' ' + next + '连对';
+  el.title = '还差 ' + remain + ' 题解锁 ' + next + ' 连对';
 }
 
 // ═══ 暴露 ═══

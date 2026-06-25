@@ -4,7 +4,7 @@
 // 暴露: window.Actions = { checkAnswer, toggleAnswer, prevQuestion, nextQuestion, toggleStar, redoCurrentQuestion, switchSetTab, setFilter, setTypeFilter }
 
 import { $, playBeep } from './01-utils.js';
-import { isAnswered, isShortLike } from './03-state.js';
+import { clearFillFeedback, isAnswered, isShortLike, setFillFeedback } from './03-state.js';
 import { setBadge, checkMilestone, showBreak } from './05-streak.js';
 import { answerBox } from './06-render.js';
 
@@ -64,7 +64,7 @@ function checkAnswer(ctx) {
   if (isCorrect && !isShortLike(q.type)) {
     s.streak = Math.max(0, s.streak || 0) + 1;
     if (s.streak > (s.bestStreak || 0)) s.bestStreak = s.streak;
-    setBadge(s.streak, '🔥');
+    setBadge(s.streak, 'hot');
     checkMilestone(s.streak);
     playBeep(800, 0.08, 'sine');
     setTimeout(() => { playBeep(1200, 0.1, 'sine'); }, 80);
@@ -72,7 +72,7 @@ function checkAnswer(ctx) {
     s.wrongBank[q.id] = true;
     if (s.streak > 0) showBreak(s.streak, s.bestStreak || s.streak);
     s.streak = 0;
-    setBadge(0, '🧯');
+    setBadge(0, 'break');
     s._wrongRetry = (s._wrongRetry || {});
     s._wrongRetry[q.id] = (s._wrongRetry[q.id] || 0) + 1;
     playBeep(300, 0.12, 'triangle');
@@ -87,7 +87,7 @@ function checkAnswer(ctx) {
     ab.classList.add('show');
     ctx.activeSetData().revealedIds[q.id] = true;
   }
-  if (q.type === 'fill' && fillFeedback) s._fillFeedback = fillFeedback;
+  if (q.type === 'fill' && fillFeedback) setFillFeedback(s, q.id, fillFeedback);
   ctx.saveData();
   ctx.renderQuestion();
 }
@@ -139,7 +139,7 @@ function redoCurrentQuestion(ctx) {
   if (!confirm('确认重做本题吗？将清空本题的作答与判定结果。')) return;
   delete s.userAnswers[q.id];
   delete s.revealedIds[q.id];
-  if (s._fillFeedback) delete s._fillFeedback;
+  clearFillFeedback(s, q.id);
   if (ctx.focusedOptIdx !== undefined) ctx.setFocusedOptIdx(-1);
   ctx.saveData();
   ctx.renderQuestion();

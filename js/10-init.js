@@ -4,6 +4,7 @@
 // 暴露: window.Init = { setupSetTabs, initTheme }
 
 import { $ } from './01-utils.js';
+import { iconMarkup } from './icons.js';
 
 function setupSetTabs(activeSet, setNames) {
   const tabs = $('setTabs');
@@ -18,7 +19,13 @@ function initTheme() {
   const saved = localStorage.getItem('quiz-hub-theme') || 'orange';
   document.documentElement.setAttribute('data-theme', saved);
   const el = $('themeToggle');
-  if (el) el.textContent = saved === 'orange' ? '🥦' : '🥕';
+  if (el) {
+    el.innerHTML = iconMarkup(saved === 'orange' ? 'themeLeaf' : 'themePaper');
+    el.setAttribute('aria-label', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
+    el.setAttribute('title', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
+  }
+  const home = $('homeLink');
+  if (home) home.innerHTML = iconMarkup('home');
 }
 
 // ═══ 暴露 ═══

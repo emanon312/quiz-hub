@@ -36,6 +36,12 @@ jobs:
       - name: Validate quiz data
         run: npm run validate
 
+      - name: Test runtime state
+        run: npm run test:state
+
+      - name: Test UI icons
+        run: npm run test:icons
+
       - name: Build site
         run: npm run build
 

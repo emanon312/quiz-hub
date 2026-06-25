@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "vite",
     "validate": "node scripts/validate-quiz-data.mjs",
+    "test:state": "node scripts/test-runtime-state.mjs",
+    "test:icons": "node scripts/test-ui-icons.mjs",
     "check:startup": "node scripts/check-built-startup-order.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^8.0.14"
+    "vite": "^8.1.0"
   }
 }

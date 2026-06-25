@@ -1,7 +1,7 @@
 // ===== 模块: state =====
 // 职责: 封装状态初始化逻辑 + 快捷方法（类型判断、活跃数据获取）；实际状态变量暂由 HTML 内联脚本持有（let activeSet/filter/sets 等），后续批次逐步迁移到 QuizState 属性
 // 依赖: 02-storage.js (Storage, SET_COUNT, questionTypes)
-// 暴露: window.QuizState = { isAnswered, isShortLike, TYPE_ORDER, initSets }
+// 暴露: window.QuizState = { isAnswered, isShortLike, countAnswered, fill feedback helpers, TYPE_ORDER, initSets }
 
 import { SET_COUNT, questionTypes, Storage } from './02-storage.js';
 
@@ -22,6 +22,26 @@ export function isAnswered(s, q) {
   return v === true || v === false || v === 'submitted';
 }
 
+export function countAnswered(s, qs) {
+  return qs.filter(q => isAnswered(s, q)).length;
+}
+
+export function setFillFeedback(s, qid, feedback) {
+  if (!s.fillFeedbackById) s.fillFeedbackById = {};
+  s.fillFeedbackById[qid] = feedback;
+  delete s._fillFeedback;
+}
+
+export function getFillFeedback(s, qid) {
+  if (s.fillFeedbackById && s.fillFeedbackById[qid]) return s.fillFeedbackById[qid];
+  return null;
+}
+
+export function clearFillFeedback(s, qid) {
+  if (s.fillFeedbackById) delete s.fillFeedbackById[qid];
+  if (s._fillFeedback) delete s._fillFeedback;
+}
+
 // ═══ 从 localStorage 初始化 sets 数组 ═══
 export function initSets() {
   const data = Storage.loadData();
@@ -35,6 +55,7 @@ export function initSets() {
     if (!s.typeFilter) s.typeFilter = 'all';
     if (!s.wrongBank) s.wrongBank = {};
     if (!s.shortAnswerBank) s.shortAnswerBank = {};
+    if (!s.fillFeedbackById) s.fillFeedbackById = {};
     if (typeof s.streak !== 'number' || s.streak < 0) s.streak = 0;
     if (typeof s.bestStreak !== 'number' || s.bestStreak < 0) s.bestStreak = 0;
   });
@@ -46,5 +67,9 @@ window.QuizState = {
   TYPE_ORDER,
   isShortLike,
   isAnswered,
+  countAnswered,
+  setFillFeedback,
+  getFillFeedback,
+  clearFillFeedback,
   initSets
 };

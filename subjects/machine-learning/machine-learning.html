@@ -25,12 +25,12 @@
 
 <!-- ═══════ 左侧边栏 ═══════ -->
 <nav class="sidebar" id="sidebar">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:20px;margin:0;padding:0;border:none;font-weight:800">题库练习</h2><div style="display:flex;align-items:center;gap:4px"><a href="../../index.html" class="theme-toggle-btn" style="text-decoration:none" title="返回首页">🏠</a><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🥦</button></div></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px"><h2 id="sidebarTitle" style="font-size:20px;margin:0;padding:0;border:none;font-weight:800">题库练习</h2><div style="display:flex;align-items:center;gap:4px"><a href="../../index.html" class="theme-toggle-btn" id="homeLink" style="text-decoration:none" title="返回首页" aria-label="返回首页"></a><button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" aria-label="切换主题"></button></div></div>
 
   <!-- 题型 -->
   <div class="sidebar-section open" id="secType">
     <div class="sidebar-section-header" onclick="toggleSidebarSection('secType')">
-      <span>📋 题型</span><span class="arrow">▶</span>
+      <span>题型</span><span class="arrow">▶</span>
     </div>
     <div class="sidebar-section-body">
       <input type="text" id="searchInput" class="sidebar-search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
@@ -40,7 +40,7 @@
   <!-- 题组 -->
   <div class="sidebar-section open" id="secSet">
     <div class="sidebar-section-header" onclick="toggleSidebarSection('secSet')">
-      <span>📚 题组</span><span class="arrow">▶</span>
+      <span>题组</span><span class="arrow">▶</span>
     </div>
     <div class="sidebar-section-body">
       <div class="set-tabs" id="setTabs"></div>
@@ -49,14 +49,14 @@
   <!-- 筛选 -->
   <div class="sidebar-section" id="secFilter">
     <div class="sidebar-section-header" onclick="toggleSidebarSection('secFilter')">
-      <span>🔍 筛选</span><span class="arrow">▶</span>
+      <span>筛选</span><span class="arrow">▶</span>
     </div>
     <div class="sidebar-section-body">
       <div class="filter-bar" style="display:block">
         <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
         <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
-        <button class="filter-chip" id="filterStar" onclick="setFilter('star')">⭐ 已标记</button>
-        <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">📋 仅原题</button>
+        <button class="filter-chip" id="filterStar" onclick="setFilter('star')">已标记</button>
+        <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">仅原题</button>
       </div>
     </div>
   </div>
@@ -65,7 +65,7 @@
       使用指南 <span class="arrow">▶</span>
     </div>
     <div class="shortcuts-body">
-      <div style="color:#ccc;font-size:11px;margin:4px 0 4px;font-weight:600">⌨ 键盘快捷键</div>
+      <div style="color:#ccc;font-size:11px;margin:4px 0 4px;font-weight:600">键盘快捷键</div>
       <div class="row"><span class="kbd">←</span><span class="kbd">→</span><span class="label">上一题 / 下一题</span></div>
       <div class="row"><span class="kbd">↑</span><span class="kbd">↓</span><span class="label">选项焦点上下移</span></div>
       <div class="row"><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span><span class="label">选 A/B/C/D</span></div>
@@ -73,7 +73,7 @@
       <div class="row"><span class="kbd">Enter</span><span style="font-size:10px;color:#888;margin-right:4px">×2</span><span class="label">单选：连按 2 次确认</span></div>
       <div class="row"><span class="kbd">Space</span><span class="label">显示 / 收起答案</span></div>
 
-      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">📝 答题说明</div>
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">答题说明</div>
       <div style="color:#999;line-height:1.6;font-size:11px">
         • <b style="color:#bbb">单选</b>：1-4 或 ↑↓+Enter 选项；同键再按一次 = 确认<br>
         • <b style="color:#bbb">多选</b>：1-4 反复切换，再按 Enter 提交判分<br>
@@ -81,20 +81,20 @@
         • <b style="color:#bbb">简答/作图/综合</b>：点"显示参考答案"即可（不判对错）
       </div>
 
-      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">🎯 顶部工具</div>
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">顶部工具</div>
       <div style="color:#999;line-height:1.6;font-size:11px">
-        • <b style="color:#bbb">🔍 搜索</b>：按题干 / 选项关键词<br>
+        • <b style="color:#bbb">搜索</b>：按题干 / 选项关键词<br>
         • <b style="color:#bbb">乱序</b>：当前列表随机排序<br>
-        • <b style="color:#bbb">🔍 答案模式</b>：开启后每题自动展开答案<br>
-        • <b style="color:#bbb">🌙 / ☀</b>：切换暗 / 亮主题<br>
-        • <b style="color:#bbb">⚙ 工具栏</b>：重置做题时间 / 导出简答题 / 错题分析 / 重新开始
+        • <b style="color:#bbb">答案模式</b>：开启后每题自动展开答案<br>
+        • <b style="color:#bbb">主题</b>：切换暗 / 亮主题<br>
+        • <b style="color:#bbb">工具栏</b>：重置做题时间 / 导出简答题 / 错题分析 / 重新开始
       </div>
 
-      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">💡 小提示</div>
+      <div style="color:#ccc;font-size:11px;margin:10px 0 4px;font-weight:600">小提示</div>
       <div style="color:#999;line-height:1.6;font-size:11px">
         • 进度自动保存到浏览器，关闭 / 刷新不会丢<br>
         • 连对里程碑（1/3/5/10/20/30/50/100）会有彩蛋<br>
-        • 侧边栏题号点击可直接跳转；⭐ 收藏题目<br>
+        • 侧边栏题号点击可直接跳转；可收藏题目<br>
         • 顶部胶囊可筛选 全部 / 错题 / 收藏 / 题型
       </div>
     </div>
@@ -106,18 +106,18 @@
 <div class="main">
   <div class="main-inner">
   <div class="topbar">
-    <span class="subj-btn" id="subjBtn" onclick="toggleSubjPanel()" title="切换学科">🤖 机器学习 ▸</span>
-        <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire">🔥</span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
+    <span class="subj-btn" id="subjBtn" onclick="toggleSubjPanel()" title="切换学科">机器学习 ▸</span>
+        <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire"></span> <span id="streakNum">0</span> 连对</span><span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
     <span class="topbar-spacer"></span>
     <div class="tools-dropdown">
-      <button class="btn btn-nav btn-sm" id="btnTools" onclick="this.parentElement.classList.toggle('open')">⚙ 工具栏</button>
+      <button class="btn btn-nav btn-sm" id="btnTools" onclick="this.parentElement.classList.toggle('open')">工具栏</button>
       <div class="tools-menu">
-        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetPracticeTimer()">⏱ 重置做题时间</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetPracticeTimer()">重置做题时间</button>
         <div class="tools-divider"></div>
-        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">📥 导出简答题</button>
-        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showWrongAnalysis()">📊 错题分析</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">导出简答题</button>
+        <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showWrongAnalysis()">错题分析</button>
         <div class="tools-divider"></div>
-        <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">🔄 重新开始</button>
+        <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">重新开始</button>
       </div>
     </div>
     <button class="btn btn-nav btn-sm" id="autoRevealChip" onclick="toggleAutoReveal()">答案模式</button>
@@ -130,11 +130,11 @@
     <div class="q-header">
       <span class="q-num" id="qNum">第 1 题</span>
       <span class="q-type single" id="qType">单选题</span>
-      <span class="q-origin" id="qOrigin" title="来自语雀知识库的考试原题">⭐ 原题</span>
+      <span class="q-origin" id="qOrigin" title="来自语雀知识库的考试原题">原题</span>
       <span style="flex:1"></span>
       <button class="redo-btn" id="redoBtn" onclick="redoCurrentQuestion()" title="重做本题（重置本题作答）">↻ 重做</button>
       <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">☆</button>
-      <button class="sa-btn" id="saBtn" onclick="toggleShortAnswer()" title="转为简答题">📝 转简答</button>
+      <button class="sa-btn" id="saBtn" onclick="toggleShortAnswer()" title="转为简答题">转简答</button>
     </div>
     <div class="q-text" id="qText"></div>
     <div class="options" id="qOptions"></div>
@@ -222,7 +222,7 @@
 
 <div class="modal-overlay" id="resetModal">
   <div class="modal-box" style="max-width:400px;text-align:center">
-    <h3 style="color:#f44336">⚠️ 重置当前题组进度</h3>
+    <h3 style="color:#f44336">重置当前题组进度</h3>
     <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">你的作答记录将被清除。<br>错题记录和已转简答题<strong>不受影响</strong>。</p>
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">请输入 <strong>DELETE</strong> 确认操作</p>
     <input type="text" id="resetConfirmInput" placeholder="输入 DELETE" style="width:100%;padding:8px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;text-align:center;outline:none;margin-bottom:12px" oninput="

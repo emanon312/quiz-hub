@@ -1,3 +1,5 @@
+import { iconMarkup } from '../../js/icons.js';
+
 // 学科页面初始化入口
 
 // 根据 QUIZ_CONFIG 动态设置学科按钮文字
@@ -9,9 +11,9 @@
   var icon = '';
   if (cfg.subjects) {
     var active = cfg.subjects.find(function (s) { return s.active; });
-    if (active && active.icon) icon = active.icon + ' ';
+    if (active && active.icon) icon = '<span class="subj-btn-icon">' + iconMarkup(active.icon) + '</span>';
   }
-  btn.textContent = icon + cfg.subjectName + ' ▸';
+  btn.innerHTML = icon + '<span>' + cfg.subjectName + '</span><span class="subj-btn-chevron">▸</span>';
 })();
 
 // 渲染学科切换面板
@@ -23,7 +25,7 @@
   var html = '';
   cfg.subjects.forEach(function (s) {
     html += '<a class="subj-card' + (s.active ? ' active' : '') + '" href="' + s.href + '">'
-      + '<span class="sc-icon">' + s.icon + '</span>'
+      + '<span class="sc-icon">' + iconMarkup(s.icon) + '</span>'
       + '<div class="sc-info"><div class="sc-name">' + s.name + '</div></div>'
       + '<span class="sc-arrow">→</span></a>';
   });

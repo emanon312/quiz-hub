@@ -5,12 +5,13 @@
 
 import { $, playBeep, TYPE_LABELS as BASE_TYPE_LABELS, TYPE_CLASS } from './01-utils.js';
 import { CONFIG, STORAGE_KEY, SET_COUNT, SET_SIZES, questionTypes } from './02-storage.js';
-import { isAnswered, isShortLike, initSets } from './03-state.js';
+import { getFillFeedback, isAnswered, isShortLike, initSets } from './03-state.js';
 import './04-pool.js';
 import './07-actions.js';
 import './08-tools.js';
 import './09-keyboard.js';
 import './10-init.js';
+import { iconMarkup } from './icons.js';
 
 // 题型显示名优先取学科配置的 label（如电子技术把 single 复用为"判断题"、short 复用为"计算题"），
 // 回退到通用 TYPE_LABELS，避免卡片顶部标签与侧边栏 short 名不一致
@@ -86,6 +87,7 @@ const app = {
         userAnswers: s.userAnswers, revealedIds: s.revealedIds, currentIdx: s.currentIdx,
         typeFilter: s.typeFilter, stars: s.stars, expandedTypes: s.expandedTypes,
         wrongBank: s.wrongBank, shortAnswerBank: s.shortAnswerBank,
+        fillFeedbackById: s.fillFeedbackById,
         streak: s.streak, bestStreak: s.bestStreak
       })),
       practiceSec: this.practiceSec
@@ -169,12 +171,14 @@ const app = {
       : (questionTypes.find(t => t.type === s.typeFilter) || {}).label || '';
     const st = s.streak || 0;
     $('streakNum').textContent = st;
-    if (st > 0) window.Streak.setBadge(st, '🔥');
+    if (st > 0) window.Streak.setBadge(st, 'hot');
 
     const starBtn = $('starBtn');
-    starBtn.textContent = s.stars[q.id] ? '★' : '☆';
+    starBtn.innerHTML = iconMarkup('star');
+    starBtn.setAttribute('aria-label', s.stars[q.id] ? '取消标记此题' : '标记此题');
+    starBtn.setAttribute('title', s.stars[q.id] ? '取消标记此题' : '标记此题');
     const saBtn = $('saBtn');
-    saBtn.textContent = s.shortAnswerBank[q.id] ? '✅ 已转简答' : '📝 转简答';
+    saBtn.textContent = s.shortAnswerBank[q.id] ? '已转简答' : '转简答';
     saBtn.className = 'sa-btn' + (s.shortAnswerBank[q.id] ? ' saved' : '');
     starBtn.className = 'star-btn' + (s.stars[q.id] ? ' starred' : '');
 
@@ -261,8 +265,9 @@ const app = {
 
     $('btnCheck').disabled = isAnswered(s, q);
 
-    if (s._fillFeedback && isAnswered(s, q)) {
-      const fb = s._fillFeedback;
+    const fillFeedback = getFillFeedback(s, q.id);
+    if (fillFeedback && isAnswered(s, q)) {
+      const fb = fillFeedback;
       rm = $('resultMsg');
       if (!rm.classList.contains('show')) {
         rm.textContent = '关键词：' + fb.map(h => {
@@ -282,7 +287,10 @@ const app = {
     const cur = document.documentElement.getAttribute('data-theme') || 'orange';
     const next = cur === 'orange' ? 'green' : 'orange';
     document.documentElement.setAttribute('data-theme', next);
-    $('themeToggle').textContent = next === 'orange' ? '🥦' : '🥕';
+    const themeToggle = $('themeToggle');
+    themeToggle.innerHTML = iconMarkup(next === 'orange' ? 'themeLeaf' : 'themePaper');
+    themeToggle.setAttribute('aria-label', next === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
+    themeToggle.setAttribute('title', next === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
     localStorage.setItem('quiz-hub-theme', next);
   },
 
@@ -301,7 +309,7 @@ const app = {
     const chip = $('autoRevealChip');
     if (chip) {
       chip.classList.toggle('active', this.autoReveal);
-      chip.textContent = '🔍 答案' + (this.autoReveal ? ' ✓' : '');
+      chip.textContent = '答案模式' + (this.autoReveal ? ' 已开' : '');
     }
     if (!this.autoReveal) {
       const s = this.activeSetData();

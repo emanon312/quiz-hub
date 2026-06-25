@@ -157,8 +157,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
 .btn:focus-visible,.filter-chip:focus-visible,.module-btn:focus-visible,.qnum-dot:focus-visible,.opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
 /* —— 答案框 —— */
-.answer-box{max-height:0;overflow:hidden;opacity:0;padding-top:0;padding-bottom:0;margin-top:0;border-width:0;background:var(--answer-bg);border-radius:8px;transition:max-height .35s ease,opacity .25s ease,padding .35s ease,margin .35s ease}
-.answer-box.show{max-height:70vh;opacity:1;padding:18px 20px;margin-top:14px;border:1px solid var(--answer-border);box-shadow:inset 4px 0 0 var(--primary)}
+.answer-box{max-height:0;overflow:hidden;opacity:0;padding-top:0;padding-bottom:0;margin-top:0;border-width:0;background:var(--answer-bg);border-radius:8px;transform:translateY(-6px);transition:max-height .5s cubic-bezier(.22,.61,.36,1),opacity .42s ease,padding .5s cubic-bezier(.22,.61,.36,1),margin .5s cubic-bezier(.22,.61,.36,1),transform .5s cubic-bezier(.22,.61,.36,1)}
+.answer-box.show{max-height:70vh;opacity:1;padding:18px 20px;margin-top:14px;border:1px solid var(--answer-border);box-shadow:inset 4px 0 0 var(--primary);transform:translateY(0)}
 .answer-box .ans-label{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px}
 .answer-box .ans-content{font-size:15px;line-height:1.7;color:var(--text)}
 .answer-box .ans-explanation{font-size:13px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
@@ -265,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
   .mobile-bottom-bar .mb-val{display:block;font-size:15px;font-weight:700;color:var(--primary);line-height:1.2;font-variant-numeric:tabular-nums}
   .mobile-bottom-bar .mb-lbl{display:block;font-size:10px;color:var(--text-muted);margin-top:2px}
 }
-@media(prefers-reduced-motion:reduce){.opt:hover,.opt.selected,.qnum-dot:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.opt:hover,.opt.selected,.qnum-dot:hover{transform:none}.answer-box{transition:none;transform:none}}
 
 /* —— 主区域学科切换器 —— */
 .subj-switcher{margin-bottom:16px}

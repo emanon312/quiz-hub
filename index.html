@@ -78,6 +78,32 @@ h1 .accent{color:var(--accent);transition:color .3s}
 .stat{min-width:92px;text-align:center;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card)}
 .stat-num{font-size:24px;font-weight:800;color:var(--accent);transition:color .3s;font-variant-numeric:tabular-nums}
 .stat-label{font-size:12px;color:var(--text-muted);margin-top:2px}
+/* 继续练习 */
+.console-panel{
+  max-width:1040px;width:100%;margin:4px auto 24px;padding:0 20px;
+}
+.continue-card{
+  display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+  padding:18px 20px;color:var(--text);box-shadow:0 8px 24px var(--shadow);
+}
+.continue-card.empty{box-shadow:none;background:transparent}
+.continue-icon{
+  width:44px;height:44px;border-radius:12px;background:var(--accent-light);
+  color:var(--accent-dark);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:23px;
+}
+.continue-kicker{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.continue-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.continue-meta{font-size:13px;color:var(--text-sub);line-height:1.5}
+.continue-action{
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  padding:10px 16px;border-radius:10px;background:var(--accent);
+  color:#fff;text-decoration:none;font-size:13px;font-weight:700;
+}
+.continue-action:hover{background:var(--accent-dark)}
+.mini-progress{height:5px;border-radius:999px;background:var(--accent-light);overflow:hidden;margin-top:10px}
+.mini-progress span{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .25s}
 /* 学科卡片 */
 .section-label{
   font-size:13px;color:var(--text-muted);letter-spacing:1px;margin-bottom:16px;
@@ -109,6 +135,10 @@ h1 .accent{color:var(--accent);transition:color .3s}
 .card-desc{font-size:13px;color:var(--text-sub);line-height:1.7;margin-bottom:14px;flex:1}
 .card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;color:var(--text-muted);font-size:12px}
 .card-meta span{padding:3px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg)}
+.card-progress{margin-bottom:14px}
+.card-progress-head{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px}
+.card-progress-bar{height:5px;border-radius:999px;background:var(--accent-light);overflow:hidden}
+.card-progress-bar span{display:block;height:100%;background:var(--accent);border-radius:inherit;transition:width .25s}
 .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
 .tag{
   padding:2px 9px;border-radius:6px;font-size:11px;
@@ -134,6 +164,9 @@ h1 .accent{color:var(--accent);transition:color .3s}
   .nav-links{display:none}
   .hero{padding-top:24px}
   .card{padding:20px}
+  .continue-card{grid-template-columns:1fr;padding:18px}
+  .continue-icon{display:none}
+  .continue-action{justify-content:center}
 }
 </style>
 <script>var _t=localStorage.getItem('quiz-hub-theme')||'orange';document.documentElement.setAttribute('data-theme',_t);</script>
@@ -164,6 +197,8 @@ h1 .accent{color:var(--accent);transition:color .3s}
     </div>
   </div>
 
+  <div class="console-panel" id="continuePanel"></div>
+
   <div class="section-label">选择学科</div>
   <div class="cards" id="subjectCards"></div>
 
@@ -175,10 +210,14 @@ var current = localStorage.getItem('quiz-hub-theme') || 'orange';
 <script type="module">
 import { SUBJECTS } from './subjects/subjects.js';
 import { iconMarkup } from './js/icons.js';
+import { pickContinueSubject, summarizeAllSubjects } from './js/home-progress.js';
 
 var subjectNav = document.getElementById('subjectNav');
 var subjectCards = document.getElementById('subjectCards');
 var themeToggle = document.getElementById('themeToggle');
+var continuePanel = document.getElementById('continuePanel');
+var subjectSummaries = summarizeAllSubjects(SUBJECTS, localStorage);
+var continueSubject = pickContinueSubject(subjectSummaries);
 
 document.getElementById('brandIcon').innerHTML = iconMarkup('brandMark');
 
@@ -205,7 +244,38 @@ document.getElementById('setCount').textContent = SUBJECTS.reduce(function (sum,
   return sum + (subject.setCount || 0);
 }, 0);
 
-SUBJECTS.forEach(function (subject) {
+function renderContinuePanel(summary) {
+  if (!summary) {
+    continuePanel.innerHTML = [
+      '<div class="continue-card empty">',
+      '<div class="continue-icon">' + iconMarkup('brandMark') + '</div>',
+      '<div>',
+      '<div class="continue-kicker">今日入口</div>',
+      '<div class="continue-title">选择一门学科开始练习</div>',
+      '<div class="continue-meta">进度会自动保存在当前浏览器。下次回来，这里会出现继续练习入口。</div>',
+      '</div>',
+      '<a class="continue-action" href="#subjectCards">查看学科</a>',
+      '</div>'
+    ].join('');
+    return;
+  }
+  continuePanel.innerHTML = [
+    '<div class="continue-card">',
+    '<div class="continue-icon">' + iconMarkup(summary.icon) + '</div>',
+    '<div>',
+    '<div class="continue-kicker">继续上次练习</div>',
+    '<div class="continue-title">' + summary.name + '</div>',
+    '<div class="continue-meta">' + summary.activeSetName + ' · 第 ' + summary.currentQuestion + ' 题 · 已完成 ' + summary.doneCount + ' / ' + summary.totalCount + ' · 时长 ' + summary.practiceLabel + '</div>',
+    '<div class="mini-progress" aria-hidden="true"><span style="width:' + summary.percent + '%"></span></div>',
+    '</div>',
+    '<a class="continue-action" href="' + summary.homeHref + '">继续练习</a>',
+    '</div>'
+  ].join('');
+}
+
+renderContinuePanel(continueSubject);
+
+subjectSummaries.forEach(function (subject) {
   var navLink = document.createElement('a');
   navLink.href = subject.homeHref;
   navLink.textContent = subject.name;
@@ -262,6 +332,10 @@ SUBJECTS.forEach(function (subject) {
   card.appendChild(head);
   card.appendChild(desc);
   card.appendChild(meta);
+  var progress = document.createElement('div');
+  progress.className = 'card-progress';
+  progress.innerHTML = '<div class="card-progress-head"><span>本地进度</span><span>' + subject.doneCount + '/' + subject.totalCount + ' · ' + subject.percent + '%</span></div><div class="card-progress-bar" aria-hidden="true"><span style="width:' + subject.percent + '%"></span></div>';
+  card.appendChild(progress);
   card.appendChild(tags);
   card.appendChild(go);
   subjectCards.appendChild(card);

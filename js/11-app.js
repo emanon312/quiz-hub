@@ -81,6 +81,7 @@ const app = {
   _saveImmediate() {
     this._saveTimer = null;
     const compact = {
+      updatedAt: Date.now(),
       activeSet: this.activeSet,
       filter: this.filter,
       sets: this.sets.map(s => ({

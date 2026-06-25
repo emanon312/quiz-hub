@@ -36,8 +36,20 @@ assert.ok(
   'Answer reveal should ease in from a slightly collapsed position',
 );
 assert.ok(
-  /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:rgba\(184,95,36,\.28\) transparent/s.test(css),
-  'Global scrollbars should use a thin brand-colored treatment',
+  /html:not\(\[data-theme="green"\]\)\{[^}]*--scrollbar-thumb:rgba\(184,95,36,\.22\)[^}]*--scrollbar-thumb-hover:rgba\(184,95,36,\.38\)/s.test(css) &&
+    /\[data-theme="green"\]\{[^}]*--scrollbar-thumb:rgba\(34,197,94,\.24\)[^}]*--scrollbar-thumb-hover:rgba\(34,197,94,\.42\)/s.test(css),
+  'Scrollbar colors should be theme variables for both light and dark themes',
+);
+assert.ok(
+  /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:var\(--scrollbar-color\) transparent/s.test(css) &&
+    /::-webkit-scrollbar-thumb\{[^}]*background:var\(--scrollbar-thumb\)/s.test(css),
+  'Global scrollbars should use the active theme color variables',
+);
+assert.ok(
+  /\.sidebar\{[^}]*scrollbar-color:var\(--sidebar-scrollbar-thumb\) transparent/s.test(css) &&
+    /\.sidebar::-webkit-scrollbar-thumb\{[^}]*background:var\(--sidebar-scrollbar-thumb\)/s.test(css) &&
+    /\.sidebar::-webkit-scrollbar-thumb:hover\{[^}]*background:var\(--sidebar-scrollbar-thumb-hover\)/s.test(css),
+  'Sidebar scrollbars should use theme-aware sidebar scrollbar variables',
 );
 assert.ok(
   /\.tools-menu\{[^}]*max-height:min\(60vh,320px\)[^}]*overflow-y:auto/s.test(css),

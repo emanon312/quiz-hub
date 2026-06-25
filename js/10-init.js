@@ -20,7 +20,7 @@ function initTheme() {
   document.documentElement.setAttribute('data-theme', saved);
   const el = $('themeToggle');
   if (el) {
-    el.innerHTML = iconMarkup(saved === 'orange' ? 'themeLeaf' : 'themePaper');
+    el.innerHTML = iconMarkup(saved === 'orange' ? 'themeBroccoli' : 'themeCarrot');
     el.setAttribute('aria-label', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
     el.setAttribute('title', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
   }

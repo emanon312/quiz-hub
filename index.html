@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="assets/icons/site-icon.svg" type="image/svg+xml">
 <title>腿毛人的练习网站</title>
 <style>
 /* ═══ 橙色暖色调（默认） ═══ */
@@ -41,6 +42,7 @@ body{
   border:1px solid var(--border);
   transition:background .3s;
 }
+.logo-icon .ui-icon{width:24px;height:24px}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-links{display:flex;gap:6px}
 #subjectNav{display:contents}
@@ -219,11 +221,11 @@ var continuePanel = document.getElementById('continuePanel');
 var subjectSummaries = summarizeAllSubjects(SUBJECTS, localStorage);
 var continueSubject = pickContinueSubject(subjectSummaries);
 
-document.getElementById('brandIcon').innerHTML = iconMarkup('brandMark');
+document.getElementById('brandIcon').innerHTML = iconMarkup('siteMark');
 
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  themeToggle.innerHTML = iconMarkup(t === 'orange' ? 'themeLeaf' : 'themePaper');
+  themeToggle.innerHTML = iconMarkup(t === 'orange' ? 'themeBroccoli' : 'themeCarrot');
   themeToggle.title = t === 'orange' ? '切换到绿色主题' : '切换到橙色主题';
   themeToggle.setAttribute('aria-label', themeToggle.title);
   localStorage.setItem('quiz-hub-theme', t);

@@ -289,7 +289,7 @@ const app = {
     const next = cur === 'orange' ? 'green' : 'orange';
     document.documentElement.setAttribute('data-theme', next);
     const themeToggle = $('themeToggle');
-    themeToggle.innerHTML = iconMarkup(next === 'orange' ? 'themeLeaf' : 'themePaper');
+    themeToggle.innerHTML = iconMarkup(next === 'orange' ? 'themeBroccoli' : 'themeCarrot');
     themeToggle.setAttribute('aria-label', next === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
     themeToggle.setAttribute('title', next === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
     localStorage.setItem('quiz-hub-theme', next);

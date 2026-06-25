@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Broccoli theme icon</title>
+  <desc id="desc">A simple broccoli icon for the green dark theme.</desc>
+  <path d="M26.2 31.3h11.5l4 25.6H22.4z" fill="#8ac46a" stroke="#2f8b57" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="19.9" cy="25" r="9.3" fill="#2f8b57"/>
+  <circle cx="31.9" cy="17.8" r="10.4" fill="#3fa766"/>
+  <circle cx="44.3" cy="25.3" r="9.3" fill="#2f8b57"/>
+  <circle cx="32.1" cy="30" r="10.8" fill="#4caf6c"/>
+  <path d="M23.9 43.2c5.4 2.2 10.8 2.2 16.4 0" stroke="#2f8b57" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

@@ -182,6 +182,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
 .tools-item.danger:hover{background:rgba(244,67,54,.08)}
 .tools-divider{height:1px;background:var(--border);margin:4px 8px}
 .topbar-chip{margin-left:4px;cursor:pointer}
+#autoRevealChip.active,
+#randomChip.random-on{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 8px 18px rgba(184,95,36,.14)}
+#autoRevealChip.active:hover,
+#randomChip.random-on:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
 .filter-chip.random-on{background:#fff3e0;color:#e65100;border-color:#ffcc02}
 
 /* —— 星标/重做/转简答 —— */

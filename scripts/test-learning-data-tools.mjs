@@ -58,4 +58,37 @@ assert.throws(
 );
 assert.throws(() => tools.parseLearningDataImport('{broken'), /valid JSON/);
 
+const notices = [];
+tools.showToolNotice('error', 'Import failed', 'Bad file', {
+  documentRef: {
+    querySelector(selector) {
+      notices.push(['query', selector]);
+      return null;
+    },
+    createElement(tag) {
+      const node = {
+        tag,
+        className: '',
+        innerHTML: '',
+        setAttribute(name, value) {
+          this[name] = value;
+        },
+        remove() {
+          notices.push(['remove']);
+        },
+      };
+      notices.push(['create', tag, node]);
+      return node;
+    },
+    body: {
+      appendChild(node) {
+        notices.push(['append', node.className, node.innerHTML]);
+      },
+    },
+  },
+  setTimeoutFn: () => {},
+});
+assert.ok(notices.some((entry) => entry[0] === 'append' && entry[1].includes('error-state')));
+assert.ok(notices.some((entry) => entry[0] === 'append' && String(entry[2]).includes('Import failed')));
+
 console.log('Learning data tools tests passed');

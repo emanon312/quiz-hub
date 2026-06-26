@@ -19,6 +19,8 @@ const requiredSnippets = [
   '.empty-state__icon',
   '.empty-state__actions',
   '.empty-state__btn',
+  '.error-state',
+  '.tool-notice',
   '#autoRevealChip.active',
   'scrollbar-gutter:stable',
   '::-webkit-scrollbar-thumb',

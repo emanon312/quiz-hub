@@ -59,6 +59,27 @@ function downloadText(filename, text, type) {
   URL.revokeObjectURL(url);
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+}
+
+export function showToolNotice(kind, title, body, options = {}) {
+  const documentRef = options.documentRef || document;
+  const setTimeoutFn = options.setTimeoutFn || window.setTimeout;
+  const old = documentRef.querySelector('.tool-notice');
+  if (old) old.remove();
+  const node = documentRef.createElement('div');
+  const isError = kind === 'error';
+  node.className = 'tool-notice ' + (isError ? 'error-state' : 'empty-state');
+  node.setAttribute('role', isError ? 'alert' : 'status');
+  node.innerHTML =
+    '<div class="' + (isError ? 'error-state__title' : 'empty-state__title') + '">' + escapeHtml(title) + '</div>' +
+    '<div class="' + (isError ? 'error-state__body' : 'empty-state__body') + '">' + escapeHtml(body) + '</div>';
+  documentRef.body.appendChild(node);
+  setTimeoutFn(() => { node.remove(); }, 5200);
+  return node;
+}
+
 function exportLearningData(ctx) {
   const payload = createLearningDataExport(ctx);
   const stamp = new Date(payload.exportedAt).toISOString().slice(0, 10);
@@ -87,7 +108,7 @@ function importLearningDataFile(ctx, event) {
     try {
       importLearningDataText(ctx, String(reader.result || ''));
     } catch (err) {
-      alert(err && err.message ? err.message : '导入失败，请检查文件。');
+      showToolNotice('error', '导入失败', err && err.message ? err.message : '请检查学习数据文件后重试。');
     } finally {
       input.value = '';
     }

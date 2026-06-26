@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 
 const css = await readFile(new URL('../css/app.css', import.meta.url), 'utf8');
 const appJs = await readFile(new URL('../js/11-app.js', import.meta.url), 'utf8');
+const keyboardJs = await readFile(new URL('../js/09-keyboard.js', import.meta.url), 'utf8');
 
 const requiredSnippets = [
   '--surface-paper',
@@ -73,5 +74,20 @@ assert.ok(
 );
 assert.ok(!appJs.includes("答案模式' +"), 'Answer mode label should not change when toggled');
 assert.ok(!appJs.includes('已开'), 'Answer mode enabled state should be shown with color, not label text');
+
+assert.ok(
+  css.includes('.btn-row{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom))'),
+  'Mobile answer actions should stay reachable above the bottom stats bar',
+);
+assert.ok(
+  css.includes('.mobile-bottom-bar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:250;background:var(--card-bg);border-top:1px solid var(--border);padding:8px 4px;padding-bottom:calc(8px + env(safe-area-inset-bottom))'),
+  'Mobile bottom stats bar should respect safe-area insets',
+);
+assert.ok(
+  css.includes('.opt{min-height:50px') && css.includes('.btn{min-height:44px'),
+  'Mobile options and buttons should have comfortable touch targets',
+);
+assert.equal(appJs.includes('scrollIntoView'), false, 'App focus handling should avoid scrollIntoView');
+assert.equal(keyboardJs.includes('scrollIntoView'), false, 'Keyboard focus handling should avoid scrollIntoView');
 
 console.log('Quiz UI CSS tests passed');

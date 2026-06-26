@@ -7,6 +7,18 @@ import { $ } from './01-utils.js';
 
 const Actions = window.Actions;
 
+function keepElementVisible(el) {
+  const rect = el.getBoundingClientRect();
+  const topPad = window.innerWidth <= 768 ? 78 : 24;
+  const bottomPad = window.innerWidth <= 768 ? 118 : 24;
+  const safeBottom = window.innerHeight - bottomPad;
+  if (rect.top >= topPad && rect.bottom <= safeBottom) return;
+  window.scrollTo({
+    top: Math.max(0, window.scrollY + rect.top - topPad),
+    behavior: 'smooth',
+  });
+}
+
 function handleKey(e, ctx) {
   if (e.target.tagName === 'TEXTAREA') return;
 
@@ -71,7 +83,7 @@ function handleKey(e, ctx) {
     else newIdx = Math.min(opts.length - 1, newIdx + 1);
     ctx.setFocusedOptIdx(newIdx);
     opts[newIdx].classList.add('focused');
-    opts[newIdx].scrollIntoView({ block: 'nearest' });
+    keepElementVisible(opts[newIdx]);
     return;
   }
 

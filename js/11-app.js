@@ -21,6 +21,20 @@ const TYPE_LABELS = (() => {
   return Object.assign({}, BASE_TYPE_LABELS, m);
 })();
 
+function keepInputVisible(input) {
+  window.setTimeout(() => {
+    const rect = input.getBoundingClientRect();
+    const isMobile = window.innerWidth <= 768;
+    const topPad = isMobile ? 72 : 24;
+    const safeBottom = window.innerHeight - (isMobile ? 118 : 24);
+    if (rect.top >= topPad && rect.bottom <= safeBottom) return;
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + rect.top - topPad),
+      behavior: 'smooth',
+    });
+  }, 80);
+}
+
 const _init = initSets();
 const data = _init.data;
 
@@ -441,9 +455,9 @@ const app = {
     });
 
     const fillInput = document.getElementById('fillInput');
-    if (fillInput) fillInput.addEventListener('focus', () => { fillInput.scrollIntoView({ block: 'center' }); });
+    if (fillInput) fillInput.addEventListener('focus', () => { keepInputVisible(fillInput); });
     const shortInput = document.getElementById('shortInput');
-    if (shortInput) shortInput.addEventListener('focus', () => { shortInput.scrollIntoView({ block: 'center' }); });
+    if (shortInput) shortInput.addEventListener('focus', () => { keepInputVisible(shortInput); });
 
     this._startPracticeTimer();
     const t0 = String(Math.floor(this.practiceSec / 60)).padStart(2, '0') + ':' + String(this.practiceSec % 60).padStart(2, '0');

@@ -12,6 +12,7 @@
     "test:home": "node scripts/test-home-progress.mjs",
     "test:learning-data": "node scripts/test-learning-data-tools.mjs",
     "test:workflow": "node scripts/test-workflow-surface.mjs",
+    "test:ml-quality": "node scripts/test-machine-learning-quality.mjs",
     "test:quiz-ui": "node scripts/test-quiz-ui-css.mjs",
     "capture:visuals": "node scripts/capture-visuals.mjs",
     "check:startup": "node scripts/check-built-startup-order.mjs",

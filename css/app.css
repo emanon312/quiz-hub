@@ -267,14 +267,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:299}
   .sidebar-overlay.show{display:block}
-  .main{margin-left:0;margin-right:0;padding:60px 12px 72px;display:block}
+  .main{margin-left:0;margin-right:0;padding:60px 12px calc(116px + env(safe-area-inset-bottom));display:block}
   .main-inner{max-width:100%}
-  .card{padding:20px 16px}
-  .q-text{font-size:15px}
+  .card{padding:20px 16px 18px;border-radius:12px}
+  .q-header{gap:8px;flex-wrap:wrap}
+  .q-text{font-size:15px;line-height:1.68;margin-bottom:18px}
+  .opt{min-height:50px;padding:13px 14px;margin-bottom:10px;border-radius:11px}
+  .opt input{width:18px;height:18px;margin-top:2px;flex:0 0 auto}
+  .btn{min-height:44px}
+  .btn-row{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));z-index:220;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px -8px 14px;padding:10px 8px;background:linear-gradient(180deg,transparent,var(--surface-paper) 24%,var(--surface-paper));border-top:1px solid color-mix(in srgb,var(--border) 70%,transparent)}
+  .btn-row .btn{width:100%;padding:10px 12px}
+  .nav-btns{align-items:center;gap:10px}
+  .nav-btns .btn{flex:1;padding:10px 12px;white-space:nowrap}
+  .nav-btns #navInfo{flex:0 0 62px;text-align:center;line-height:1.2!important}
   .mobile-topbar{display:flex!important;position:fixed;top:0;left:0;right:0;z-index:250;background:var(--sidebar-bg);color:#fff;padding:8px 12px;align-items:center;gap:10px;font-size:14px}
   .mobile-topbar .hamburger{font-size:20px;cursor:pointer;background:none;border:none;color:#fff;padding:4px}
   .right-panel{display:none}
-  .mobile-bottom-bar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:250;background:var(--card-bg);border-top:1px solid var(--border);padding:8px 4px;justify-content:space-around;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+  .mobile-bottom-bar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:250;background:var(--card-bg);border-top:1px solid var(--border);padding:8px 4px;padding-bottom:calc(8px + env(safe-area-inset-bottom));justify-content:space-around;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
   .mobile-bottom-bar .mb-item{text-align:center;flex:1;min-width:0}
   .mobile-bottom-bar .mb-val{display:block;font-size:15px;font-weight:700;color:var(--primary);line-height:1.2;font-variant-numeric:tabular-nums}
   .mobile-bottom-bar .mb-lbl{display:block;font-size:10px;color:var(--text-muted);margin-top:2px}

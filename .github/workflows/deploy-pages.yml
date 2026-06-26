@@ -51,6 +51,9 @@ jobs:
       - name: Test workflow surface
         run: npm run test:workflow
 
+      - name: Test machine learning question quality
+        run: npm run test:ml-quality
+
       - name: Test quiz UI CSS
         run: npm run test:quiz-ui
 

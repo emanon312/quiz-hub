@@ -91,5 +91,9 @@ assert.ok(
 );
 assert.equal(appJs.includes('scrollIntoView'), false, 'App focus handling should avoid scrollIntoView');
 assert.equal(keyboardJs.includes('scrollIntoView'), false, 'Keyboard focus handling should avoid scrollIntoView');
+assert.ok(
+  appJs.includes("function setChoiceSelection") && appJs.includes("inp.addEventListener('change'"),
+  'Choice inputs should update quiz state when the radio or checkbox control itself is tapped',
+);
 
 console.log('Quiz UI CSS tests passed');

@@ -35,6 +35,24 @@ function keepInputVisible(input) {
   }, 80);
 }
 
+export function setChoiceSelection(setData, q, optionIndex, checked) {
+  if (!setData || !q || setData.userAnswers[q.id] === true || setData.userAnswers[q.id] === false) return false;
+  if (q.type === 'single') {
+    if (!checked) return false;
+    setData.userAnswers[q.id] = [optionIndex];
+    return true;
+  }
+  if (q.type === 'multi') {
+    const current = Array.isArray(setData.userAnswers[q.id]) ? setData.userAnswers[q.id] : [];
+    const next = checked
+      ? current.concat([optionIndex])
+      : current.filter(v => v !== optionIndex);
+    setData.userAnswers[q.id] = Array.from(new Set(next)).sort((a, b) => a - b);
+    return true;
+  }
+  return false;
+}
+
 const _init = initSets();
 const data = _init.data;
 
@@ -228,18 +246,22 @@ const app = {
         const chk = isSelected ? ' checked' : '';
         div.innerHTML = '<input type="' + inputType + '" name="' + groupName + '" value="' + i + '"' + chk + '><span class="letter">' + letter + '.</span><span class="text">' + opt.substring(3) + '</span>';
         div.setAttribute('data-opt-idx', i);
+        const inp = div.querySelector('input');
+        inp.addEventListener('change', (e) => {
+          if (!setChoiceSelection(s, q, i, e.target.checked)) return;
+          self.saveData();
+          playBeep(600, 0.06, 'sine');
+          self.renderQuestion();
+        });
         div.addEventListener('click', (e) => {
           if (e.target.tagName === 'INPUT') return;
           if (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false) return;
-          const inp = div.querySelector('input');
           if (inputType === 'radio') {
             inp.checked = true;
-            s.userAnswers[q.id] = [i];
           } else {
             inp.checked = !inp.checked;
-            const checks = document.querySelectorAll('input[name="' + groupName + '"]:checked');
-            s.userAnswers[q.id] = Array.from(checks).map(c => parseInt(c.value, 10));
           }
+          setChoiceSelection(s, q, i, inp.checked);
           self.saveData();
           playBeep(600, 0.06, 'sine');
           self.renderQuestion();

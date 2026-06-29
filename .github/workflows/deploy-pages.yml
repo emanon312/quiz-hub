@@ -45,6 +45,9 @@ jobs:
       - name: Test homepage progress
         run: npm run test:home
 
+      - name: Test choice selection
+        run: npm run test:choice
+
       - name: Test learning data tools
         run: npm run test:learning-data
 

@@ -1,10 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">腿毛人练习网站图标</title>
-  <desc id="desc">A leg-hair practice badge with a small answer sheet.</desc>
-  <rect width="64" height="64" rx="16" fill="#fff4e8"/>
-  <path d="M25.5 10.8c7.5 1.7 12.1 7.3 11.5 15-.5 8.2-5.8 12.8-9.7 21.6" fill="none" stroke="#b85f24" stroke-width="5" stroke-linecap="round"/>
-  <path d="M21.2 17.2l-5.1-2.6M21.3 24.5l-6.1-1.1M22.9 31.5l-5.4 1.6" stroke="#302216" stroke-width="3" stroke-linecap="round"/>
-  <path d="M36.6 34.1h16v14.2h-16z" fill="#fffcf8" stroke="#e87536" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M40 41.2l3.1 2.8 6.2-6.3" fill="none" stroke="#2f8b57" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M7.5 51.8c11 3.2 25.6 3.2 42 0" stroke="#eed8bf" stroke-width="3" stroke-linecap="round"/>
+  <title id="title">Xiaoxilanhua site icon</title>
+  <desc id="desc">A minimal face with a broccoli sprout for the Xiaoxilanhua quiz site.</desc>
+  <rect width="64" height="64" rx="16" fill="#f6f8ef"/>
+  <circle cx="32" cy="32" r="22" fill="#fffdf8" stroke="#1d1916" stroke-width="2.6"/>
+  <path d="M17 28c9.8-4.8 20.2-4.8 30 0" fill="#1d1916"/>
+  <circle cx="24.2" cy="31.1" r="2.2" fill="#1d1916"/>
+  <circle cx="39.8" cy="31.1" r="2.2" fill="#1d1916"/>
+  <path d="M32 35v8.1" stroke="#1d1916" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M28.8 45.1c2.1-.8 4.3-.8 6.4 0" stroke="#1d1916" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M27.1 18.6h9.8l1.8 7.2H25.3z" fill="#1d1916"/>
+  <path d="M30.4 12.2h3.2l1.1 8.6h-5.4z" fill="#8dc765" stroke="#487033" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="25.3" cy="12.7" r="5.2" fill="#4f8a3d"/>
+  <circle cx="32" cy="9.7" r="5.8" fill="#79b94d"/>
+  <circle cx="38.7" cy="12.7" r="5" fill="#4f8a3d"/>
+  <circle cx="32" cy="15.2" r="5.8" fill="#98d273"/>
+  <path d="M18 53.5c9.2 2.6 18.8 2.6 28 0" stroke="#d6ddc3" stroke-width="2.6" stroke-linecap="round"/>
 </svg>

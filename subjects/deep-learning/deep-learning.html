@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="orange">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../../assets/icons/site-icon.svg" type="image/svg+xml">
+<title>深度学习</title>
+<link rel="stylesheet" href="../../css/app.css">
+<script>var _t=localStorage.getItem('quiz-hub-theme')||'orange';document.documentElement.setAttribute('data-theme',_t);</script>
+</head>
+<body>
+<div class="mobile-topbar">
+  <button class="hamburger" onclick="toggleMobileSidebar()">☰</button>
+  <span class="mobile-topbar__title" id="mobileTitle">题库练习</span>
+  <span class="topbar-spacer"></span>
+  <span class="mobile-topbar__stats" id="mobileStats">0/0</span>
+</div>
+<div class="mobile-bottom-bar" id="mobileBottomBar">
+  <div class="mb-item"><span class="mb-val" id="mbDone">0</span><span class="mb-lbl">已完成</span></div>
+  <div class="mb-item"><span class="mb-val" id="mbAcc">-</span><span class="mb-lbl">正确率</span></div>
+  <div class="mb-item"><span class="mb-val" id="mbTimer">00:00</span><span class="mb-lbl">时长</span></div>
+  <div class="mb-item"><span class="mb-val" id="mbProgress">0%</span><span class="mb-lbl">当前进度</span></div>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px">
+    <h2 id="sidebarTitle" style="font-size:20px;margin:0;padding:0;border:none;font-weight:800">题库练习</h2>
+    <div style="display:flex;align-items:center;gap:4px">
+      <a href="../../index.html" class="theme-toggle-btn" id="homeLink" style="text-decoration:none" title="返回首页" aria-label="返回首页"></a>
+      <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" aria-label="切换主题"></button>
+    </div>
+  </div>
+  <div class="sidebar-section open" id="secType">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secType')"><span>题型</span><span class="arrow">▶</span></div>
+    <div class="sidebar-section-body">
+      <input type="text" id="searchInput" class="sidebar-search-input" placeholder="搜索题干或选项..." oninput="onSearch(this.value)">
+    </div>
+    <div class="sidebar-section-body" id="moduleNav"></div>
+  </div>
+  <div class="sidebar-section open" id="secSet">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secSet')"><span>题组</span><span class="arrow">▶</span></div>
+    <div class="sidebar-section-body"><div class="set-tabs" id="setTabs"></div></div>
+  </div>
+  <div class="sidebar-section" id="secFilter">
+    <div class="sidebar-section-header" onclick="toggleSidebarSection('secFilter')"><span>筛选</span><span class="arrow">▶</span></div>
+    <div class="sidebar-section-body">
+      <div class="filter-bar" style="display:block">
+        <button class="filter-chip" id="filterAll" onclick="setFilter('all')">全部</button>
+        <button class="filter-chip" id="filterWrong" onclick="setFilter('wrong')">仅错题</button>
+        <button class="filter-chip" id="filterStar" onclick="setFilter('star')">已标记</button>
+        <button class="filter-chip" id="filterOrigin" onclick="setFilter('origin')">仅原题</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="main-inner">
+    <div class="topbar">
+      <span class="subj-btn" id="subjBtn" onclick="toggleSubjPanel()" title="切换学科">深度学习 ▸</span>
+      <span class="streak-badge dormant" id="streakBadge" style="display:none"><span class="fire"></span> <span id="streakNum">0</span> 连对</span>
+      <span class="streak-progress" id="streakProgress" style="display:none" title=""><span class="streak-progress-bar"><span class="streak-progress-fill" id="streakProgressFill"></span></span><span class="streak-progress-label" id="streakProgressLabel"></span></span>
+      <span class="topbar-spacer"></span>
+      <div class="tools-dropdown">
+        <button class="btn btn-nav btn-sm" id="btnTools" onclick="this.parentElement.classList.toggle('open')">工具栏</button>
+        <div class="tools-menu">
+          <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');resetPracticeTimer()">重置做题时间</button>
+          <div class="tools-divider"></div>
+          <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportShortAnswers()">导出简答题</button>
+          <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');exportLearningData()">导出学习数据</button>
+          <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');document.getElementById('learningDataImport').click()">导入学习数据</button>
+          <button class="tools-item" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showWrongAnalysis()">错题分析</button>
+          <div class="tools-divider"></div>
+          <button class="tools-item danger" onclick="document.querySelector('.tools-dropdown').classList.remove('open');showResetModal()">重新开始</button>
+        </div>
+      </div>
+      <input type="file" id="learningDataImport" accept="application/json,.json" hidden onchange="importLearningDataFile(event)">
+      <button class="btn btn-nav btn-sm" id="autoRevealChip" onclick="toggleAutoReveal()">答案模式</button>
+      <button class="btn btn-nav btn-sm" id="randomChip" onclick="toggleRandom()">乱序</button>
+    </div>
+
+    <div class="milestone-banner" id="milestoneBanner"></div>
+    <div class="card" id="questionCard">
+      <div class="q-header">
+        <span class="q-num" id="qNum">第 1 题</span>
+        <span class="q-type single" id="qType">单选题</span>
+        <span class="q-origin" id="qOrigin" title="考试高频题">原题</span>
+        <span style="flex:1"></span>
+        <button class="redo-btn" id="redoBtn" onclick="redoCurrentQuestion()" title="重做本题">↻ 重做</button>
+        <button class="star-btn" id="starBtn" onclick="toggleStar()" title="标记此题">☆</button>
+        <button class="sa-btn" id="saBtn" onclick="toggleShortAnswer()" title="转为简答题">转简答</button>
+      </div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="qOptions"></div>
+      <div id="fillArea" style="display:none"><textarea class="fill-input" id="fillInput" rows="3" placeholder="请输入你的答案..."></textarea></div>
+      <div id="shortArea" style="display:none">
+        <p style="color:#888;font-size:14px;margin-bottom:12px">主观题请先自行作答，然后点击"显示答案"对照。</p>
+        <textarea class="fill-input" id="shortInput" rows="4" placeholder="在此写下你的答案（可选）..."></textarea>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-check" id="btnCheck" onclick="checkAnswer()">检查答案</button>
+        <button class="btn btn-reveal" id="btnReveal" onclick="toggleAnswer()">显示答案</button>
+      </div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="answer-box" id="answerBox">
+        <div class="ans-label">参考答案</div>
+        <div class="ans-content" id="ansContent"></div>
+        <div class="ans-explanation" id="ansExplanation"></div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-nav" onclick="prevQuestion()">← 上一题</button>
+        <span style="color:#888;font-size:13px;line-height:36px" id="navInfo"></span>
+        <button class="btn btn-nav" onclick="nextQuestion()">下一题 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<aside class="right-panel" id="rightPanel">
+  <div class="rp-stat" style="margin-bottom:4px">
+    <div style="font-size:12px;color:var(--text-muted)">题组进度（<span id="setSizeLabel">30</span>题）</div>
+    <div class="rp-num" style="font-size:28px" id="rpGlobal">0</div>
+    <div style="font-size:10px;color:var(--text-muted)" id="rpGlobalPct">-</div>
+  </div>
+  <div class="rp-divider"></div>
+  <div class="rp-stat"><div class="rp-num" id="rpDone">0</div><div class="rp-label">当前题组已完成</div></div>
+  <div class="rp-divider"></div>
+  <div class="rp-acc"><div style="font-size:12px;color:var(--text-muted)">练习时长</div><div class="val" style="font-size:20px!important" id="rpTimer">00:00</div></div>
+  <div class="rp-divider"></div>
+  <div class="rp-acc"><div class="val" id="rpAcc">-</div><div class="lbl">正确率</div></div>
+  <div class="rp-divider"></div>
+  <div class="rp-progress-wrap"><div class="lbl">当前模块进度</div><div class="rp-bar"><div class="fill" id="rpBarFill" style="width:0%"></div></div><div style="text-align:center;font-size:11px;color:#666;margin-top:4px" id="rpLabel">0 / 30</div></div>
+  <div class="rp-divider"></div>
+  <div class="rp-modules" id="rpModules"></div>
+</aside>
+
+<div class="subj-panel-overlay" id="subjOverlay" onclick="closeSubjPanel()"></div>
+<aside class="subj-panel" id="subjPanel">
+  <div class="subj-panel-header"><span>切换学科</span><button class="subj-panel-close" onclick="closeSubjPanel()">✕</button></div>
+  <div class="subj-panel-body" id="subjPanelBody"></div>
+</aside>
+
+<div class="modal-overlay" id="wrongModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box"><button class="close-btn" onclick="document.getElementById('wrongModal').classList.remove('show')">&times;</button><h3>错题分析</h3><div id="wrongAnalysis"></div></div>
+</div>
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box" style="max-width:400px;text-align:center">
+    <h3 style="color:#f44336">重置当前题组进度</h3>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">你的作答记录将被清除。<br>错题记录和已转简答题<strong>不受影响</strong>。</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">请输入 <strong>DELETE</strong> 确认操作</p>
+    <input type="text" id="resetConfirmInput" placeholder="输入 DELETE" style="width:100%;padding:8px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;text-align:center;outline:none;margin-bottom:12px" oninput="const btn=document.getElementById('resetConfirmBtn');btn.disabled=this.value!=='DELETE';btn.style.opacity=this.value==='DELETE'?'1':'.4';">
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-nav" style="padding:6px 20px" onclick="document.getElementById('resetModal').classList.remove('show')">取消</button>
+      <button class="btn btn-check" style="padding:6px 20px;background:#f44336;opacity:.4" id="resetConfirmBtn" disabled onclick="document.getElementById('resetModal').classList.remove('show');document.getElementById('resetConfirmInput').value='';doResetProgress();">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="deep-learning-config.js"></script>
+<script type="module" src="deep-learning-questions.js"></script>
+<script type="module" src="deep-learning-init.js"></script>
+</body>
+</html>

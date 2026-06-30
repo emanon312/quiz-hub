@@ -15,6 +15,8 @@
     "test:mobile:e2e": "node scripts/test-mobile-e2e.mjs",
     "test:workflow": "node scripts/test-workflow-surface.mjs",
     "test:ml-quality": "node scripts/test-machine-learning-quality.mjs",
+    "test:deep-learning-quality": "node scripts/test-deep-learning-quality.mjs",
+    "test:built-images": "node scripts/test-built-subject-images.mjs",
     "test:quiz-ui": "node scripts/test-quiz-ui-css.mjs",
     "capture:visuals": "node scripts/capture-visuals.mjs",
     "check:startup": "node scripts/check-built-startup-order.mjs",

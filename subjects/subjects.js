@@ -53,6 +53,24 @@ export const SUBJECTS = [
     description: '期末复习 160 题，覆盖机器学习概述、模型评估、回归、逻辑回归、SVM、神经网络与集成学习。',
     tags: ['单选', '多选', '简答', '计算'],
   },
+  {
+    slug: 'deep-learning',
+    name: '深度学习',
+    icon: 'deepLearning',
+    href: '../deep-learning/deep-learning.html',
+    homeHref: 'subjects/deep-learning/deep-learning.html',
+    dir: 'subjects/deep-learning',
+    config: 'subjects/deep-learning/deep-learning-config.js',
+    questions: 'subjects/deep-learning/deep-learning-questions.js',
+    html: 'subjects/deep-learning/deep-learning.html',
+    storageKey: 'deep_learning_quiz_v1',
+    setNames: ['神经网络基础', 'CNN与深度学习', 'RNN与循环结构', '注意力与Transformer'],
+    setSize: 30,
+    questionCount: 120,
+    setCount: 4,
+    description: '期末速成 120 题，覆盖神经网络、CNN、RNN、注意力机制与 Transformer，主打简答和综合大题。',
+    tags: ['简答', '综合', '作图', '少量客观'],
+  },
 ];
 
 export function getSubjectLinks(activeSlug) {

@@ -20,6 +20,7 @@ export const Icons = {
   dataviz: svg('<path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/><path d="M7 10.5l4-3 4 2 4-4"/>'),
   electronics: svg('<path d="M4 12h4"/><path d="M16 12h4"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="12" r="2"/><path d="M12 7v3"/><path d="M12 14v3"/><path d="M9 17h6"/><path d="M17 8l2-2"/><path d="M19 6v4h-4"/>'),
   machineLearning: svg('<circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="7" r="2"/><circle cx="18" cy="17" r="2"/><circle cx="12" cy="12" r="2.3"/><path d="M8 8l2.3 2.3"/><path d="M8 16l2.3-2.3"/><path d="M13.7 10.3L16 8"/><path d="M13.7 13.7L16 16"/><path d="M4 12c2.4-1.2 5-1.2 8 0s5.6 1.2 8 0"/>'),
+  deepLearning: svg('<path d="M4 18c2.2-1.8 4.6-1.8 7.2 0s5 1.8 8.8 0"/><circle cx="6" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="9" r="2.1"/><circle cx="18" cy="6" r="1.8"/><circle cx="18" cy="12" r="1.8"/><path d="M7.7 6.7l2.5 1.3"/><path d="M7.7 11.3l2.5-1.3"/><path d="M13.8 8l2.5-1.3"/><path d="M13.8 10l2.5 1.3"/><path d="M12 11.2v3.8"/><path d="M9 21h6"/>'),
   home: svg('<path d="M4 11.5L12 5l8 6.5"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M10 20v-5h4v5"/>'),
   filter: svg('<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>'),
   sets: svg('<path d="M7 4h11v14H7z"/><path d="M4 7h3"/><path d="M4 12h3"/><path d="M4 17h3"/><path d="M10 8h5"/><path d="M10 12h5"/>'),

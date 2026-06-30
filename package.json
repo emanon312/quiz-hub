@@ -12,6 +12,7 @@
     "test:home": "node scripts/test-home-progress.mjs",
     "test:choice": "node scripts/test-choice-selection.mjs",
     "test:learning-data": "node scripts/test-learning-data-tools.mjs",
+    "test:mobile:e2e": "node scripts/test-mobile-e2e.mjs",
     "test:workflow": "node scripts/test-workflow-surface.mjs",
     "test:ml-quality": "node scripts/test-machine-learning-quality.mjs",
     "test:quiz-ui": "node scripts/test-quiz-ui-css.mjs",
@@ -21,6 +22,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "playwright": "^1.61.1",
     "vite": "^8.1.0"
   }
 }

@@ -13,6 +13,13 @@ import './09-keyboard.js';
 import './10-init.js';
 import { iconMarkup } from './icons.js';
 
+const THEME_ORDER = ['orange', 'green', 'broccoli'];
+const THEME_TOGGLE_META = {
+  orange: { next: 'green', icon: 'themeLeaf', label: '切换到深绿主题' },
+  green: { next: 'broccoli', icon: 'themeBroccoli', label: '切换到西蓝花主题' },
+  broccoli: { next: 'orange', icon: 'themeCarrot', label: '切换到橙色主题' },
+};
+
 // 题型显示名优先取学科配置的 label（如电子技术把 single 复用为"判断题"、short 复用为"计算题"），
 // 回退到通用 TYPE_LABELS，避免卡片顶部标签与侧边栏 short 名不一致
 const TYPE_LABELS = (() => {
@@ -490,6 +497,21 @@ const app = {
 };
 
 // ═══ 暴露 ═══
+app.toggleTheme = function () {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const currentTheme = THEME_ORDER.includes(cur) ? cur : 'orange';
+  const next = THEME_TOGGLE_META[currentTheme].next;
+  const nextMeta = THEME_TOGGLE_META[next];
+  document.documentElement.setAttribute('data-theme', next);
+  const themeToggle = $('themeToggle');
+  if (themeToggle) {
+    themeToggle.innerHTML = iconMarkup(nextMeta.icon);
+    themeToggle.setAttribute('aria-label', nextMeta.label);
+    themeToggle.setAttribute('title', nextMeta.label);
+  }
+  localStorage.setItem('quiz-hub-theme', next);
+};
+
 export { app as QuizApp };
 window.QuizApp = app;
 

@@ -1,10 +1,19 @@
-// ===== 模块: init =====
-// 职责: 页面初始化 —— 注入标题/套题标签、应用主题、启动计时器、注册全局事件、首次渲染
-// 依赖: 01-utils ($)
-// 暴露: window.Init = { setupSetTabs, initTheme }
+// ===== Module: init =====
+// Responsibilities: initialize set tabs, apply the saved theme, and wire shared header icons.
 
 import { $ } from './01-utils.js';
 import { iconMarkup } from './icons.js';
+
+const THEME_ORDER = ['orange', 'green', 'broccoli'];
+const THEME_TOGGLE_META = {
+  orange: { icon: 'themeLeaf', label: '切换到深绿主题' },
+  green: { icon: 'themeBroccoli', label: '切换到西蓝花主题' },
+  broccoli: { icon: 'themeCarrot', label: '切换到橙色主题' },
+};
+
+function normalizeTheme(theme) {
+  return THEME_ORDER.includes(theme) ? theme : 'orange';
+}
 
 function setupSetTabs(activeSet, setNames) {
   const tabs = $('setTabs');
@@ -14,23 +23,24 @@ function setupSetTabs(activeSet, setNames) {
   }).join('');
 }
 
-// ═══ 主题初始化 ═══
 function initTheme() {
   const requested = new URLSearchParams(window.location.search).get('theme');
-  const saved = (requested === 'green' || requested === 'orange') ? requested : (localStorage.getItem('quiz-hub-theme') || 'orange');
+  const saved = normalizeTheme(requested || localStorage.getItem('quiz-hub-theme'));
   document.documentElement.setAttribute('data-theme', saved);
+
   const el = $('themeToggle');
   if (el) {
-    el.innerHTML = iconMarkup(saved === 'orange' ? 'themeBroccoli' : 'themeCarrot');
-    el.setAttribute('aria-label', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
-    el.setAttribute('title', saved === 'orange' ? '切换到绿色主题' : '切换到橙色主题');
+    const meta = THEME_TOGGLE_META[saved];
+    el.innerHTML = iconMarkup(meta.icon);
+    el.setAttribute('aria-label', meta.label);
+    el.setAttribute('title', meta.label);
   }
+
   const home = $('homeLink');
   if (home) home.innerHTML = iconMarkup('home');
 }
 
-// ═══ 暴露 ═══
 window.Init = {
   setupSetTabs,
-  initTheme
+  initTheme,
 };

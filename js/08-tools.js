@@ -59,6 +59,24 @@ function downloadText(filename, text, type) {
   URL.revokeObjectURL(url);
 }
 
+export function openModal(id, documentRef = document) {
+  const modal = documentRef.getElementById(id);
+  if (!modal) return false;
+  modal.classList.add('show');
+  documentRef.body.classList.add('is-overlay-open');
+  return true;
+}
+
+export function closeModal(id, documentRef = document) {
+  const modal = documentRef.getElementById(id);
+  if (!modal) return false;
+  modal.classList.remove('show');
+  if (!documentRef.querySelector('.modal-overlay.show')) {
+    documentRef.body.classList.remove('is-overlay-open');
+  }
+  return true;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 }
@@ -134,17 +152,17 @@ function showWrongAnalysis(ctx) {
     waHtml += '<div class="wa-mod"><div class="wa-mod-name" onclick="this.nextElementSibling.classList.toggle(\'open\')">' + label + ' (' + qs.length + '题) ▸</div>';
     waHtml += '<div class="wa-qlist">';
     qs.forEach(q => {
-      waHtml += '<span class="wa-qdot" onclick="document.getElementById(\'wrongModal\').classList.remove(\'show\');jumpToQ(' + q.id + ')">#' + q.id + '</span>';
+      waHtml += '<span class="wa-qdot" onclick="closeModal(\'wrongModal\');jumpToQ(' + q.id + ')">#' + q.id + '</span>';
     });
     waHtml += '</div></div>';
   });
   $('wrongAnalysis').innerHTML = waHtml;
-  $('wrongModal').classList.add('show');
+  openModal('wrongModal');
 }
 
 // ═══ 重置进度弹窗与执行 ═══
 function showResetModal() {
-  $('resetModal').classList.add('show');
+  openModal('resetModal');
   $('resetConfirmInput').value = '';
   $('resetConfirmBtn').disabled = true;
   $('resetConfirmBtn').style.opacity = '.4';
@@ -236,5 +254,9 @@ window.Tools = {
   exportShortAnswers,
   exportLearningData,
   importLearningDataFile,
-  importLearningDataText
+  importLearningDataText,
+  openModal,
+  closeModal
 };
+window.openModal = openModal;
+window.closeModal = closeModal;

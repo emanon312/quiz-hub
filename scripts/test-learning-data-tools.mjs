@@ -91,4 +91,36 @@ tools.showToolNotice('error', 'Import failed', 'Bad file', {
 assert.ok(notices.some((entry) => entry[0] === 'append' && entry[1].includes('error-state')));
 assert.ok(notices.some((entry) => entry[0] === 'append' && String(entry[2]).includes('Import failed')));
 
+const modal = {
+  classList: {
+    values: new Set(),
+    add(value) { this.values.add(value); },
+    remove(value) { this.values.delete(value); },
+  },
+};
+const body = {
+  classList: {
+    values: new Set(),
+    add(value) { this.values.add(value); },
+    remove(value) { this.values.delete(value); },
+  },
+};
+const modalDoc = {
+  getElementById(id) {
+    return id === 'resetModal' ? modal : null;
+  },
+  querySelector(selector) {
+    if (selector === '.modal-overlay.show') return modal.classList.values.has('show') ? modal : null;
+    return null;
+  },
+  body,
+};
+tools.openModal('resetModal', modalDoc);
+assert.ok(modal.classList.values.has('show'), 'openModal should show the modal overlay');
+assert.ok(body.classList.values.has('is-overlay-open'), 'openModal should lock page scrolling');
+
+tools.closeModal('resetModal', modalDoc);
+assert.equal(modal.classList.values.has('show'), false, 'closeModal should hide the modal overlay');
+assert.equal(body.classList.values.has('is-overlay-open'), false, 'closeModal should unlock page scrolling after the last modal closes');
+
 console.log('Learning data tools tests passed');

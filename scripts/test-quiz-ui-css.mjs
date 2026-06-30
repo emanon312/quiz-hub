@@ -21,6 +21,7 @@ const requiredSnippets = [
   '.empty-state__btn',
   '.error-state',
   '.tool-notice',
+  '.is-overlay-open',
   '#autoRevealChip.active',
   'scrollbar-gutter:stable',
   '::-webkit-scrollbar-thumb',
@@ -64,6 +65,14 @@ assert.ok(
 assert.ok(
   /\.modal-box\{[^}]*max-height:min\(80vh,640px\)[^}]*overflow-y:auto/s.test(css),
   'Modal content should scroll internally with a viewport-aware height limit',
+);
+assert.ok(
+  /\.modal-overlay\{[^}]*z-index:600/s.test(css),
+  'Modal overlay should sit above mobile fixed bars, sticky actions, sidebars, and subject panels',
+);
+assert.ok(
+  /body\.is-overlay-open\{[^}]*overflow:hidden/s.test(css),
+  'Opening modal overlays should lock background scrolling through a body class',
 );
 assert.ok(
   /\.empty-state\{[^}]*border:1px solid var\(--border\)[^}]*background:var\(--surface-paper\)/s.test(css),

@@ -216,9 +216,9 @@
   </aside>
 
 
-<div class="modal-overlay" id="wrongModal" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="modal-overlay" id="wrongModal" onclick="if(event.target===this)closeModal('wrongModal')">
   <div class="modal-box">
-    <button class="close-btn" onclick="document.getElementById('wrongModal').classList.remove('show')">&times;</button>
+    <button class="close-btn" onclick="closeModal('wrongModal')">&times;</button>
     <h3>错题分析</h3>
     <div id="wrongAnalysis"></div>
   </div>
@@ -235,9 +235,9 @@
       btn.style.opacity = this.value === 'DELETE' ? '1' : '.4';
     ">
     <div style="display:flex;gap:8px;justify-content:center">
-      <button class="btn btn-nav" style="padding:6px 20px" onclick="document.getElementById('resetModal').classList.remove('show')">取消</button>
+      <button class="btn btn-nav" style="padding:6px 20px" onclick="closeModal('resetModal')">取消</button>
       <button class="btn btn-check" style="padding:6px 20px;background:#f44336;opacity:.4" id="resetConfirmBtn" disabled onclick="
-        document.getElementById('resetModal').classList.remove('show');
+        closeModal('resetModal');
         document.getElementById('resetConfirmInput').value = '';
         doResetProgress();
       ">确认重置</button>

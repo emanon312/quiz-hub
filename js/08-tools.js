@@ -174,6 +174,7 @@ function doResetProgress(ctx) {
   s.userAnswers = {};
   s.revealedIds = {};
   s.choiceSelections = {};
+  s.textAnswerDrafts = {};
   s.currentIdx = 0;
   s.typeFilter = 'all';
   s.stars = {};

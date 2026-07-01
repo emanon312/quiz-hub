@@ -57,6 +57,9 @@ jobs:
       - name: Test keyboard input guard
         run: npm run test:keyboard
 
+      - name: Test text answer drafts
+        run: npm run test:text-drafts
+
       - name: Test mobile browser interactions
         run: npm run test:mobile:e2e
 

@@ -58,6 +58,21 @@ export function clearChoiceSelection(s, qid) {
   if (s.choiceSelections) delete s.choiceSelections[qid];
 }
 
+export function getTextAnswerDraft(s, qid) {
+  if (s.textAnswerDrafts && typeof s.textAnswerDrafts[qid] === 'string') return s.textAnswerDrafts[qid];
+  const current = s.userAnswers && s.userAnswers[qid];
+  return typeof current === 'string' && current !== 'submitted' ? current : '';
+}
+
+export function rememberTextAnswerDraft(s, qid, value) {
+  if (!s.textAnswerDrafts) s.textAnswerDrafts = {};
+  s.textAnswerDrafts[qid] = String(value || '');
+}
+
+export function clearTextAnswerDraft(s, qid) {
+  if (s.textAnswerDrafts) delete s.textAnswerDrafts[qid];
+}
+
 // ═══ 从 localStorage 初始化 sets 数组 ═══
 export function initSets() {
   const data = Storage.loadData();
@@ -73,6 +88,7 @@ export function initSets() {
     if (!s.shortAnswerBank) s.shortAnswerBank = {};
     if (!s.fillFeedbackById) s.fillFeedbackById = {};
     if (!s.choiceSelections) s.choiceSelections = {};
+    if (!s.textAnswerDrafts) s.textAnswerDrafts = {};
     if (typeof s.streak !== 'number' || s.streak < 0) s.streak = 0;
     if (typeof s.bestStreak !== 'number' || s.bestStreak < 0) s.bestStreak = 0;
   });
@@ -91,5 +107,8 @@ window.QuizState = {
   getChoiceSelection,
   rememberChoiceSelection,
   clearChoiceSelection,
+  getTextAnswerDraft,
+  rememberTextAnswerDraft,
+  clearTextAnswerDraft,
   initSets
 };

@@ -4,7 +4,7 @@
 // 暴露: window.Actions = { checkAnswer, toggleAnswer, prevQuestion, nextQuestion, toggleStar, redoCurrentQuestion, switchSetTab, setFilter, setTypeFilter }
 
 import { $, playBeep } from './01-utils.js';
-import { clearChoiceSelection, clearFillFeedback, isAnswered, isShortLike, rememberChoiceSelection, setFillFeedback } from './03-state.js';
+import { clearChoiceSelection, clearFillFeedback, clearTextAnswerDraft, isAnswered, isShortLike, rememberChoiceSelection, rememberTextAnswerDraft, setFillFeedback } from './03-state.js';
 import { setBadge, checkMilestone, showBreak } from './05-streak.js';
 import { answerBox } from './06-render.js';
 
@@ -29,6 +29,7 @@ function checkAnswer(ctx) {
   } else if (q.type === 'fill') {
     const input = $('fillInput').value.trim();
     if (!input) { alert('请输入你的答案'); return; }
+    rememberTextAnswerDraft(s, q.id, input);
     s.userAnswers[q.id] = input;
     const normalized = input.replace(/\s+/g, '').toLowerCase();
     const keywords = q.ansText.split('|').filter(kw => kw.trim() !== '');
@@ -54,6 +55,7 @@ function checkAnswer(ctx) {
   } else if (isShortLike(q.type)) {
     const shortInput = $('shortInput').value.trim();
     if (!shortInput) { alert('请输入你的答案或直接点击"显示答案"对照'); return; }
+    rememberTextAnswerDraft(s, q.id, shortInput);
     s.userAnswers[q.id] = 'submitted';
     answerBox({ activeSetData: ctx.activeSetData }, q);
     ctx.saveData();
@@ -141,6 +143,7 @@ function redoCurrentQuestion(ctx) {
   delete s.userAnswers[q.id];
   delete s.revealedIds[q.id];
   clearChoiceSelection(s, q.id);
+  clearTextAnswerDraft(s, q.id);
   clearFillFeedback(s, q.id);
   if (ctx.focusedOptIdx !== undefined) ctx.setFocusedOptIdx(-1);
   ctx.saveData();

@@ -13,6 +13,7 @@
     "test:choice": "node scripts/test-choice-selection.mjs",
     "test:choice-result": "node scripts/test-choice-result-state.mjs",
     "test:keyboard": "node scripts/test-keyboard-input-guard.mjs",
+    "test:text-drafts": "node scripts/test-text-answer-drafts.mjs",
     "test:learning-data": "node scripts/test-learning-data-tools.mjs",
     "test:mobile:e2e": "node scripts/test-mobile-e2e.mjs",
     "test:workflow": "node scripts/test-workflow-surface.mjs",

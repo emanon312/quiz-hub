@@ -86,7 +86,7 @@ export const SETS = (() => {
 export function defaultSetData() {
   return {
     userAnswers: {}, revealedIds: {}, currentIdx: 0, typeFilter: 'all',
-    stars: {}, expandedTypes: {}, wrongBank: {}, shortAnswerBank: {}, choiceSelections: {},
+    stars: {}, expandedTypes: {}, wrongBank: {}, shortAnswerBank: {}, choiceSelections: {}, textAnswerDrafts: {},
     streak: 0, bestStreak: 0
   };
 }

@@ -5,7 +5,7 @@
 
 import { $, playBeep, TYPE_LABELS as BASE_TYPE_LABELS, TYPE_CLASS } from './01-utils.js';
 import { CONFIG, STORAGE_KEY, SET_COUNT, SET_SIZES, questionTypes } from './02-storage.js';
-import { getChoiceSelection, getFillFeedback, isAnswered, isShortLike, initSets } from './03-state.js';
+import { getChoiceSelection, getFillFeedback, getTextAnswerDraft, isAnswered, isShortLike, initSets, rememberTextAnswerDraft } from './03-state.js';
 import './04-pool.js';
 import './07-actions.js';
 import './08-tools.js';
@@ -128,7 +128,7 @@ const app = {
       sets: this.sets.map(s => ({
         userAnswers: s.userAnswers, revealedIds: s.revealedIds, currentIdx: s.currentIdx,
         typeFilter: s.typeFilter, stars: s.stars, expandedTypes: s.expandedTypes,
-        wrongBank: s.wrongBank, shortAnswerBank: s.shortAnswerBank, choiceSelections: s.choiceSelections,
+        wrongBank: s.wrongBank, shortAnswerBank: s.shortAnswerBank, choiceSelections: s.choiceSelections, textAnswerDrafts: s.textAnswerDrafts,
         fillFeedbackById: s.fillFeedbackById,
         streak: s.streak, bestStreak: s.bestStreak
       })),
@@ -277,10 +277,20 @@ const app = {
       });
     } else if (q.type === 'fill') {
       fillDiv.style.display = 'block';
-      $('fillInput').value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
+      const fillInput = $('fillInput');
+      fillInput.value = getTextAnswerDraft(s, q.id);
+      fillInput.oninput = () => {
+        rememberTextAnswerDraft(s, q.id, fillInput.value);
+        self.saveData();
+      };
     } else if (isShortLike(q.type)) {
       shortDiv.style.display = 'block';
-      $('shortInput').value = (s.userAnswers[q.id] && typeof s.userAnswers[q.id] === 'string') ? s.userAnswers[q.id] : '';
+      const shortInput = $('shortInput');
+      shortInput.value = getTextAnswerDraft(s, q.id);
+      shortInput.oninput = () => {
+        rememberTextAnswerDraft(s, q.id, shortInput.value);
+        self.saveData();
+      };
     }
 
     $('btnCheck').style.display = '';

@@ -4,7 +4,7 @@
 // 暴露: window.Actions = { checkAnswer, toggleAnswer, prevQuestion, nextQuestion, toggleStar, redoCurrentQuestion, switchSetTab, setFilter, setTypeFilter }
 
 import { $, playBeep } from './01-utils.js';
-import { clearFillFeedback, isAnswered, isShortLike, setFillFeedback } from './03-state.js';
+import { clearChoiceSelection, clearFillFeedback, isAnswered, isShortLike, rememberChoiceSelection, setFillFeedback } from './03-state.js';
 import { setBadge, checkMilestone, showBreak } from './05-streak.js';
 import { answerBox } from './06-render.js';
 
@@ -22,6 +22,7 @@ function checkAnswer(ctx) {
     if (!Array.isArray(q.ans) || q.ans.length === 0) { alert('题目答案数据异常，请联系管理员'); return; }
     const selected = s.userAnswers[q.id] || [];
     if (!Array.isArray(selected) || selected.length === 0) { alert('请先选择答案'); return; }
+    rememberChoiceSelection(s, q.id, selected);
     const corrSet = new Set(q.ans);
     const selSet = new Set(selected);
     isCorrect = corrSet.size === selSet.size && Array.from(corrSet).every(v => selSet.has(v));
@@ -139,6 +140,7 @@ function redoCurrentQuestion(ctx) {
   if (!confirm('确认重做本题吗？将清空本题的作答与判定结果。')) return;
   delete s.userAnswers[q.id];
   delete s.revealedIds[q.id];
+  clearChoiceSelection(s, q.id);
   clearFillFeedback(s, q.id);
   if (ctx.focusedOptIdx !== undefined) ctx.setFocusedOptIdx(-1);
   ctx.saveData();

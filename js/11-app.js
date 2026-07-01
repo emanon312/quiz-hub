@@ -5,7 +5,7 @@
 
 import { $, playBeep, TYPE_LABELS as BASE_TYPE_LABELS, TYPE_CLASS } from './01-utils.js';
 import { CONFIG, STORAGE_KEY, SET_COUNT, SET_SIZES, questionTypes } from './02-storage.js';
-import { getFillFeedback, isAnswered, isShortLike, initSets } from './03-state.js';
+import { getChoiceSelection, getFillFeedback, isAnswered, isShortLike, initSets } from './03-state.js';
 import './04-pool.js';
 import './07-actions.js';
 import './08-tools.js';
@@ -128,7 +128,7 @@ const app = {
       sets: this.sets.map(s => ({
         userAnswers: s.userAnswers, revealedIds: s.revealedIds, currentIdx: s.currentIdx,
         typeFilter: s.typeFilter, stars: s.stars, expandedTypes: s.expandedTypes,
-        wrongBank: s.wrongBank, shortAnswerBank: s.shortAnswerBank,
+        wrongBank: s.wrongBank, shortAnswerBank: s.shortAnswerBank, choiceSelections: s.choiceSelections,
         fillFeedbackById: s.fillFeedbackById,
         streak: s.streak, bestStreak: s.bestStreak
       })),
@@ -188,7 +188,7 @@ const app = {
     const q = list[s.currentIdx];
 
     if (q.type === 'single' || q.type === 'multi') {
-      const curSel = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+      const curSel = getChoiceSelection(s, q.id);
       if (q.type === 'multi') {
         self.focusedOptIdx = curSel.length > 0 ? -1 : 0;
       } else if (curSel.length > 0) {
@@ -237,7 +237,7 @@ const app = {
       optDiv.style.display = 'block';
       const inputType = q.type === 'single' ? 'radio' : 'checkbox';
       const groupName = 'q' + q.id;
-      const saved = (s.userAnswers[q.id] && Array.isArray(s.userAnswers[q.id])) ? s.userAnswers[q.id] : [];
+      const saved = getChoiceSelection(s, q.id);
       const checked = (s.userAnswers[q.id] === true || s.userAnswers[q.id] === false);
 
       q.opts.forEach((opt, i) => {

@@ -51,6 +51,9 @@ jobs:
       - name: Test choice selection
         run: npm run test:choice
 
+      - name: Test choice result state
+        run: npm run test:choice-result
+
       - name: Test mobile browser interactions
         run: npm run test:mobile:e2e
 

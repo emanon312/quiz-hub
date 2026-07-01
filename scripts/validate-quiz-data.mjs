@@ -33,28 +33,30 @@ async function validateSubjectData(subject, config, questions) {
   const prefix = `[${subject.slug}]`;
 
   if (!config || typeof config !== 'object') {
-    return [`${prefix} 配置不存在或格式错误`];
+    return [`${prefix} config is missing or invalid`];
   }
   if (!Array.isArray(questions) || questions.length === 0) {
-    issues.push(`${prefix} 题库为空或不是数组`);
+    issues.push(`${prefix} questions array is empty or invalid`);
     return issues;
   }
 
   const questionTypes = Array.isArray(config.questionTypes) ? config.questionTypes : [];
   const validTypes = new Set(questionTypes.map((t) => t.type));
   const shortLikeTypes = new Set(questionTypes.filter((t) => t.shortLike).map((t) => t.type));
-  const setSizes = Array.isArray(config.setSizes) && config.setSizes.length === config.setNames?.length
+  const setCount = config.setNames?.length || 0;
+  const setSizes = Array.isArray(config.setSizes) && config.setSizes.length === setCount
     ? config.setSizes
-    : Array.from({ length: config.setNames?.length || 0 }, () => config.setSize || 0);
+    : Array.from({ length: setCount }, () => config.setSize || 0);
   const needed = setSizes.reduce((sum, n) => sum + n, 0);
+
   if (needed > questions.length) {
-    issues.push(`${prefix} 题数 ${questions.length} 少于配置需要 ${needed}`);
+    issues.push(`${prefix} question count ${questions.length} is smaller than configured total ${needed}`);
   }
   if (subject.questionCount != null && subject.questionCount !== questions.length) {
-    issues.push(`${prefix} 学科清单 questionCount=${subject.questionCount} 与实际题数 ${questions.length} 不一致`);
+    issues.push(`${prefix} subject.questionCount=${subject.questionCount} does not match actual ${questions.length}`);
   }
-  if (subject.setCount != null && subject.setCount !== (config.setNames?.length || 0)) {
-    issues.push(`${prefix} 学科清单 setCount=${subject.setCount} 与实际套题数 ${config.setNames?.length || 0} 不一致`);
+  if (subject.setCount != null && subject.setCount !== setCount) {
+    issues.push(`${prefix} subject.setCount=${subject.setCount} does not match actual ${setCount}`);
   }
 
   const seenIds = new Set();
@@ -62,33 +64,33 @@ async function validateSubjectData(subject, config, questions) {
     const q = questions[i];
     const label = q && q.id != null ? `id=${q.id}` : `#${i}`;
     if (!q || typeof q !== 'object') {
-      issues.push(`${prefix} ${label} 不是对象`);
+      issues.push(`${prefix} ${label} is not an object`);
       continue;
     }
-    if (q.id == null) issues.push(`${prefix} #${i} 缺少 id`);
-    else if (seenIds.has(q.id)) issues.push(`${prefix} id=${q.id} 重复`);
+    if (q.id == null) issues.push(`${prefix} #${i} is missing id`);
+    else if (seenIds.has(q.id)) issues.push(`${prefix} duplicate id=${q.id}`);
     else seenIds.add(q.id);
 
-    if (!validTypes.has(q.type)) issues.push(`${prefix} ${label} 未声明题型 ${q.type}`);
-    if (!q.q) issues.push(`${prefix} ${label} 缺少题干`);
+    if (!validTypes.has(q.type)) issues.push(`${prefix} ${label} uses unknown type ${q.type}`);
+    if (!q.q) issues.push(`${prefix} ${label} is missing question text`);
 
     if (q.type === 'single' || q.type === 'multi') {
       if (!Array.isArray(q.opts) || q.opts.length === 0) {
-        issues.push(`${prefix} ${label} 选择题缺少 opts`);
+        issues.push(`${prefix} ${label} is missing opts`);
       }
       if (!Array.isArray(q.ans) || q.ans.length === 0) {
-        issues.push(`${prefix} ${label} 选择题缺少 ans`);
+        issues.push(`${prefix} ${label} is missing ans`);
       } else {
         const optsLength = Array.isArray(q.opts) ? q.opts.length : 0;
         if (q.ans.some((answerIndex) => answerIndex < 0 || answerIndex >= optsLength)) {
-          issues.push(`${prefix} ${label} ans 越界`);
+          issues.push(`${prefix} ${label} has out-of-range answer indexes`);
         }
         if (q.type === 'single' && q.ans.length !== 1) {
-          issues.push(`${prefix} ${label} 单选 ans 应为单值`);
+          issues.push(`${prefix} ${label} should have exactly one correct answer`);
         }
       }
     } else if (q.type === 'fill' || shortLikeTypes.has(q.type)) {
-      if (!q.ansText) issues.push(`${prefix} ${label} 缺少 ansText`);
+      if (!q.ansText) issues.push(`${prefix} ${label} is missing ansText`);
     }
 
     const imageRefs = [
@@ -99,7 +101,37 @@ async function validateSubjectData(subject, config, questions) {
     for (const ref of imageRefs) {
       const imageUrl = new URL(ref, subject.rootDir);
       if (!(await fileExists(imageUrl))) {
-        issues.push(`${prefix} ${label} 图片不存在 ${ref}`);
+        issues.push(`${prefix} ${label} references missing image ${ref}`);
+      }
+    }
+  }
+
+  if (Array.isArray(config.setQuestionIds)) {
+    if (config.setQuestionIds.length !== setSizes.length) {
+      issues.push(`${prefix} setQuestionIds length does not match setNames/setSizes`);
+    } else {
+      const assignedIds = new Set();
+      for (let setIndex = 0; setIndex < config.setQuestionIds.length; setIndex++) {
+        const setIds = config.setQuestionIds[setIndex];
+        if (!Array.isArray(setIds)) {
+          issues.push(`${prefix} setQuestionIds[${setIndex}] is not an array`);
+          continue;
+        }
+        if (setIds.length !== setSizes[setIndex]) {
+          issues.push(`${prefix} setQuestionIds[${setIndex}] count ${setIds.length} does not match setSize ${setSizes[setIndex]}`);
+        }
+        for (const questionId of setIds) {
+          if (!seenIds.has(questionId)) {
+            issues.push(`${prefix} setQuestionIds[${setIndex}] references missing id=${questionId}`);
+          } else if (assignedIds.has(questionId)) {
+            issues.push(`${prefix} setQuestionIds contains duplicate id=${questionId}`);
+          } else {
+            assignedIds.add(questionId);
+          }
+        }
+      }
+      if (assignedIds.size !== needed) {
+        issues.push(`${prefix} setQuestionIds unique id count ${assignedIds.size} does not match expected total ${needed}`);
       }
     }
   }
@@ -139,15 +171,15 @@ async function runValidation() {
     const loaded = await loadSubject(entry);
     const issues = await validateSubjectData(loaded.subject, loaded.config, loaded.questions);
     if (issues.length === 0) {
-      console.log(`✓ ${entry.name}: ${loaded.questions.length} 题`);
+      console.log(`OK ${entry.name}: ${loaded.questions.length} questions`);
     } else {
-      console.log(`✗ ${entry.name}: ${issues.length} 个问题`);
+      console.log(`FAIL ${entry.name}: ${issues.length} issues`);
       allIssues.push(...issues);
     }
   }
 
   if (allIssues.length > 0) {
-    console.error('\n题库校验失败：');
+    console.error('\nQuiz data validation failed');
     for (const issue of allIssues) console.error('- ' + issue);
     process.exitCode = 1;
     return;
@@ -181,7 +213,7 @@ async function runSelfTest() {
 
   const issues = await validateSubjectData(subject, config, questions);
   const text = issues.join('\n');
-  if (!text.includes('ans 越界') || !text.includes('图片不存在')) {
+  if (!text.includes('out-of-range answer indexes') || !text.includes('missing image')) {
     throw new Error('Self-test did not detect expected invalid answer and missing image issues');
   }
   console.log('Self-test passed');

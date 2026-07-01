@@ -46,7 +46,12 @@ export const SUBJECTS = [
     questions: 'subjects/machine-learning/machine-learning-questions.js',
     html: 'subjects/machine-learning/machine-learning.html',
     storageKey: 'machine_learning_quiz_v1',
-    setNames: ['练习1', '练习2', '练习3', '练习4'],
+    setNames: [
+      '机器学习概述与数据基础',
+      '模型评估与泛化能力',
+      '回归模型与逻辑回归',
+      'SVM、神经网络与集成学习',
+    ],
     setSize: 40,
     questionCount: 160,
     setCount: 4,

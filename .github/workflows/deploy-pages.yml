@@ -54,6 +54,9 @@ jobs:
       - name: Test choice result state
         run: npm run test:choice-result
 
+      - name: Test keyboard input guard
+        run: npm run test:keyboard
+
       - name: Test mobile browser interactions
         run: npm run test:mobile:e2e
 

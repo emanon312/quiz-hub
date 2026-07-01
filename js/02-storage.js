@@ -28,13 +28,7 @@ export const SET_SIZES = (() => {
   return out;
 })();
 
-// ═══ localStorage key ═══
-export const STORAGE_KEY = window.QUIZ_CONFIG.storageKey;
-
-// ═══ 套题索引 ═══
-// 按 SET_SIZES 累积偏移切分：第 i 套占题库中连续的 SET_SIZES[i] 道题，存储 index 引用
-export const SETS = (() => {
-  const sizes = SET_SIZES;
+function buildSequentialSets(sizes) {
   const result = [];
   let offset = 0;
   for (let i = 0; i < sizes.length; i++) {
@@ -44,6 +38,30 @@ export const SETS = (() => {
     offset += sizes[i];
   }
   return result;
+}
+
+// ═══ localStorage key ═══
+export const STORAGE_KEY = window.QUIZ_CONFIG.storageKey;
+
+// ═══ 套题索引 ═══
+// 按 SET_SIZES 累积偏移切分：第 i 套占题库中连续的 SET_SIZES[i] 道题，存储 index 引用
+export const SETS = (() => {
+  const sizes = SET_SIZES;
+  const customSetQuestionIds = CONFIG.setQuestionIds;
+  if (Array.isArray(customSetQuestionIds) && customSetQuestionIds.length === sizes.length) {
+    const questionIndexById = new Map();
+    for (let i = 0; i < questions.length; i++) questionIndexById.set(questions[i].id, i);
+    const allSetsValid = customSetQuestionIds.every((setIds, setIndex) => (
+      Array.isArray(setIds)
+      && setIds.length === sizes[setIndex]
+      && setIds.every((questionId) => questionIndexById.has(questionId))
+    ));
+    if (allSetsValid) {
+      return customSetQuestionIds.map((setIds) => setIds.map((questionId) => questionIndexById.get(questionId)));
+    }
+    console.warn('[storage] setQuestionIds invalid, falling back to sequential sets');
+  }
+  return buildSequentialSets(sizes);
 })();
 
 // ═══ 题库 schema 校验 ═══

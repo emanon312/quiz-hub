@@ -42,6 +42,22 @@ export function clearFillFeedback(s, qid) {
   if (s._fillFeedback) delete s._fillFeedback;
 }
 
+export function getChoiceSelection(s, qid) {
+  const current = s.userAnswers && s.userAnswers[qid];
+  if (Array.isArray(current)) return current;
+  const checked = s.choiceSelections && s.choiceSelections[qid];
+  return Array.isArray(checked) ? checked : [];
+}
+
+export function rememberChoiceSelection(s, qid, selected) {
+  if (!s.choiceSelections) s.choiceSelections = {};
+  s.choiceSelections[qid] = Array.isArray(selected) ? selected.slice() : [];
+}
+
+export function clearChoiceSelection(s, qid) {
+  if (s.choiceSelections) delete s.choiceSelections[qid];
+}
+
 // ═══ 从 localStorage 初始化 sets 数组 ═══
 export function initSets() {
   const data = Storage.loadData();
@@ -56,6 +72,7 @@ export function initSets() {
     if (!s.wrongBank) s.wrongBank = {};
     if (!s.shortAnswerBank) s.shortAnswerBank = {};
     if (!s.fillFeedbackById) s.fillFeedbackById = {};
+    if (!s.choiceSelections) s.choiceSelections = {};
     if (typeof s.streak !== 'number' || s.streak < 0) s.streak = 0;
     if (typeof s.bestStreak !== 'number' || s.bestStreak < 0) s.bestStreak = 0;
   });
@@ -71,5 +88,8 @@ window.QuizState = {
   setFillFeedback,
   getFillFeedback,
   clearFillFeedback,
+  getChoiceSelection,
+  rememberChoiceSelection,
+  clearChoiceSelection,
   initSets
 };

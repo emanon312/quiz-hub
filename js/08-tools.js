@@ -173,6 +173,7 @@ function doResetProgress(ctx) {
   const bank = s.wrongBank; // 保留错题库
   s.userAnswers = {};
   s.revealedIds = {};
+  s.choiceSelections = {};
   s.currentIdx = 0;
   s.typeFilter = 'all';
   s.stars = {};

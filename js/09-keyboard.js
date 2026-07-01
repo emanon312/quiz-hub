@@ -19,8 +19,17 @@ function keepElementVisible(el) {
   });
 }
 
+function isEditableTarget(target) {
+  if (!target) return false;
+  const tagName = String(target.tagName || '').toUpperCase();
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') return true;
+  if (target.isContentEditable) return true;
+  if (typeof target.closest === 'function' && target.closest('[contenteditable="true"],[contenteditable="plaintext-only"]')) return true;
+  return false;
+}
+
 function handleKey(e, ctx) {
-  if (e.target.tagName === 'TEXTAREA') return;
+  if (isEditableTarget(e.target)) return;
 
   // ← → 导航
   if (e.key === 'ArrowLeft') { Actions.prevQuestion(ctx); return; }
@@ -114,4 +123,4 @@ function handleKey(e, ctx) {
 }
 
 // ═══ 暴露 ═══
-window.Keyboard = { handleKey };
+window.Keyboard = { handleKey, isEditableTarget };

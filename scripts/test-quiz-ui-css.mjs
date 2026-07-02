@@ -48,6 +48,25 @@ assert.ok(
   'Scrollbar colors should be theme variables for both light and dark themes',
 );
 assert.ok(
+  /\[data-theme="broccoli"\]\{[^}]*--broccoli-ink:[^;}]+;[^}]*--broccoli-cream:[^;}]+;[^}]*--broccoli-glow:[^;}]+;/s.test(css),
+  'Broccoli theme should define its own ink, cream, and glow tokens for quiz-page styling',
+);
+assert.ok(
+  /\[data-theme="broccoli"\] body\{[^}]*radial-gradient\([^}]*linear-gradient\(/s.test(css),
+  'Broccoli theme should give the quiz page a distinct layered page background',
+);
+assert.ok(
+  /\[data-theme="broccoli"\] \.sidebar\{[^}]*linear-gradient\(/s.test(css) &&
+    /\[data-theme="broccoli"\] \.card\{[^}]*linear-gradient\([^}]*backdrop-filter:blur\(14px\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.right-panel\{[^}]*linear-gradient\([^}]*backdrop-filter:blur\(18px\)/s.test(css),
+  'Broccoli theme should restyle sidebar, question cards, and right panel with a clear third-theme treatment',
+);
+assert.ok(
+  /\[data-theme="broccoli"\] \.filter-chip\.active\{[^}]*background:var\(--broccoli-cream\)[^}]*color:var\(--broccoli-ink\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.theme-toggle-btn\{[^}]*box-shadow:[^}]*var\(--broccoli-glow\)/s.test(css),
+  'Broccoli theme controls should switch to high-contrast cream states with a themed glow',
+);
+assert.ok(
   /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:var\(--scrollbar-color\) transparent/s.test(css) &&
     /::-webkit-scrollbar-thumb\{[^}]*background:var\(--scrollbar-thumb\)/s.test(css),
   'Global scrollbars should use the active theme color variables',

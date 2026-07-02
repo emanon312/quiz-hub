@@ -67,6 +67,13 @@ assert.ok(
   'Broccoli theme controls should switch to high-contrast cream states with a themed glow',
 );
 assert.ok(
+  /\[data-theme="broccoli"\] \.q-type\.draw\{[^}]*color:var\(--broccoli-ink\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.q-origin\{[^}]*color:var\(--broccoli-ink\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.star-btn\.starred\{[^}]*color:var\(--accent-dark\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.filter-chip\.random-on\{[^}]*background:var\(--broccoli-cream\)[^}]*color:var\(--broccoli-ink\)/s.test(css),
+  'Leaf theme should override draw/origin/star/random UI instead of falling back to carrot colors',
+);
+assert.ok(
   /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:var\(--scrollbar-color\) transparent/s.test(css) &&
     /::-webkit-scrollbar-thumb\{[^}]*background:var\(--scrollbar-thumb\)/s.test(css),
   'Global scrollbars should use the active theme color variables',
@@ -104,6 +111,14 @@ assert.ok(
 );
 assert.ok(!appJs.includes("答案模式' +"), 'Answer mode label should not change when toggled');
 assert.ok(!appJs.includes('已开'), 'Answer mode enabled state should be shown with color, not label text');
+
+assert.ok(
+  !appJs.includes("rm.style.background = '#fff3e0'") &&
+    !appJs.includes("rm.style.color = '#e65100'") &&
+    !appJs.includes("rm.style.background = fb.every(h => h.ok) ? '#e8f5e9' : '#fff3e0'") &&
+    !appJs.includes("rm.style.color = fb.every(h => h.ok) ? '#2e7d32' : '#e65100'"),
+  'Result feedback should not hard-code carrot palette values in app logic',
+);
 
 assert.ok(
   css.includes('.btn-row{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom))'),

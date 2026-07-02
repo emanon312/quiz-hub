@@ -677,6 +677,11 @@ import { iconMarkup } from './js/icons.js';
 import { pickContinueSubject, summarizeAllSubjects } from './js/home-progress.js';
 
 var THEME_ORDER = ['orange', 'green', 'broccoli'];
+var THEME_META = {
+  orange: { next: 'green', icon: 'themeCarrot', label: '当前主题：胡萝卜主题' },
+  green: { next: 'broccoli', icon: 'themeBroccoli', label: '当前主题：西蓝花主题' },
+  broccoli: { next: 'orange', icon: 'themeLeaf', label: '当前主题：叶子主题' }
+};
 var THEME_TOGGLE_META = {
   orange: { next: 'green', icon: 'themeLeaf', label: '切换到深绿主题' },
   green: { next: 'broccoli', icon: 'themeBroccoli', label: '切换到西蓝花主题' },
@@ -697,16 +702,16 @@ function brandImageMarkup(className) {
 function applyTheme(theme) {
   var normalized = THEME_ORDER.indexOf(theme) !== -1 ? theme : 'broccoli';
   document.documentElement.setAttribute('data-theme', normalized);
-  var nextMeta = THEME_TOGGLE_META[normalized];
-  themeToggle.innerHTML = iconMarkup(nextMeta.icon);
-  themeToggle.title = nextMeta.label;
-  themeToggle.setAttribute('aria-label', nextMeta.label);
+  var currentMeta = THEME_META[normalized];
+  themeToggle.innerHTML = iconMarkup(currentMeta.icon);
+  themeToggle.title = currentMeta.label;
+  themeToggle.setAttribute('aria-label', currentMeta.label);
   localStorage.setItem('quiz-hub-theme', normalized);
   current = normalized;
 }
 
 themeToggle.addEventListener('click', function () {
-  applyTheme(THEME_TOGGLE_META[current].next);
+  applyTheme(THEME_META[current].next);
 });
 
 applyTheme(current);

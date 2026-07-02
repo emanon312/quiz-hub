@@ -14,6 +14,11 @@ import './10-init.js';
 import { iconMarkup } from './icons.js';
 
 const THEME_ORDER = ['orange', 'green', 'broccoli'];
+const THEME_META = {
+  orange: { next: 'green', icon: 'themeCarrot', label: '当前主题：胡萝卜主题' },
+  green: { next: 'broccoli', icon: 'themeBroccoli', label: '当前主题：西蓝花主题' },
+  broccoli: { next: 'orange', icon: 'themeLeaf', label: '当前主题：叶子主题' },
+};
 const THEME_TOGGLE_META = {
   orange: { next: 'green', icon: 'themeLeaf', label: '切换到深绿主题' },
   green: { next: 'broccoli', icon: 'themeBroccoli', label: '切换到西蓝花主题' },
@@ -296,7 +301,7 @@ const app = {
     $('btnCheck').style.display = '';
     $('btnReveal').style.display = '';
     $('answerBox').classList.remove('show');
-    $('resultMsg').classList.remove('show', 'right', 'wrong');
+    $('resultMsg').classList.remove('show', 'right', 'wrong', 'manual', 'keyword-ok');
     $('resultMsg').style.background = '';
     $('resultMsg').style.color = '';
 
@@ -314,9 +319,7 @@ const app = {
     } else if (s.userAnswers[q.id] === 'submitted') {
       rm = $('resultMsg');
       rm.textContent = '已提交。请对照参考答案自行评判。';
-      rm.className = 'result-msg show';
-      rm.style.background = '#fff3e0';
-      rm.style.color = '#e65100';
+      rm.className = 'result-msg manual show';
     }
 
     $('btnCheck').disabled = isAnswered(s, q);
@@ -330,9 +333,7 @@ const app = {
           if (h.ok) return '✓ ' + h.kw;
           return '✗ ' + h.kw + (h.hint && h.hint !== '未找到' ? '（' + h.hint + '）' : '');
         }).join('  ');
-        rm.className = 'result-msg show';
-        rm.style.background = fb.every(h => h.ok) ? '#e8f5e9' : '#fff3e0';
-        rm.style.color = fb.every(h => h.ok) ? '#2e7d32' : '#e65100';
+        rm.className = fb.every(h => h.ok) ? 'result-msg keyword-ok show' : 'result-msg manual show';
       }
     }
     if (self.autoReveal && !isAnswered(s, q)) self.showAnswerBox(q);
@@ -340,6 +341,17 @@ const app = {
   },
 
   toggleTheme() {
+    const themeKey = document.documentElement.getAttribute('data-theme') || 'orange';
+    const currentTheme = THEME_ORDER.includes(themeKey) ? themeKey : 'orange';
+    const nextTheme = THEME_META[currentTheme].next;
+    const currentMeta = THEME_META[nextTheme];
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    const toggleBtn = $('themeToggle');
+    toggleBtn.innerHTML = iconMarkup(currentMeta.icon);
+    toggleBtn.setAttribute('aria-label', currentMeta.label);
+    toggleBtn.setAttribute('title', currentMeta.label);
+    localStorage.setItem('quiz-hub-theme', nextTheme);
+    return;
     const cur = document.documentElement.getAttribute('data-theme') || 'orange';
     const next = cur === 'orange' ? 'green' : 'orange';
     document.documentElement.setAttribute('data-theme', next);
@@ -510,8 +522,8 @@ const app = {
 app.toggleTheme = function () {
   const cur = document.documentElement.getAttribute('data-theme');
   const currentTheme = THEME_ORDER.includes(cur) ? cur : 'orange';
-  const next = THEME_TOGGLE_META[currentTheme].next;
-  const nextMeta = THEME_TOGGLE_META[next];
+  const next = THEME_META[currentTheme].next;
+  const nextMeta = THEME_META[next];
   document.documentElement.setAttribute('data-theme', next);
   const themeToggle = $('themeToggle');
   if (themeToggle) {

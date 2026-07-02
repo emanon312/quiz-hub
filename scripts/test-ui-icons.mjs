@@ -54,6 +54,7 @@ const assetFiles = [
   'assets/icons/site-icon.svg',
   'assets/icons/theme-carrot.svg',
   'assets/icons/theme-broccoli.svg',
+  'assets/icons/theme-leaf.svg',
 ];
 
 for (const file of assetFiles) {
@@ -88,8 +89,27 @@ for (const [file, content] of [
   ['js/10-init.js', initJs],
   ['js/11-app.js', appJs],
 ]) {
-  if (!content.includes('themeBroccoli') || !content.includes('themeCarrot')) {
-    issues.push(`${file} should use carrot/broccoli theme toggle icons`);
+  if (!content.includes('themeBroccoli') || !content.includes('themeCarrot') || !content.includes('themeLeaf')) {
+    issues.push(`${file} should reference carrot, broccoli, and leaf theme icons`);
+  }
+}
+
+const themeMetaChecks = [
+  { key: 'orange', icon: 'themeCarrot', label: '当前主题：胡萝卜主题' },
+  { key: 'green', icon: 'themeBroccoli', label: '当前主题：西蓝花主题' },
+  { key: 'broccoli', icon: 'themeLeaf', label: '当前主题：叶子主题' },
+];
+
+for (const [file, content] of [
+  ['index.html', homepage],
+  ['js/10-init.js', initJs],
+  ['js/11-app.js', appJs],
+]) {
+  for (const check of themeMetaChecks) {
+    const pattern = new RegExp(`${check.key}\\s*:\\s*\\{[^}]*icon:\\s*['"]${check.icon}['"][^}]*label:\\s*['"]${check.label}['"]`, 's');
+    if (!pattern.test(content)) {
+      issues.push(`${file} should map ${check.key} to ${check.icon} with label "${check.label}"`);
+    }
   }
 }
 

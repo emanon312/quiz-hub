@@ -6,9 +6,9 @@ import { iconMarkup } from './icons.js';
 
 const THEME_ORDER = ['orange', 'green', 'broccoli'];
 const THEME_TOGGLE_META = {
-  orange: { icon: 'themeLeaf', label: '切换到深绿主题' },
-  green: { icon: 'themeBroccoli', label: '切换到西蓝花主题' },
-  broccoli: { icon: 'themeCarrot', label: '切换到橙色主题' },
+  orange: { icon: 'themeCarrot', label: '当前主题：胡萝卜主题' },
+  green: { icon: 'themeBroccoli', label: '当前主题：西蓝花主题' },
+  broccoli: { icon: 'themeLeaf', label: '当前主题：叶子主题' },
 };
 
 function normalizeTheme(theme) {

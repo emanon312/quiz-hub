@@ -74,6 +74,21 @@ assert.ok(
   'Leaf theme should override draw/origin/star/random UI instead of falling back to carrot colors',
 );
 assert.ok(
+  !css.includes('html:not([data-theme="green"]) .module-btn') &&
+    !css.includes('html:not([data-theme="green"]) .shortcuts') &&
+    !css.includes('html:not([data-theme="green"]) .subject-switcher-item.active'),
+  'Orange-only sidebar color rules should not target leaf theme through broad not-green selectors',
+);
+assert.ok(
+  /\[data-theme="broccoli"\] \.module-btn\{[^}]*color:rgba\(255,255,255,\.(8|9)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.sidebar-section-header\{[^}]*color:rgba\(255,255,255,\.(7|8|9)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.subj-btn\{[^}]*color:var\(--broccoli-ink\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.btn-check\{[^}]*background:linear-gradient\(/s.test(css) &&
+    /\[data-theme="broccoli"\] \.right-panel \.rp-num\{[^}]*color:var\(--accent-dark\)/s.test(css) &&
+    /\[data-theme="broccoli"\] \.right-panel \.rp-acc \.val\{[^}]*color:var\(--accent-dark\)/s.test(css),
+  'Leaf theme should explicitly restyle sidebar labels, subject chip, primary button, and right-panel numbers',
+);
+assert.ok(
   /\*{[^}]*scrollbar-width:thin[^}]*scrollbar-color:var\(--scrollbar-color\) transparent/s.test(css) &&
     /::-webkit-scrollbar-thumb\{[^}]*background:var\(--scrollbar-thumb\)/s.test(css),
   'Global scrollbars should use the active theme color variables',
